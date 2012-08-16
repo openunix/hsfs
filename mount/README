@@ -1,0 +1,13 @@
+Library stuff from support/nfs
+
+conn.h
+fstab.h
+nfs_mntent.h
+xcommon.h
+conn.c
+fstab.c
+nfs_mntent.c
+xcommon.c
+
+nls.h
+nfs_paths.h
