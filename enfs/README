@@ -1,0 +1,11 @@
+This directory contains kernel-version specified codes for BWFS linux
+client since 5.3.1.
+
+* 2.6.18-92.el5/: For CentOS 5.2 or RHEL 5 Update 2, with NFS support.
+* 2.6.9-42.EL/	: For CentOS 4.4 or RHEL 4 Update 4, WITHOUT NFS support.
+* ......
+
+Note that 2.6.9-42.EL is the 'old style module' which will be compiled
+as a seperate kernel module 'enfs.ko'.
+
+					fengshuo@nrchpc.ac.cn
