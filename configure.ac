@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
-AC_INIT([hsfs], [0.0.1], [steve.shuo.feng@gmail.com])
+AC_PREREQ([2.60])
+AC_INIT([hsfs], [0.1], [steve.shuo.feng@gmail.com])
 AC_CONFIG_SRCDIR([fuse/hsfs_main.c])
 AC_CONFIG_HEADERS([include/config.h])
 
@@ -10,13 +10,14 @@ AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_INSTALL
+
+AC_GNU_SOURCE
+
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_CHECK_LIB([fuse], [fuse_lowlevel_new], [have_fuse=yes], [have_fuse=no])
-if test "x$have_fuse" = xno; then
-   echo "Can't find libfuse, you need fuse-devel to compile me."
-   exit 1
-fi
+AC_CHECK_LIB([fuse], [fuse_lowlevel_new], [], AC_MSG_ERROR([You need libfuse to run.]))
 
 
 # Checks for header files.
