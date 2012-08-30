@@ -20,5 +20,4 @@ $(HSFS_NFS3_XDR) : $(HSFS_NFS3_X) $(HSFS_NFS3_H)
 $(HSFS_NFS3_CLNT) : $(HSFS_NFS3_X) $(HSFS_NFS3_H)
 	rpcgen -l -o $@ $<
 
-clean:
-	$(RM) $(HSFS_NFS3_FILE)
+CLEANFILES = $(HSFS_NFS3_FILE)
