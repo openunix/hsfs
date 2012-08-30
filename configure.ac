@@ -39,5 +39,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([alarm gethostbyname hasmntopt inet_ntoa memset realpath socket strchr strcspn strdup strerror strrchr strstr uname])
 
 AC_CONFIG_FILES([Makefile
-                 fuse/Makefile])
+                 fuse/Makefile
+                 nfs3/Makefile
+		])
 AC_OUTPUT
