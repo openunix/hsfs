@@ -7,8 +7,9 @@ HSFS_NFS3_FILE = $(HSFS_NFS3_H) $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT)
 
 noinst_PROGRAMS = hsfs
 
-hsfs_LDFLAGS = -ltirpc
-hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/
+hsfs_LDFLAGS = -ltirpc `pkg-config fuse --libs`
+hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
+		`pkg-config fuse --cflags`
 hsfs_SOURCES = nfs3xdr.c nfs3clnt.c hsfs.c
 
 $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
