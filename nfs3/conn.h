@@ -8,6 +8,7 @@
 #ifndef _CONN_H
 #define _CONN_H
 
+#include <rpc/rpc.h>
 #include <rpc/pmap_prot.h>
 #include <rpc/clnt.h>
 
