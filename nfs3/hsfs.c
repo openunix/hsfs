@@ -8,7 +8,10 @@
 #include <getopt.h>
 #include <errno.h>
 
+#include "log.h"
 #include "hsfs.h"
+#include "xcommon.h"
+#include "mount_constants.h"
 
 char *progname = NULL;
 char *mountspec = NULL;
@@ -62,9 +65,140 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.destroy	= hsx_fuse_destroy,
 };
 
-static int 
-hsi_parse_cmdline(int argc, char **argv, struct fuse_args *args, char **udata)
+/*
+ * Map from -o and fstab option strings to the flag argument to mount(2).
+ */
+struct opt_map {
+	const char *nfs_opt;	/* option name */
+	const char *fuse_opt;
+};
+
+static const struct opt_map opt_map[] = {
+	{ "defaults",	NULL },		/* default options */
+	{ "ro",		"ro" },		/* read-only */
+	{ "rw",		"rw" },		/* read-write */
+	{ "exec",		"exec" },		/* permit execution of binaries */
+	{ "noexec",	"noexec" },	/* don't execute binaries */
+	{ "suid",		"suid" },		/* honor suid executables */
+	{ "nosuid",	"nosuid" },	/* don't honor suid executables */
+	{ "dev", 		"dev" },		/* interpret device files  */
+	{ "nodev",	"nodev" },	/* don't interpret devices */
+	{ "sync",		"sync" },		/* synchronous I/O */
+	{ "async",	"async" },	/* asynchronous I/O */
+	{ "dirsync",	"dirsync" },	/* synchronous directory modifications */
+	{ "remount",	NULL },		/* Alter flags of mounted FS */
+	{ "bind",		NULL },		/* Remount part of tree elsewhere */
+	{ "rbind",		NULL },		/* Idem, plus mounted subtrees */
+	{ "auto",		NULL },		/* Can be mounted using -a */
+	{ "noauto",	NULL },		/* Can  only be mounted explicitly */
+	{ "users",	"allow_other" },	/* Allow ordinary user to mount */
+	{ "nousers",	"allow_root" },	/* Forbid ordinary user to mount */
+	{ "user",		"allow_other" },	/* Allow ordinary user to mount */
+	{ "nouser",	"allow_root" },	/* Forbid ordinary user to mount */
+	{ "owner",	NULL },		/* Let the owner of the device mount */
+	{ "noowner",	NULL },		/* Device owner has no special privs */
+	{ "group",	NULL },		/* Let the group of the device mount */
+	{ "nogroup",	NULL },		/* Device group has no special privs */
+	{ "_netdev",	NULL },		/* Device requires network */
+	{ "comment",	NULL },		/* fstab comment only (kudzu,_netdev)*/
+
+	/* add new options here */
+#ifdef MS_NOSUB
+	{ "sub",		NULL },		/* allow submounts */
+	{ "nosub",	NULL },		/* don't allow submounts */
+#endif
+#ifdef MS_SILENT
+	{ "quiet",		NULL },		/* be quiet  */
+	{ "loud",		NULL },		/* print out messages. */
+#endif
+#ifdef MS_MANDLOCK
+	{ "mand",	NULL },		/* Allow mandatory locks on this FS */
+	{ "nomand",	NULL },		/* Forbid mandatory locks on this FS */
+#endif
+	{ "loop",		NULL },		/* use a loop device */
+#ifdef MS_NOATIME
+	{ "atime",	"atime" },	/* Update access time */
+	{ "noatime",	"noatime" },	/* Do not update access time */
+#endif
+#ifdef MS_NODIRATIME
+	{ "diratime",	NULL },		/* Update dir access times */
+	{ "nodiratime",	NULL },		/* Do not update dir access times */
+#endif
+#ifdef MS_RELATIME
+	{ "relatime",	NULL },		/* Update access times relative to
+						mtime/ctime */
+	{ "norelatime",	NULL },		/* Update access time without regard
+						to mtime/ctime */
+#endif
+	{ "noquota",	NULL },        /* Don't enforce quota */
+	{ "quota", 	NULL },          /* Enforce user quota */
+	{ "usrquota", 	NULL },       /* Enforce user quota */
+	{ "grpquota", 	NULL },       /* Enforce group quota */
+	{ NULL,		NULL }
+};
+
+static void hsi_parse_opt(const char *opt, struct fuse_args *args,
+					char *extra_opts, size_t len)
 {
+	const struct opt_map *om = NULL;
+
+	for (om = opt_map; om->nfs_opt != NULL; om++) {
+		if (!strcmp (opt, om->nfs_opt)) {
+			if (om->fuse_opt) {
+				hsi_fuse_add_opt(args, om->fuse_opt);
+			} else {
+				WARNING("Not supported opt: %s.", opt);
+			}
+			return;
+		}
+	}
+
+	len -= strlen(extra_opts);
+
+	if (*extra_opts && --len > 0)
+		strcat(extra_opts, ",");
+
+	if ((len -= strlen(opt)) > 0)
+		strcat(extra_opts, opt);
+}
+
+
+static void hsi_parse_opts(const char *options, struct fuse_args *args,
+							char **udata)
+{
+	if (options != NULL) {
+		char *opts = xstrdup(options);
+		char *opt = NULL, *p = NULL;
+		size_t len = strlen(opts) + 1;	/* include room for a null */
+		int open_quote = 0;
+
+		*udata = xmalloc(len);
+		**udata = '\0';
+
+		for (p = opts, opt = NULL; p && *p; p++) {
+			if (!opt)
+				opt = p;	/* begin of the option item */
+			if (*p == '"')
+				open_quote ^= 1; /* reverse the status */
+			if (open_quote)
+				continue;	/* still in a quoted block */
+			if (*p == ',')
+				*p = '\0';	/* terminate the option item */
+
+			/* end of option item or last item */
+			if (*p == '\0' || *(p + 1) == '\0') {
+				hsi_parse_opt(opt, args, *udata, len);
+				opt = NULL;
+			}
+		}
+		free(opts);
+	}
+}
+
+static int hsi_parse_cmdline(int argc, char **argv, struct fuse_args *args,
+							char **udata)
+{
+	char *tdata = NULL;
 	int flags = 0, c = 0, foreground = 0, ret = 0;
 
 	while((c = getopt_long(argc, argv, "rvVwfno:hs",
@@ -89,7 +223,7 @@ hsi_parse_cmdline(int argc, char **argv, struct fuse_args *args, char **udata)
 			nomtab = 1;
 			break;
 		case 'o':
-			*udata = optarg;
+			tdata = optarg;
 			break;
 		case 'h':
 		default:
@@ -121,6 +255,8 @@ hsi_parse_cmdline(int argc, char **argv, struct fuse_args *args, char **udata)
 			goto out;
 	}
 
+	hsi_parse_opts(tdata, args, udata);
+
 	ret = fuse_daemonize(foreground);
 out:
 	return ret;
@@ -130,7 +266,7 @@ int main(int argc, char **argv)
 {
 	struct fuse_args args = {};
 	struct fuse_chan *ch = NULL;
-	char *mountpoint = NULL, *userdata = NULL;
+	char *mountpoint = NULL, *udata = NULL, *userdata = NULL;
 	int err = -1;
 
 	progname = basename(argv[0]);
@@ -149,7 +285,7 @@ int main(int argc, char **argv)
 	mountpoint = argv[2];
 
 	argv[2] = argv[0]; /* so that getopt error messages are correct */
-	if ((hsi_parse_cmdline(argc - 2, argv + 2, &args, &userdata)) != -1 &&
+	if ((hsi_parse_cmdline(argc - 2, argv + 2, &args, &udata)) != -1 &&
 		(ch = fuse_mount(mountpoint, &args)) != NULL) {
 		struct fuse_session *se;
 
