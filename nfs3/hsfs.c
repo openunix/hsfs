@@ -21,7 +21,7 @@ hsi_fuse_parse_cmdline(int argc, char **argv, struct fuse_args *args, char **uda
 	return 0;
 }
 
-void hsi_fuse_mount_usage()
+void hsi_mount_usage()
 {
 	printf("usage: %s remotetarget dir [-rvVwfnh] [-t version] [-o enfsoptions]\n", progname);
 	printf("options:\n\t-r\t\tMount file system readonly\n");
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	if (argc < 3) {
-		hsi_fuse_mount_usage();
+		hsi_mount_usage();
 		exit(-1);
 	}
 
