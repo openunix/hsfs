@@ -1,4 +1,7 @@
 
+#define FUSE_USE_VERSION 26
+#include <fuse_lowlevel.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +12,7 @@
 #include <errno.h>
 
 #include "log.h"
-#include "hsfs.h"
+#include "config.h"
 #include "xcommon.h"
 #include "mount_constants.h"
 
@@ -50,7 +53,7 @@ void hsi_mount_usage()
 
 static inline void hsi_print_version(void)
 {
-	printf("%s: hsfs 0.1.\n", progname);
+	printf("%s.\n", PACKAGE_STRING);
 	exit(0);
 }
 
@@ -61,8 +64,6 @@ static inline int hsi_fuse_add_opt(struct fuse_args *args, const char *opt)
 }
 
 static struct fuse_lowlevel_ops hsfs_oper = {
-	.init		= hsx_fuse_init,
-	.destroy	= hsx_fuse_destroy,
 };
 
 /*
