@@ -1,5 +1,5 @@
 #ifndef __HSI_NFS3_H__
-#define __HSI_NFS3_H__ 1
+#define __HSI_NFS3_H__ 
 
 
 #include <sys/stat.h>
