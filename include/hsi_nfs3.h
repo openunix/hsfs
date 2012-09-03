@@ -37,3 +37,25 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 **/
 extern int hsi_nfs3_stat_to_errno(int stat);
 
+/**  
+* Read the contents of the symbolic link
+*
+* @param hi           the struct hsfs_inode of the symbolic link 
+* @param nfs_link     the contents of the symbolic link
+*
+* @return error number
+**/
+extern  int  hsi _nfs3_readlink( struct hsfs_inode *hi,char *nfs_link)
+
+
+/**  
+* Create a symbolic link
+*
+* @param parent      the struct hsfs_inode of the parent 
+* @param new         the struct hsfs_inode of the new
+* @param nfs_link    the contents of the new symbolic link
+* @param nfs_name    the name of the new symbolic link
+*
+* @return error number
+**/
+extern int  hsi_nfs3_symlink(struct hsfs_inode *parent,struct hsfs_inode *new,const char *nfs_link ,const char *nfs_name)
