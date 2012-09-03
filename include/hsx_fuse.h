@@ -13,6 +13,10 @@ extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
 
 extern void hsx_fuse_fill_reply(struct hsfs_inode *inode, struct fuse_entry_param **e);
 
+extern void hsx_fuse_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi);
+
+extern void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf, size_t size, off_t off, struct fuse_file_info *fi);
+
 /**
 * Remove a file
 *

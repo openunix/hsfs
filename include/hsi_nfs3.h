@@ -1,8 +1,9 @@
 #ifndef __HSI_NFS3_H__
 #define __HSI_NFS3_H__ 1
 
-#include <fuse/fuse_lowlevel.h>
+
 #include <sys/stat.h>
+#include "hsfs.h"
 
 /**
  * Make/Remove dir
@@ -72,6 +73,26 @@ extern  int  hsi _nfs3_readlink( struct hsfs_inode *hi,char *nfs_link);
 * @return error number
 **/
 extern int  hsi_nfs3_symlink(struct hsfs_inode *parent,struct hsfs_inode *new,const char *nfs_link ,const char *nfs_name);
+
+/**
+* File read 
+*
+* @param rw      	the content of the read operation 
+*
+* @return error number
+**/
+extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
+
+
+/**  
+* File write 
+*
+* @param rw      	the content of the write operation 
+*
+* @return error number
+**/
+extern int hsi_nfs3_write(struct hsfs_rw_info* rw);
+
 
 /**
 * hsx_nfs3_access

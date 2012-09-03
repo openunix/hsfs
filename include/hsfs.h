@@ -34,6 +34,20 @@ struct hsfs_super {
 	struct hsfs_fh		root;
 };
 
+struct hsfs_rw_info
+{
+	struct hsfs_inode *   inode;//目标文件 
+	size_t       rw_size;//读写大小
+	off_t        rw_off;//读写偏移
+	size_t       ret_count;//读写返回的大小
+	int          eof;//文件尾标记
+	int          stable;//是否缓存
+	struct {
+				 size_t data_len;
+				 char *data_val;
+			} data;//数据buffer
+};
+
 extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
 					 struct fuse_args *args, char *udata,
 					 struct hsfs_super *userdata);
