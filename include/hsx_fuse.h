@@ -155,6 +155,11 @@ extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 
 extern  void  hsx_fuse_forget(fuse_req_t req,fuse_ino_t ino,unsigned long nlookup);
 
+/**
+ * hsx_fuse_open & hsx_fuse_release
+ * */
+extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 
+extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 
 #endif
