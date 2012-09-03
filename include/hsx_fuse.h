@@ -148,4 +148,13 @@ extern	void hsx_fuse_mknod(fuse_req_t	req, fuse_ino_t	parent,	const char *name, 
  * @param  newname	new name to create
  * */
 extern	void hsx_fuse_link(fuse_req_t	req, fuse_ino_t ino,	fuse_ino_t newparent, const char *newname);
+
+/*hsx_fuse_lookup  and  hsx_fuse_forget declaration */
+
+extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
+
+extern  void  hsx_fuse_forget(fuse_req_t req,fuse_ino_t ino,unsigned long nlookup);
+
+
+
 #endif
