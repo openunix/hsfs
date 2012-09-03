@@ -72,4 +72,28 @@ extern  int  hsi _nfs3_readlink( struct hsfs_inode *hi,char *nfs_link);
 * @return error number
 **/
 extern int  hsi_nfs3_symlink(struct hsfs_inode *parent,struct hsfs_inode *new,const char *nfs_link ,const char *nfs_name);
+
+/**
+* hsx_nfs3_access
+*
+* To request whether or not you have the permission to perform an operation.
+*
+* @param hi the struct hsfs_inode of the node you want to request
+* @param mask the permission you want to request
+**/
+int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
+
+
+/**
+* hsx_nfs3_create
+*
+* To create a new regular file.
+*
+* @param hi the struct hsfs_inode of the node you want to create a file
+* @param newhi the struct hsfs_inode of the node that you just create
+* @param name the name of the file you want to create
+*	@param mode the access mode of the file
+**/
+int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi, 
+							const char *name, mode_t mode);
 #endif
