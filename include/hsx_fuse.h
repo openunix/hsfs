@@ -10,7 +10,7 @@ extern int hsx_fuse_reply_entry(fuse_req_t req, struct hsfs_inode* hsfs_inode);
 extern (void *)hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char* name);
 
 
-/**  
+/**
 * Remove a file
 *
 * If the file's inode's lookup count is non-zero, the file
@@ -27,7 +27,8 @@ extern (void *)hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char* nam
 **/
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name);
 
-/** Rename a file
+/** 
+ * Rename a file
  *
  * If the target exists it should be atomically replaced. If
  * the target's inode's lookup count is non-zero, the file

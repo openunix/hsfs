@@ -15,7 +15,7 @@ extern int hsi_nfs3_rmdir(struct hsfs_inode* hsfs_inode, char* name);
 **/
 extern int hsi_nfs3_remove(struct hsfs_inode *hi, const char *name);
 
-/**  
+/**
 * Rename a file
 *
 * @param source hsfs_inode
