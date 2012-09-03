@@ -81,7 +81,7 @@ extern int  hsi_nfs3_symlink(struct hsfs_inode *parent,struct hsfs_inode *new,co
 * @param hi the struct hsfs_inode of the node you want to request
 * @param mask the permission you want to request
 **/
-int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
+extern int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
 
 
 /**
@@ -94,6 +94,35 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
 * @param name the name of the file you want to create
 *	@param mode the access mode of the file
 **/
-int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi, 
+extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi, 
 							const char *name, mode_t mode);
+
+
+/**
+ *  hsi_nfs3_mknod
+ *
+ *  To create a special file
+ *
+ *  @param   parent	the inode of the parent directory
+ *  @param   newinode 	the inode of the created file
+ *  @param   name 	the name to create
+ *  @param   mode	file type and access mode of the file 
+ *  @param   rdev	device number of the file: only used for CHR and BLK
+ *  * */
+extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name,\
+				mode_t mode, dev_t rdev);
+
+
+/**
+ * hsi_nfs3_link
+ *
+ * To create a hard link to a file 
+ *
+ * @param   ino		the inode of the file
+ * @param   newparent	the inode of the new parent
+ * @param   newinode	the inode of the linked file 
+ * @param   name	the name to of the link to create
+ * */
+extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_inode *newparent,\
+			  struct hsfs_inode **newinode ,  const char *name);
 #endif
