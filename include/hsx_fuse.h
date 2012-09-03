@@ -70,5 +70,5 @@ extern void  (*hsx_fuse_readlink) (fuse_req_t  req,fuse_ino_t ino)
 * @param parent inode number of the parent directory
 * @param name to create
 **/
-extern void £¨*hsx_fuse_symlink£©(fuse_req_t req, const char *link,                      
+extern void (*hsx_fuse_symlink)(fuse_req_t req, const char *link,                      
                                   fuse_ino_t  parent,const char *name)
