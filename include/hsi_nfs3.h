@@ -1,9 +1,22 @@
-#include <rpc/rpc.h>
-#include <fuse_lowlevel.h>
+#ifndef __HSI_NFS3_H__
+#define __HSI_NFS3_H__ 1
 
-extern int hsi_nfs3_mkdir(struct hsfs_inode* parent, struct hsfs_inode** new, char* name, mode_t mode);
+#include <fuse/fuse_lowlevel.h>
+#include <sys/stat.h>
 
-extern int hsi_nfs3_rmdir(struct hsfs_inode* hsfs_inode, char* name);
+/**
+ * Make/Remove dir
+ *
+ * @param hsfs_inode
+ * @param name to create
+ * @param mode
+ * 
+ * @return error number
+ *
+ * */
+extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new, char *name, mode_t mode);
+
+extern int hsi_nfs3_rmdir(struct hsfs_inode *hsfs_inode, char *name);
 
 /**  
 * Remove a file
