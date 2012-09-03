@@ -1,14 +1,17 @@
 
-#include <fuse_lowlevel.h>
-#include <rpc/rpc.h>
-#include "nfs3.h"
+#ifndef __HSX_FUSE_H__
+#define __HSX_FUSE_H__ 
 
-extern (void *)hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char* name, mode_t mode);
+#include <fuse/fuse_lowlevel.h>
+#include <sys/stat.h>
 
-extern int hsx_fuse_reply_entry(fuse_req_t req, struct hsfs_inode* hsfs_inode);
+struct hsfs_inode;
 
-extern (void *)hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char* name);
+extern void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name, mode_t mode);
 
+extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
+
+extern void hsx_fuse_fill_reply(struct hsfs_inode *inode, struct fuse_entry_param **e);
 
 /**
 * Remove a file
@@ -72,3 +75,4 @@ extern void  (*hsx_fuse_readlink) (fuse_req_t  req,fuse_ino_t ino)
 **/
 extern void (*hsx_fuse_symlink)(fuse_req_t req, const char *link,                      
                                   fuse_ino_t  parent,const char *name)
+#endif
