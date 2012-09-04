@@ -283,16 +283,102 @@ static int hsi_nfs3_parse_options(char *old_opts, struct hsfs_super *super,
 	return 1;
 }
 
+/*
+ * Determine the actual block size (and log2 thereof)
+ */
+static inline
+unsigned long hsfs_block_bits(unsigned long bsize, unsigned char *nrbitsp)
+{
+	/* make sure blocksize is a power of two */
+	if ((bsize & (bsize - 1)) || nrbitsp) {
+		unsigned char	nrbits;
+
+		for (nrbits = 31; nrbits && !(bsize & (1 << nrbits)); nrbits--)
+			;
+		bsize = 1 << nrbits;
+		if (nrbitsp)
+			*nrbitsp = nrbits;
+	}
+
+	return bsize;
+}
+
+/*
+ * Compute and set NFS server blocksize
+ */
+static inline
+unsigned long hsfs_block_size(unsigned long bsize, unsigned char *nrbitsp)
+{
+	if (bsize < HSFS_MIN_FILE_IO_SIZE)
+		bsize = HSFS_DEF_FILE_IO_SIZE;
+	else if (bsize >= HSFS_MAX_FILE_IO_SIZE)
+		bsize = HSFS_MAX_FILE_IO_SIZE;
+
+	return hsfs_block_bits(bsize, nrbitsp);
+}
+
+void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
+					clnt_addr_t *ns, int *retry)
+{
+	struct pmap *mp = &ms->pmap;
+	struct pmap *np = &ns->pmap;
+
+	if (!super->timeo)
+		super->timeo = 3;
+
+	if (!super->retrans)
+		super->retrans = 3;
+
+	if (!super->acregmin)
+		super->acregmin = 3;
+	if (!super->acregmax)
+		super->acregmax = 60;
+	if (super->acregmin > super->acregmax) {
+		super->acregmin = 3;
+		super->acregmax = 60;
+	}
+
+	if (!super->acdirmin)
+		super->acdirmin = 30;
+	if (!super->acdirmax)
+		super->acdirmax = 60;
+	if (super->acdirmin > super->acdirmax) {
+		super->acdirmin = 30;
+		super->acdirmax = 60;
+	}
+
+	super->bsize = hsfs_block_size(super->bsize, &super->bsize_bits);
+
+	/* init mount server */
+	memcpy(&ms->saddr, &super->addr, sizeof(struct sockaddr_in));
+	mp->pm_prog = MOUNTPROG;
+	mp->pm_vers = MOUNTVERS_NFSV3;
+	if (!mp->pm_prot)
+		mp->pm_prot = IPPROTO_TCP;
+
+	/* init nfs server */
+	memcpy(&ns->saddr, &super->addr, sizeof(struct sockaddr_in));
+	np->pm_prog = NFS_PROGRAM;
+	np->pm_vers = NFS_V3;
+	if (!np->pm_prot)
+		np->pm_prot = IPPROTO_TCP;
+	
+	/* init retry */
+	if (*retry == -1) {
+		*retry = 10000;  /* 10000 mins == ~1 week*/
+	}
+}
+
 struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 				  struct fuse_args *args, char *udata,
 				  struct hsfs_super *super)
 {
 	struct fuse_chan *ch = NULL;
 	char hostdir[1024] = {};
-	char *hostname, *dirname, *old_opts, *mounthost = NULL;
+	char *hostname, *dirname, *old_opts;
 	char new_opts[1024] = {};
 	clnt_addr_t mnt_server = { 
-		.hostname = &mounthost 
+		.hostname = &hostname 
 	};
 	clnt_addr_t nfs_server = { 
 		.hostname = &hostname 
@@ -331,11 +417,8 @@ struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 		goto fail;
 	}
 
-	if (hsi_gethostbyname(hostname, nfs_saddr) != 0)
+	if (hsi_gethostbyname(hostname, &super->addr) != 0)
 		goto fail;
-
-	mounthost = hostname;
-	memcpy (&mnt_server.saddr, nfs_saddr, sizeof (mnt_server.saddr));
 
 	/* add IP address to mtab options for use when unmounting */
 	s = inet_ntoa(nfs_saddr->sin_addr);
@@ -344,19 +427,7 @@ struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 	if (!old_opts)
 		old_opts = "";
 
-	/* Set default options. */
-	super->acregmin	= 3;
-	super->acregmax	= 60;
-	super->acdirmin	= 30;
-	super->acdirmax	= 60;
-
 	retry = -1;
-
-	memset(mnt_pmap, 0, sizeof(*mnt_pmap));
-	mnt_pmap->pm_prog = MOUNTPROG;
-	memset(nfs_pmap, 0, sizeof(*nfs_pmap));
-	nfs_pmap->pm_prog = NFS_PROGRAM;
-
 	new_opts[0] = 0;
 	if (hsi_nfs3_parse_options(old_opts, super, &retry, &mnt_server,
 				    &nfs_server, new_opts, sizeof(new_opts)))
@@ -365,9 +436,8 @@ struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 	if (hsi_nfsmnt_check_compat(nfs_pmap, mnt_pmap))
 		goto fail;
 
-	if (retry == -1) {
-		retry = 10000;	/* 10000 mins == ~1 week*/
-	}
+	/* Set default options, call after hsi_nfs3_parse_options. */
+	hsi_validate_mount_data(super, &mnt_server, &nfs_server, &retry);
 
 	if (verbose) {
 		INFO("rsize = %d, wsize = %d, timeo = %d, retrans = %d",

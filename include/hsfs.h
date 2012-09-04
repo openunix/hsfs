@@ -15,6 +15,16 @@ extern int nomtab;
 extern int verbose;
 extern int fg;
 
+/*
+ * To change the maximum rsize and wsize supported by the NFS client, adjust
+ * NFS_MAX_FILE_IO_SIZE.  64KB is a typical maximum, but some servers can
+ * support a megabyte or more.  The default is left at 4096 bytes, which is
+ * reasonable for NFS over UDP.
+ */
+#define HSFS_MAX_FILE_IO_SIZE	(1048576U)
+#define HSFS_DEF_FILE_IO_SIZE	(4096U)
+#define HSFS_MIN_FILE_IO_SIZE	(1024U)
+
 struct hsfs_fh {
         unsigned short          size;
         unsigned char           data[64];
@@ -23,6 +33,7 @@ struct hsfs_fh {
 struct hsfs_super {
 	CLIENT			*clntp;
 	int			flags;
+	/* rsize/wrise, filled up at hsx_fuse_init */
 	int			rsize;
 	int			wsize;
 	int			timeo;
@@ -32,6 +43,7 @@ struct hsfs_super {
 	int			acdirmin;
 	int			acdirmax;
 	struct sockaddr_in	addr;
+	/* namelen, filled up at hsx_fuse_init */
 	int			namlen;
 	unsigned int		bsize;
 	unsigned char		bsize_bits;
