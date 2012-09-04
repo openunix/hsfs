@@ -126,8 +126,10 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 	int ret = 0;
 
 	clnt = hsi_mnt_openclnt(mnt_server);
-	if (!clnt)
+	if (!clnt) {
+		ret = -1;
 		goto out;
+	}
 
 	ret = clnt_call(clnt, MOUNTPROC3_MNT,
 			 (xdrproc_t) xdr_dirpath, (caddr_t) mntarg,
@@ -148,8 +150,10 @@ static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
 	int ret = 0;
 
 	clnt = hsi_mnt_openclnt(mnt_server);
-	if (!clnt)
+	if (!clnt) {
+		ret = -1;
 		goto out;
+	}
 
 	ret = clnt_call(clnt, MOUNTPROC_UMNT,
 			(xdrproc_t)xdr_dirpath, (caddr_t)umntarg,
