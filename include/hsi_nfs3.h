@@ -84,7 +84,7 @@ extern  int  hsi_nfs3_readlink( struct hsfs_inode *hi,char *nfs_link);
 *
 * @return error number
 **/
-extern int  hsi_nfs3_symlink(struct hsfs_inode *parent,struct hsfs_inode *new,const char *nfs_link ,const char *nfs_name);
+extern int  hsi_nfs3_symlink(struct hsfs_inode *parent,struct hsfs_inode **new,const char *nfs_link ,const char *nfs_name);
 
 /**
 * File read 
