@@ -182,5 +182,10 @@ extern struct hsfs_sattr;
 extern int hsi_nfs3_stat2fattr(struct stat *st, int to_set,struct hsfs_sattr *attr);
 extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 
+/**
+ * hsi_nfs3_statfs
+ * Get Dynamic file system information
+ * */
+extern int hsi_nfs3_statfs (hsfs_inode *inode);
 
 #endif
