@@ -70,14 +70,12 @@ out_bad:
 	return 1;
 }
 
-static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
-				mntarg_t *mntarg, mntres_t *mntres)
+static CLIENT *hsi_mnt_openclnt(clnt_addr_t *mnt_server)
 {
 	struct sockaddr_in *maddr = &mnt_server->saddr;
 	struct pmap *mp = &mnt_server->pmap;
 	CLIENT *clnt = NULL;
-	int fd = RPC_ANYSOCK;
-	int ret = 0;
+	int fd = RPC_ANYSOCK, ret = 0;
 
 	maddr->sin_port = htons((u_short)mp->pm_port);
 
@@ -93,8 +91,8 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 		break;
 	default:
 		ERR("Not supported protocol: %lu.", mp->pm_prot);
-		ret = EPROTONOSUPPORT;
 		goto out;
+		break;
 	}
 
 	if (!clnt) {
@@ -108,8 +106,28 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 	if (!clnt->cl_auth) {
 		ret = rpc_createerr.cf_error.re_errno;
 		ERR("Create authunix failed: %d.", ret);
-		goto free_clnt;
+		CLNT_DESTROY(clnt);
+		clnt = NULL;
 	}
+out:
+	return clnt;
+}
+
+static void hsi_mnt_closeclnt(CLIENT *clnt)
+{
+	AUTH_DESTROY(clnt->cl_auth);
+	CLNT_DESTROY(clnt);
+}
+
+static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
+				mntarg_t *mntarg, mntres_t *mntres)
+{
+	CLIENT *clnt = NULL;
+	int ret = 0;
+
+	clnt = hsi_mnt_openclnt(mnt_server);
+	if (!clnt)
+		goto out;
 
 	ret = clnt_call(clnt, MOUNTPROC3_MNT,
 			 (xdrproc_t) xdr_dirpath, (caddr_t) mntarg,
@@ -117,19 +135,33 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 			 TIMEOUT);
 	if (ret != RPC_SUCCESS) {
 		ERR("Get root fh failed: %d.", ret);
-		goto free_auth;
 	}
-free_auth:
-	AUTH_DESTROY(clnt->cl_auth);
-free_clnt:
-	CLNT_DESTROY(clnt);
+
+	hsi_mnt_closeclnt(clnt);
 out:
 	return ret;
 }
 
 static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
 {
-	return 0;
+	CLIENT *clnt = NULL;
+	int ret = 0;
+
+	clnt = hsi_mnt_openclnt(mnt_server);
+	if (!clnt)
+		goto out;
+
+	ret = clnt_call(clnt, MOUNTPROC_UMNT,
+			(xdrproc_t)xdr_dirpath, (caddr_t)umntarg,
+			(xdrproc_t)xdr_void, NULL,
+			TIMEOUT);
+	if (ret != RPC_SUCCESS) {
+		ERR("Get root fh failed: %d.", ret);
+	}
+
+	hsi_mnt_closeclnt(clnt);
+out:
+	return ret;
 }
 
 static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server)
