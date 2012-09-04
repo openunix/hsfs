@@ -177,5 +177,12 @@ extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino,
 							struct fuse_file_info *fi);
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 							int to_set, struct fuse_file_info *fi);
-
+/**
+ * hsx_fuse_statfs
+ * Get the filesystem statistics
+ * reply:
+ * fuse_reply_statfs
+ * fuse_reply_err
+ **/
+ extern void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino);
 #endif
