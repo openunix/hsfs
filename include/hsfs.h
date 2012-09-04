@@ -3,6 +3,8 @@
 #define __HSFS_H__ 1
 
 #define FUSE_USE_VERSION 26
+#define _BSD_SOURCE
+
 #include <fuse_lowlevel.h>
 #include <rpc/rpc.h>
 
@@ -47,6 +49,16 @@ struct hsfs_rw_info
 				 char *data_val;
 			} data;//Êý¾Ýbuffer
 };
+
+struct hsfs_sattr{
+	int		valid;
+	mode_t	mode;
+	uid_t	uid;
+	gid_t	gid;
+	off_t	size;
+	struct timespec	atime;
+	struct timespec	mtime;
+}hsfs_sattr_t;
 
 extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
 					 struct fuse_args *args, char *udata,
