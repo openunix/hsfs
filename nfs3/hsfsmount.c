@@ -73,7 +73,58 @@ out_bad:
 static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 				mntarg_t *mntarg, mntres_t *mntres)
 {
-	return 0;
+	struct sockaddr_in *maddr = &mnt_server->saddr;
+	struct pmap *mp = &mnt_server->pmap;
+	CLIENT *clnt = NULL;
+	int fd = RPC_ANYSOCK;
+	int ret = 0;
+
+	maddr->sin_port = htons((u_short)mp->pm_port);
+
+	switch (mp->pm_prot) {
+	case IPPROTO_UDP:
+		clnt = clntudp_bufcreate(maddr, mp->pm_prog,	mp->pm_vers,
+					 RETRY_TIMEOUT, &fd,
+					 MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
+		break;
+	case IPPROTO_TCP:
+		clnt = clnttcp_create(maddr, mp->pm_prog, mp->pm_vers,
+				      &fd, MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
+		break;
+	default:
+		ERR("Not supported protocol: %lu.", mp->pm_prot);
+		ret = EPROTONOSUPPORT;
+		goto out;
+	}
+
+	if (!clnt) {
+		ret = rpc_createerr.cf_error.re_errno;
+		ERR("Create client failed: %d.", ret);
+		goto out;
+	}
+
+	/* try to mount hostname:dirname */
+	clnt->cl_auth = authunix_create_default();
+	if (!clnt->cl_auth) {
+		ret = rpc_createerr.cf_error.re_errno;
+		ERR("Create authunix failed: %d.", ret);
+		goto free_clnt;
+	}
+
+	ret = clnt_call(clnt, MOUNTPROC3_MNT,
+			 (xdrproc_t) xdr_dirpath, (caddr_t) mntarg,
+			 (xdrproc_t) xdr_mountres3, (caddr_t) mntres,
+			 TIMEOUT);
+	if (ret != RPC_SUCCESS) {
+		ERR("Get root fh failed: %d.", ret);
+		goto free_auth;
+	}
+free_auth:
+	AUTH_DESTROY(clnt->cl_auth);
+free_clnt:
+	CLNT_DESTROY(clnt);
+out:
+	return ret;
 }
 
 static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
