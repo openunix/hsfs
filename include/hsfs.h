@@ -3,7 +3,7 @@
 #define __HSFS_H__ 1
 
 #define FUSE_USE_VERSION 26
-#include <fuse_lowlevel.h>
+#include <fuse/fuse_lowlevel.h>
 #include <rpc/rpc.h>
 
 #include "nfs3.h"
