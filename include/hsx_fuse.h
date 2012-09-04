@@ -162,4 +162,20 @@ extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 
 extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 
+/**
+* The two functions used to get and set file attributions are defined below, 
+* which use the fues_reply_err or fues_reply_attr to return values, showed 
+* as follows.
+*
+* return functions:
+* int fuse_reply_err(fuse_req_t req, int err);
+* int fuse_reply_attr(fuse_req_t req, const struct stat *attr, 
+* double attr_timeout);
+* Date:2012-09-04
+*/
+extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, 
+							struct fuse_file_info *fi);
+extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
+							int to_set, struct fuse_file_info *fi);
+
 #endif

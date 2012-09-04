@@ -165,4 +165,21 @@ extern  int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newin
 /*hsi_nfs3_ifind: look up the table,if not exist,then add it .*/
 extern struct hsfs_inode *hsi_nfs3_ifind(hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr);
 
+/**
+* The four internal functions used to convert fattr3 to struct stat, struct stat
+* to hsfs_sattr by to_set and call nfs procedures are defined below, 
+* which use the standard errno as return valules defined in errno.h.
+*
+* Date:2012-09-04
+*/
+
+extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
+extern int hsi_nfs3_fattr2stat(fattr3 *fattr, struct stat *st);
+
+struct hsfs_sattr;
+extern int hsi_nfs3_stat2fattr(struct stat *st£¬int to_set, 
+							struct hsfs_sattr *attr);
+extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
+
+
 #endif
