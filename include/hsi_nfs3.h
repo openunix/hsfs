@@ -188,4 +188,15 @@ extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
  * */
 extern int hsi_nfs3_statfs (hsfs_inode *inode);
 
+/**
+ * Read dir
+ *
+ * @param hrc       the content of the fuse_add_direntry and fi->fh
+ * @param dircount  the maximum number of bytes of directory information returned
+ * @param maxcount  the maximum size of the READDIRPLUS3resok structure in bytes
+ * 
+ * @return error number
+ * */
+extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, size_t *dircount, size_t maxcount);
+
 #endif

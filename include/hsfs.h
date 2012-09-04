@@ -82,6 +82,15 @@ struct hsfs_sattr{
 	struct timespec	mtime;
 }hsfs_sattr_t;
 
+struct hsfs_readdir_ctx{
+    size_t cookieverf_len;
+    off_t  off;
+    stat   stbuf;
+    char   *cookieverf_val;
+    char   *name;
+    hsfs_readdir_ctx *next;
+ }
+
 extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
 					 struct fuse_args *args, char *udata,
 					 struct hsfs_super *userdata);
