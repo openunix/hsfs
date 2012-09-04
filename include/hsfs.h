@@ -3,8 +3,6 @@
 #define __HSFS_H__ 1
 
 #define FUSE_USE_VERSION 26
-#define _BSD_SOURCE
-
 #include <fuse_lowlevel.h>
 #include <rpc/rpc.h>
 
