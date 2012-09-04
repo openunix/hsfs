@@ -70,7 +70,9 @@ out_bad:
 	return 1;
 }
 
-static CLIENT *hsi_mnt_openclnt(clnt_addr_t *mnt_server)
+static CLIENT *hsi_mnt_openclnt(clnt_addr_t *mnt_server,
+					const unsigned long sb_size,
+					const unsigned long rb_size)
 {
 	struct sockaddr_in *maddr = &mnt_server->saddr;
 	struct pmap *mp = &mnt_server->pmap;
@@ -83,11 +85,11 @@ static CLIENT *hsi_mnt_openclnt(clnt_addr_t *mnt_server)
 	case IPPROTO_UDP:
 		clnt = clntudp_bufcreate(maddr, mp->pm_prog,	mp->pm_vers,
 					 RETRY_TIMEOUT, &fd,
-					 MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
+					 sb_size, rb_size);
 		break;
 	case IPPROTO_TCP:
 		clnt = clnttcp_create(maddr, mp->pm_prog, mp->pm_vers,
-				      &fd, MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
+				      &fd, sb_size, rb_size);
 		break;
 	default:
 		ERR("Not supported protocol: %lu.", mp->pm_prot);
@@ -125,7 +127,7 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 	CLIENT *clnt = NULL;
 	int ret = 0;
 
-	clnt = hsi_mnt_openclnt(mnt_server);
+	clnt = hsi_mnt_openclnt(mnt_server, MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
 	if (!clnt) {
 		ret = -1;
 		goto out;
@@ -149,7 +151,7 @@ static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
 	CLIENT *clnt = NULL;
 	int ret = 0;
 
-	clnt = hsi_mnt_openclnt(mnt_server);
+	clnt = hsi_mnt_openclnt(mnt_server, MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
 	if (!clnt) {
 		ret = -1;
 		goto out;
@@ -170,7 +172,27 @@ out:
 
 static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server)
 {
-	return NULL;
+	CLIENT *clnt = NULL;
+	static char clnt_res;
+	int ret = 0;
+
+	clnt = hsi_mnt_openclnt(nfs_server, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
+	if (!clnt)
+		goto out;
+
+	memset(&clnt_res, 0, sizeof(clnt_res));
+	ret = clnt_call(clnt, NULLPROC,
+			 (xdrproc_t)xdr_void, (caddr_t)NULL,
+			 (xdrproc_t)xdr_void, (caddr_t)&clnt_res,
+			 TIMEOUT);
+	if (ret) {
+		ERR("Ping remote NFSv3 failed: %d.", ret);
+		hsi_mnt_closeclnt(clnt);
+		clnt = NULL;
+		goto out;
+	};
+out:
+	return clnt;
 }
 
 static int hsi_add_mtab(const char *spec, const char *mount_point,
