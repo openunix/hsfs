@@ -174,8 +174,8 @@ extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_i
 * Date:2012-09-04
 */
 extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, 
-				struct fuse_file_info *fi);
+							struct fuse_file_info *fi);
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
-				int to_set, struct fuse_file_info *fi);
+							int to_set, struct fuse_file_info *fi);
 
 #endif
