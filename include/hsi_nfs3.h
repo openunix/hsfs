@@ -144,7 +144,7 @@ extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
  *  @param   mode	file type and access mode of the file 
  *  @param   rdev	device number of the file: only used for CHR and BLK
  *  * */
-extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name,\
+extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name,
 				mode_t mode, dev_t rdev);
 
 
@@ -158,7 +158,7 @@ extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs
  * @param   newinode	the inode of the linked file 
  * @param   name	the name to of the link to create
  * */
-extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_inode *newparent,\
+extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_inode *newparent,
 			  struct hsfs_inode **newinode ,  const char *name);
 
 /* hsi_nfs3_lookup */
@@ -186,7 +186,7 @@ extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
  * hsi_nfs3_statfs
  * Get Dynamic file system information
  * */
-extern int hsi_nfs3_statfs (hsfs_inode *inode);
+extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
 
 /**
  * Read dir
