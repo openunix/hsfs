@@ -165,7 +165,7 @@ extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_in
 extern  int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,char *name);
 
 /*hsi_nfs3_ifind: look up the table,if not exist,then add it .*/
-extern struct hsfs_inode *hsi_nfs3_ifind(hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr);
+extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr);
 
 /**
 * The four internal functions used to convert fattr3 to struct stat, struct stat
