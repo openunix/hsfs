@@ -308,7 +308,7 @@ int main(int argc, char **argv)
 		}
 		fuse_session_destroy(se);
 	}
-	fuse_unmount(mountpoint, ch);
+	hsi_fuse_unmount(mountspec, mountpoint, ch, &super);
 out:
 	if (udata)
 		free(udata);

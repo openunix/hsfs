@@ -201,6 +201,33 @@ static int hsi_add_mtab(const char *spec, const char *mount_point,
 	return 0;
 }
 
+static int hsi_parse_spec(char *devname, char **hostname,
+				char **pathname)
+{
+	char *s = NULL;
+
+	if (devname == NULL)
+		return EINVAL;
+
+	if ((s = strchr(devname, ':'))) {
+		*hostname = devname;
+		*pathname = s + 1;
+		*s = '\0';
+		/* Ignore all but first hostname in replicated mounts
+		   until they can be fully supported. (mack@sgi.com) */
+		if ((s = strchr(devname, ','))) {
+			*s = '\0';
+			ERR("%s: warning: multiple hostnames not supported.",
+				progname);
+		}
+	} else {
+		ERR("%s: directory to mount not in host:dir format.", progname);
+		return -1;
+	}
+
+	return 0;
+}
+
 static int hsi_nfs3_parse_options(char *old_opts, struct hsfs_super *super,
 				  int *retry, clnt_addr_t *mnt_server,
 				  clnt_addr_t *nfs_server,
@@ -510,21 +537,8 @@ struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 	}
 
 	strcpy(hostdir, spec);
-	if ((s = strchr(hostdir, ':'))) {
-		hostname = hostdir;
-		dirname = s + 1;
-		*s = '\0';
-		/* Ignore all but first hostname in replicated mounts
-		   until they can be fully supported. (mack@sgi.com) */
-		if ((s = strchr(hostdir, ','))) {
-			*s = '\0';
-			ERR("%s: warning: multiple hostnames not supported.",
-				progname);
-		}
-	} else {
-		ERR("%s: directory to mount not in host:dir format.", progname);
+	if (hsi_parse_spec(hostdir, &hostname, &dirname))
 		goto fail;
-	}
 
 	if (hsi_gethostbyname(hostname, &super->addr) != 0)
 		goto fail;
@@ -656,4 +670,36 @@ umnt_fail:
 	hsi_nfs3_unmount(&mnt_server, &dirname);
 fail:
 	return NULL;
+}
+
+int hsi_fuse_unmount(const char *spec, const char *point,
+					struct fuse_chan *ch,
+					struct hsfs_super *super)
+{
+	char hostdir[1024] = {};
+	char *hostname, *dirname;
+	clnt_addr_t mnt_server = { 
+		.hostname = &hostname 
+	};
+	
+	struct pmap *ump = &mnt_server.pmap;
+
+	strcpy(hostdir, spec);
+	if (hsi_parse_spec(hostdir, &hostname, &dirname))
+		return -1;
+
+//	his_fuse_del_mtab();
+	fuse_unmount(point, ch);
+	CLNT_DESTROY(super->clntp);
+
+	memcpy(&mnt_server.saddr, &super->addr, sizeof(struct sockaddr_in));
+	ump->pm_prog = MOUNTPROG;
+	ump->pm_vers = MOUNTVERS_NFSV3;
+	if (super->flags & NFS_MOUNT_TCP) {
+		ump->pm_prot = IPPROTO_TCP;
+	} else {
+		ump->pm_prot = IPPROTO_UDP;
+	}
+
+	return hsi_nfs3_unmount(&mnt_server, &dirname);
 }
