@@ -5,6 +5,8 @@
 #include <fuse/fuse_lowlevel.h>
 #include <sys/stat.h>
 
+extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
+
 struct hsfs_inode;
 
 extern void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name, mode_t mode);

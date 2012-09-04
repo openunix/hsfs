@@ -199,4 +199,8 @@ extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
  * */
 extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, size_t *dircount, size_t maxcount);
 
+/* Get NFS filesystem info */
+extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
+extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
+
 #endif
