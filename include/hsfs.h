@@ -97,8 +97,8 @@ struct hsfs_sattr{
 struct hsfs_readdir_ctx{
     off_t  off;
     stat   stbuf;
-    char cookieverf[NFS3_COOKIEVERFSIZE];
-    char   *name;
+	char   *name;
+    char   cookieverf[NFS3_COOKIEVERFSIZE];
     hsfs_readdir_ctx *next;
  }
 
