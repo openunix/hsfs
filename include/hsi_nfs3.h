@@ -4,6 +4,8 @@
 
 #include <sys/stat.h>
 #include "hsfs.h"
+#include<sys/types.h>
+#inlcude<time.h>
 
 struct hsfs_inode
 {
@@ -176,7 +178,7 @@ extern struct hsfs_inode *hsi_nfs3_ifind(hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr
 extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
 extern int hsi_nfs3_fattr2stat(fattr3 *fattr, struct stat *st);
 
-struct hsfs_sattr;
+extern struct hsfs_sattr;
 extern int hsi_nfs3_stat2fattr(struct stat *st£¬int to_set, 
 							struct hsfs_sattr *attr);
 extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
