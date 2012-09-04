@@ -8,6 +8,8 @@
 #include <fuse_lowlevel.h>
 #include <rpc/rpc.h>
 
+#include "nfs3.h"
+
 #define HSFS_TYPE	"hsfs"
 
 extern char *progname;
@@ -32,8 +34,30 @@ struct hsfs_super {
 	int			acdirmin;
 	int			acdirmax;
 	struct sockaddr_in	addr;
+	int			namlen;
 	unsigned int		bsize;
-	struct hsfs_fh		root;
+	unsigned char		bsize_bits;
+	struct hsfs_inode	*root;
+
+	/* From FSINFO */
+	uint32_t		rtmax;
+	uint32_t		rtpref;
+	uint32_t		rtmult;
+	uint32_t		wtmax;
+	uint32_t		wtpref;
+	uint32_t		wtmult;
+	uint32_t		dtpref;
+	uint64_t		maxfilesize;
+	nfstime3		time_delta;
+	uint32_t		properties;
+
+	/* From FSSTAT */
+	uint64_t		tbytes;
+	uint64_t		fbytes;
+	uint64_t		abytes;
+	uint64_t		tfiles;
+	uint64_t		ffiles;
+	uint64_t		afiles;
 };
 
 struct hsfs_rw_info
