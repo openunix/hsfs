@@ -179,8 +179,7 @@ extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
 extern int hsi_nfs3_fattr2stat(fattr3 *fattr, struct stat *st);
 
 extern struct hsfs_sattr;
-extern int hsi_nfs3_stat2fattr(struct stat *st£¬int to_set, 
-							struct hsfs_sattr *attr);
+extern int hsi_nfs3_stat2fattr(struct stat *st, int to_set,struct hsfs_sattr *attr);
 extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 
 

@@ -51,7 +51,7 @@ struct hsfs_rw_info
 };
 
 struct hsfs_sattr{
-	int		valid;
+	int	valid;
 	mode_t	mode;
 	uid_t	uid;
 	gid_t	gid;
