@@ -16,6 +16,7 @@
 #include "hsfs.h"
 #include "conn.h"
 #include "nfs3.h"
+#include "hsi_nfs3.h"
 #include "mount.h"
 #include "xcommon.h"
 #include "fstab.h"
@@ -449,30 +450,31 @@ struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 		/* skip flavors */
 
 		fhandle = &mntres.mountres3_u.mountinfo.fhandle;
-		memset(&super->root, 0, sizeof(super->root));
-		super->root.size = fhandle->fhandle3_len;
-		memcpy(super->root.data, (char *) fhandle->fhandle3_val,
-				fhandle->fhandle3_len);
+		super->root = hsi_nfs3_ifind(super, (nfs_fh3 *)fhandle, NULL);
+		if (super->root == NULL) {
+			goto umnt_fail;
+		}
 	}
 
 	/* nfs3 client */
 	super->clntp = hsi_nfs3_clnt_create(&nfs_server);
 	if (super->clntp == NULL) {
-		hsi_nfs3_unmount(&mnt_server, &dirname);
-		goto fail;
+		goto umnt_fail;
 	}
 
 	ch = fuse_mount(point, args);
 	if (ch == NULL) {
-		hsi_nfs3_unmount(&mnt_server, &dirname);
-		clnt_destroy(super->clntp);
-		goto fail;
+		goto clnt_des;
 	}
 
 	if (!nomtab)
 		hsi_add_mtab(spec, point, HSFS_TYPE, super->flags, udata);
 
 	return ch;
+clnt_des:
+	clnt_destroy(super->clntp);
+umnt_fail:
+	hsi_nfs3_unmount(&mnt_server, &dirname);
 fail:
 	return NULL;
 }
