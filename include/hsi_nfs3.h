@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include "hsfs.h"
 #include<sys/types.h>
-#inlcude<time.h>
+#include<time.h>
 
 struct hsfs_inode
 {
