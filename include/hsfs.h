@@ -2,7 +2,10 @@
 #ifndef __HSFS_H__
 #define __HSFS_H__ 1
 
+#ifndef FUSE_USE_VERSION
 #define FUSE_USE_VERSION 26
+#endif
+
 #include <fuse/fuse_lowlevel.h>
 #include <rpc/rpc.h>
 
@@ -25,6 +28,12 @@ extern int fg;
 #define HSFS_DEF_FILE_IO_SIZE	(4096U)
 #define HSFS_MIN_FILE_IO_SIZE	(1024U)
 
+/*
+ * Maximum number of pages that readdir can use for creating
+ * a vmapped array of pages.
+ */
+#define HSFS_MAX_READDIR_PAGES 8
+
 struct hsfs_fh {
         unsigned short          size;
         unsigned char           data[64];
@@ -33,9 +42,14 @@ struct hsfs_fh {
 struct hsfs_super {
 	CLIENT			*clntp;
 	int			flags;
-	/* rsize/wrise, filled up at hsx_fuse_init */
+	/* rsize/wrise, filled up at hsx_fuse_init 
+	  * for read/write
+	  */
 	int			rsize;
 	int			wsize;
+	/* For all clnt_call timeout,
+	  * as deciseconds (tenths of a second)
+	  */
 	int			timeo;
 	int			retrans;
 	int			acregmin;
@@ -45,11 +59,13 @@ struct hsfs_super {
 	struct sockaddr_in	addr;
 	/* namelen, filled up at hsx_fuse_init */
 	int			namlen;
+	/* Readdir size */
+	int			dtsize;
 	unsigned int		bsize;
 	unsigned char		bsize_bits;
 	struct hsfs_inode	*root;
 
-	/* From FSINFO */
+	/* Copy from FSINFO result directly, be careful */
 	uint32_t		rtmax;
 	uint32_t		rtpref;
 	uint32_t		rtmult;
@@ -61,7 +77,7 @@ struct hsfs_super {
 	nfstime3		time_delta;
 	uint32_t		properties;
 
-	/* From FSSTAT */
+	/* Copy from FSSTAT result directly, be careful */
 	uint64_t		tbytes;
 	uint64_t		fbytes;
 	uint64_t		abytes;
