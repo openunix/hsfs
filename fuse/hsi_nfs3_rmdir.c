@@ -33,12 +33,15 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hsfs_inode, char *name)
 			       	TIMEOUT);
 		
 		if (0 != err) {
+#ifdef RELEASE
 			return hsi_rpc_stat_to_errno(err);
+#endif	
 		}
 		else {
 			free(argp);
-
+#ifdef RELEASE
 			return hsi_nfs3_stat_to_errno(clnt_res.status);
+#endif	
 		}
 };
 //#ifdef TEST
