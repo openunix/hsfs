@@ -122,10 +122,4 @@ struct hsfs_readdir_ctx{
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 
-extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
-					 struct fuse_args *args, char *udata,
-					 struct hsfs_super *userdata);
-extern int hsi_fuse_unmount(const char *spec, const char *point,
-					struct fuse_chan *ch,
-					struct hsfs_super *super);
 #endif

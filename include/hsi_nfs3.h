@@ -203,4 +203,11 @@ extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
 extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 
+extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
+					 struct fuse_args *args, char *udata,
+					 struct hsfs_super *userdata);
+extern int hsi_fuse_unmount(const char *spec, const char *point,
+					struct fuse_chan *ch,
+					struct hsfs_super *super);
+
 #endif
