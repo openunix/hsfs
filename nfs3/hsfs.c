@@ -2,17 +2,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <sys/mount.h>
 #include <sys/user.h>
+#include <mntent.h>
+#include <pwd.h>
 #include <libgen.h>
 #include <getopt.h>
 #include <errno.h>
 
 #include "log.h"
 #include "hsfs.h"
+#include "hsi_nfs3.h"
 #include "config.h"
 #include "xcommon.h"
 #include "mount_constants.h"
+#include "fstab.h"
+#include "nfs_mntent.h"
 
 char *progname = NULL;
 int verbose = 0;
@@ -32,6 +39,10 @@ static struct option hsfs_opts[] = {
 	{ "options", 1, 0, 'o' },
 	{ NULL, 0, 0, 0 }
 };
+
+struct hsfs_inode hsfs_root;
+struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr)
+	{return &hsfs_root;};
 
 void hsi_mount_usage()
 {
@@ -57,7 +68,13 @@ static inline void hsi_print_version(void)
 
 static inline int hsi_fuse_add_opt(struct fuse_args *args, const char *opt)
 {
-	char **opts = args->argv + (args->argc -1);
+	char **opts = NULL;
+
+	if (args == NULL)
+		return EINVAL;
+	
+	opts = args->argv + (args->argc -1);
+	
 	return fuse_opt_add_opt(opts, opt);
 }
 
@@ -134,6 +151,111 @@ static const struct opt_map opt_map[] = {
 #endif
   { NULL,	0, 0, 0		}
 };
+
+/* Try to build a canonical options string.  */
+static char * hsi_fix_opts_string (int flags, const char *extra_opts) {
+	const struct opt_map *om;
+	char *new_opts;
+
+	new_opts = xstrdup((flags & MS_RDONLY) ? "ro" : "rw");
+	if (flags & MS_USER) {
+		struct passwd *pw = getpwuid(getuid());
+		if(pw)
+			new_opts = xstrconcat3(new_opts, ",user=", pw->pw_name);
+	}
+	
+	for (om = opt_map; om->nfs_opt != NULL; om++) {
+		if (om->skip)
+			continue;
+		if (om->inv || !om->mask || (flags & om->mask) != om->mask)
+			continue;
+		new_opts = xstrconcat3(new_opts, ",", om->nfs_opt);
+		flags &= ~om->mask;
+	}
+	if (extra_opts && *extra_opts) {
+		new_opts = xstrconcat3(new_opts, ",", extra_opts);
+	}
+
+	return new_opts;
+}
+
+static inline void dup_mntent(struct mntent *ment, nfs_mntent_t *nment)
+{
+	/* Not sure why nfs_mntent_t should exist */
+	nment->mnt_fsname = strdup(ment->mnt_fsname);
+	nment->mnt_dir = strdup(ment->mnt_dir);
+	nment->mnt_type = strdup(ment->mnt_type);
+	nment->mnt_opts = strdup(ment->mnt_opts);
+	nment->mnt_freq = ment->mnt_freq;
+	nment->mnt_passno = ment->mnt_passno;
+}
+static inline void free_mntent(nfs_mntent_t *ment, int remount)
+{
+	free(ment->mnt_fsname);
+	free(ment->mnt_dir);
+	free(ment->mnt_type);
+	/* 
+	 * Note: free(ment->mnt_opts) happens in discard_mntentchn()
+	 * via update_mtab() on remouts
+	 */
+	 if (!remount)
+	 	free(ment->mnt_opts);
+}
+
+static int hsi_add_mtab(const char *spec, const char *mount_point,
+				char *fstype, int flags, char *opts)
+{
+	struct mntent ment;
+	FILE *mtab;
+	int res = 1;
+
+	if (nomtab)
+		return 0;
+
+	ment.mnt_fsname = spec;
+	ment.mnt_dir = mount_point;
+	ment.mnt_type = fstype;
+	ment.mnt_opts = hsi_fix_opts_string(flags, opts);
+	ment.mnt_freq = 0;
+	ment.mnt_passno= 0;
+
+	if(flags & MS_REMOUNT) {
+		nfs_mntent_t nment;
+		
+		dup_mntent(&ment, &nment);
+		update_mtab(nment.mnt_dir, &nment);
+		free_mntent(&nment, 1);
+		return 0;
+	}
+
+	lock_mtab();
+
+	if ((mtab = setmntent(MOUNTED, "a+")) == NULL) {
+		ERR("Can't open " MOUNTED);
+		goto end;
+	}
+
+	if (addmntent(mtab, &ment) == 1) {
+		ERR("Can't write mount entry");
+		goto end;
+	}
+
+	endmntent(mtab);
+	res = 0;
+end:
+	unlock_mtab();
+	return res;
+}
+
+static int hsi_del_mtab(const char *node)
+{
+	if (nomtab)
+		return 0;
+
+	update_mtab (node, NULL);
+
+	return 0;
+}
 
 static void hsi_parse_opt(const char *opt, int *flags, struct fuse_args *args,
 					char *extra_opts, size_t len)
@@ -298,6 +420,8 @@ int main(int argc, char **argv)
 	if (ch == NULL)
 		goto out;
 
+	hsi_add_mtab(mountspec, mountpoint, HSFS_TYPE, super.flags, udata);
+
 	se = fuse_lowlevel_new(&args, &hsfs_oper, sizeof(hsfs_oper), &super);
 	if (se != NULL) {
 		if (fuse_set_signal_handlers(se) != -1) {
@@ -308,6 +432,9 @@ int main(int argc, char **argv)
 		}
 		fuse_session_destroy(se);
 	}
+
+	hsi_del_mtab(mountpoint);
+
 	hsi_fuse_unmount(mountspec, mountpoint, ch, &super);
 out:
 	if (udata)

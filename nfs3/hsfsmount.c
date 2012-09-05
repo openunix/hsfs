@@ -195,12 +195,6 @@ out:
 	return clnt;
 }
 
-static int hsi_add_mtab(const char *spec, const char *mount_point,
-			char *fstype, int flags, char *opts)
-{
-	return 0;
-}
-
 static int hsi_parse_spec(char *devname, char **hostname,
 				char **pathname)
 {
@@ -660,9 +654,6 @@ struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
 		goto clnt_des;
 	}
 
-	if (!nomtab)
-		hsi_add_mtab(spec, point, HSFS_TYPE, super->flags, udata);
-
 	return ch;
 clnt_des:
 	clnt_destroy(super->clntp);
@@ -688,7 +679,6 @@ int hsi_fuse_unmount(const char *spec, const char *point,
 	if (hsi_parse_spec(hostdir, &hostname, &dirname))
 		return -1;
 
-//	his_fuse_del_mtab();
 	fuse_unmount(point, ch);
 	CLNT_DESTROY(super->clntp);
 
