@@ -12,53 +12,58 @@
 #include <libgen.h>
 
 static struct timeval TIMEOUT = { 25, 0 };
-int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new, char *name, mode_t mode)
+int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
+	       		char *name, mode_t mode)
 {
-	if(NULL == parent)
-	{
-		printf("Error in hsfs_inode, exit.\n");
-		return;
-	}	
-	else
-	{	
 		int err = 0;
 		mkdir3args *argp;
 		diropres3 *clnt_res;
+		
 		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
 		clnt_res = (diropres3 *) malloc(sizeof(diropres3));
+		
 		memset(argp, 0, sizeof(mkdir3args));
 		memset(clnt_res, 0, sizeof(diropres3));
-		printf("%d\n",clnt_res);
+		
 		argp->where.dir.data.data_len = parent->fh.data.data_len;
 		argp->where.dir.data.data_val = parent->fh.data.data_val;
 		argp->where.name = name;
 		argp->attributes.mode.set = 1;
 		argp->attributes.mode.set_uint32_u.val = mode&0xfff;
-		err = clnt_call (parent->sb->clntp, NFSPROC3_MKDIR, (xdrproc_t) xdr_mkdir3args, (caddr_t) argp, (xdrproc_t) xdr_diropres3, (caddr_t) clnt_res, TIMEOUT);
-		printf("clnt.status:%d\n",clnt_res->status);
-		if(0 != clnt_res->status)
-		{
+		
+		err = clnt_call (parent->sb->clntp, NFSPROC3_MKDIR,
+			       	(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
+			       	(xdrproc_t) xdr_diropres3, (caddr_t) clnt_res,
+			       	TIMEOUT);
+#ifdef RELEASE
+		if ( 0 != err) {
+			return hsi_rpc_stat_to_errno(parent->sb->clntp);
+		}
+#endif
+		else if (0 != clnt_res->status)	{
 			int err = clnt_res->status;
 			*new = NULL;
-			free(argp);
-			free(clnt_res);
+			
+			free (argp);
+			free (clnt_res);
 #ifdef RELEASE
 			return hsi_nfs3_stat_to_errno(err);
 #endif /* RELEASE */
 			return err;
 		}
-		else
-		{
+		else {
 #ifdef RELEASE
-			*new = hsi_nfs3_ifind (parent->sb, &(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle), &(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
+			*new = hsi_nfs3_ifind (parent->sb,
+			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
+	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
 #endif /*RELEASE*/
+			
 			free(argp);
 			free(clnt_res);
 			return err;			
 		}
-	}
 };
-//#ifdef TEST
+#ifdef TEST
 char *cliname = NULL;
 int main(int argc, char *argv[])
 {	
@@ -127,5 +132,5 @@ out:
 		clnt_destroy(clntp);
 	exit(st);
 }
-//#endif /* TEST  */
+#endif /* TEST  */
 
