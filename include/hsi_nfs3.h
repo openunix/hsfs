@@ -109,7 +109,7 @@ extern int hsi_nfs3_write(struct hsfs_rw_info* rw);
 
 
 /**
-* hsx_nfs3_access
+* hsi_nfs3_access
 *
 * To request whether or not you have the permission to perform an operation.
 *
@@ -120,7 +120,7 @@ extern int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
 
 
 /**
-* hsx_nfs3_create
+* hsi_nfs3_create
 *
 * To create a new regular file.
 *
