@@ -1,9 +1,12 @@
-/** hsx_fuse_unlink.c
- *  yanhuan
- *  2012.9.5
+/**
+ * hsx_fuse_unlink.c
+ * yanhuan
+ * 2012.9.5
  **/
 
-#include "hsx_fuse.h"
+#include "../include/hsx_fuse.h"
+
+#define MAXNAMELEN 255
 
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
@@ -24,14 +27,14 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 		goto out;
 	}
 
-	struct hsfs_super *hs = NULL;
+	struct hsfs_super *sb = NULL;
 	struct hsfs_inode *hi = NULL;
 	if (!(hs = fuse_req_userdata(req))) {
 		ERR("%s get user data failed\n", progname);
 		err = EIO;
 		goto out;
 	}
-	if (!(hi = hsx_fuse_iget(hs, parent))) {
+	if (!(hi = hsx_fuse_iget(sb, parent))) {
 		ERR("%s get hsfs inode failed\n", progname);
 		err = EIO;
 		goto out;

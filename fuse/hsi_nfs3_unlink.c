@@ -1,6 +1,7 @@
-/** hsi_nfs3_unlink.c
- *  yanhuan
- *  2012.9.5
+/**
+ * hsi_nfs3_unlink.c
+ * yanhuan
+ * 2012.9.5
  **/
 
 #define TEST
