@@ -70,18 +70,20 @@ struct hsfs_super {
 	uint64_t		afiles;
 };
 
-struct hsfs_rw_info
-{
-	struct hsfs_inode *   inode;//目标文件 
-	size_t       rw_size;//读写大小
-	off_t        rw_off;//读写偏移
-	size_t       ret_count;//读写返回的大小
-	int          eof;//文件尾标记
-	int          stable;//是否缓存
+#define HSFS_FILE_SYNC  2
+#define HSFS_UNSTABLE	0
+
+struct hsfs_rw_info {
+	struct hsfs_inode	*inode;
+	size_t			rw_size;//read or write size
+	off_t			rw_off;//read or write offset
+	size_t			ret_count;//result of operate
+	int			eof;//end of file
+	int			stable;//direct io flag
 	struct {
 				 size_t data_len;
 				 char *data_val;
-			} data;//数据buffer
+			} data;//data buffer
 };
 
 struct hsfs_sattr{
@@ -101,6 +103,8 @@ struct hsfs_readdir_ctx{
     char   cookieverf[NFS3_COOKIEVERFSIZE];
     hsfs_readdir_ctx *next;
  }
+
+#define min(x, y) ((x) < (y) ? (x) : (y))
 
 extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
 					 struct fuse_args *args, char *udata,
