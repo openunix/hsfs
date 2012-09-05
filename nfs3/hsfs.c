@@ -40,10 +40,6 @@ static struct option hsfs_opts[] = {
 	{ NULL, 0, 0, 0 }
 };
 
-struct hsfs_inode hsfs_root;
-struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr)
-	{return &hsfs_root;};
-
 void hsi_mount_usage()
 {
 	printf("usage: %s remotetarget dir [-rvVwfnh] [-t version] [-o enfsoptions]\n", progname);
