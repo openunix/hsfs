@@ -35,11 +35,11 @@ int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 			       	(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
 			       	(xdrproc_t) xdr_diropres3, (caddr_t) clnt_res,
 			       	TIMEOUT);
-#ifdef RELEASE
 		if ( 0 != err) {
+#ifdef RELEASE
 			return hsi_rpc_stat_to_errno(parent->sb->clntp);
-		}
 #endif
+		}
 		else if (0 != clnt_res->status)	{
 			int err = clnt_res->status;
 			*new = NULL;
@@ -63,7 +63,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 			return err;			
 		}
 };
-#ifdef TEST
+//#ifdef TEST
 char *cliname = NULL;
 int main(int argc, char *argv[])
 {	
@@ -132,5 +132,5 @@ out:
 		clnt_destroy(clntp);
 	exit(st);
 }
-#endif /* TEST  */
+//#endif /* TEST  */
 
