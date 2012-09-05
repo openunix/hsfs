@@ -1,7 +1,7 @@
-/* hsx_fuse_unlink.c
- * yanhuan
- * 2012.9.5
- * */
+/** hsx_fuse_unlink.c
+ *  yanhuan
+ *  2012.9.5
+ **/
 
 #include "hsx_fuse.h"
 
