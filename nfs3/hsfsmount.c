@@ -454,7 +454,7 @@ void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
 	struct pmap *np = &ns->pmap;
 
 	if (!super->timeo)
-		super->timeo = 3;
+		super->timeo = 60;
 
 	if (!super->retrans)
 		super->retrans = 3;
