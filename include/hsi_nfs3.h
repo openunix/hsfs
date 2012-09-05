@@ -7,18 +7,6 @@
 #include<sys/types.h>
 #include<time.h>
 
-struct hsfs_inode
-{
-	uint64_t  ino;
-	unsigned long generation;
-	nfs_fh3  fh;
-	unsigned long  nlookup;
-	fattr3   attr;
-	struct hsfs_super *sb;
-	struct hsfs_inode *child;
-	struct hsfs_inode *next;
-};
-
 /**
  * Make/Remove dir
  *
@@ -161,11 +149,30 @@ extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs
 extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_inode *newparent,
 			  struct hsfs_inode **newinode ,  const char *name);
 
-/* hsi_nfs3_lookup */
-extern  int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,char *name);
+/**
+ * Look up a directory entry by name  
+ *
+ * @param parent[IN]:		The information of the parent node
+ * @param newinode[OUT]:	Point to the node information obtained by name
+ * @param name[IN]:		The name to look up
+ * 
+ * @return error number
+ *
+ * */
+extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode **newinode, char *name);
 
-/*hsi_nfs3_ifind: look up the table,if not exist,then add it .*/
-extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb,nfs_fh3 *fh,fattr3 *attr);
+/**
+ * Look up a node from hash table  
+ *
+ * @param sb[IN]:		The information of the superblock
+ * @param fh[IN]:		Filehandle of the parent directory 
+ * @param attr[IN]:		Node attributes
+
+ * 
+ * @return:			A pointer to the node information
+ *
+ * */
+extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, fattr3 *attr);
 
 /**
 * The four internal functions used to convert fattr3 to struct stat, struct stat

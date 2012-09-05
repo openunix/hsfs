@@ -155,7 +155,7 @@ extern	void hsx_fuse_link(fuse_req_t	req, fuse_ino_t ino,	fuse_ino_t newparent, 
 
 extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 
-extern  void  hsx_fuse_forget(fuse_req_t req,fuse_ino_t ino,unsigned long nlookup);
+extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup);
 
 /**
  * hsx_fuse_open & hsx_fuse_release

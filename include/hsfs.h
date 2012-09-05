@@ -40,6 +40,24 @@ struct hsfs_fh {
         unsigned char           data[64];
 };
 
+struct hsfs_inode
+{
+        uint64_t		ino;
+        unsigned long 		generation;
+        nfs_fh3			fh;
+        unsigned long		nlookup;
+        fattr3			attr;
+        struct hsfs_super	*sb;
+        struct hsfs_inode 	*next;
+};
+
+struct  hsfs_table
+{
+        struct hsfs_inode	**array;
+        size_t			use;
+        size_t			size;
+};
+
 struct hsfs_super {
 	CLIENT			*clntp;
 	int			flags;
@@ -65,7 +83,7 @@ struct hsfs_super {
 	unsigned int		bsize;
 	unsigned char		bsize_bits;
 	struct hsfs_inode	*root;
-
+	struct hsfs_table       hsfs_fuse_ht;
 	/* Copy from FSINFO result directly, be careful */
 	uint32_t		rtmax;
 	uint32_t		rtpref;
@@ -120,6 +138,13 @@ struct hsfs_readdir_ctx{
 	struct stat	stbuf;
 	struct hsfs_readdir_ctx *next;
  };
+
+/* table function declaration */
+extern	int hsx_fuse_init(struct hsfs_super *sb);
+extern	uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino);
+extern	void hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node);
+extern	struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino);
+extern	int hsx_fuse_idel(struct hsfs_super *sb, struct hsfs_inode *hs_node);
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 
