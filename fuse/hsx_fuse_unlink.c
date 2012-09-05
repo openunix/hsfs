@@ -1,3 +1,8 @@
+/* hsx_fuse_unlink.c
+ * yanhuan
+ * 2012.9.5
+ * */
+
 #include "hsx_fuse.h"
 
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
@@ -32,7 +37,7 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 		goto out;
 	}
 
-	if((err = hsi_nfs3_remove(hi, name))) {
+	if ((err = hsi_nfs3_remove(hi, name))) {
 		goto out;
 	}
 out:
