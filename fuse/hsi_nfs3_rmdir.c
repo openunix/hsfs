@@ -14,32 +14,32 @@
 static struct timeval TIMEOUT = { 25, 0 };
 int hsi_nfs3_rmdir (struct hsfs_inode *hsfs_inode, char *name)
 {
-	if(NULL == hsfs_inode)
-	{
-		printf("Error in hsfs_inode, exit.\n");
-		return;
-	}	
-	else
-	{	
 		int err = 0;
 		diropargs3 *argp;
 		wccstat3 clnt_res;
+		
 		argp = (diropargs3 *) malloc(sizeof(diropargs3));
+		
 		memset (argp, 0, sizeof(diropargs3));
 		memset (&clnt_res, 0, sizeof(wccstat3));
+		
 		argp->dir.data.data_len = hsfs_inode->fh.data.data_len;
-		//printf("argp->dir.data.data_len:%d\n",argp->dir.data.data_len);
 		argp->dir.data.data_val = hsfs_inode->fh.data.data_val;
 		argp->name = name;
-		printf("%s\n",argp->name);
-		err = clnt_call (hsfs_inode->sb->clntp, NFSPROC3_RMDIR, (xdrproc_t) xdr_diropargs3, (caddr_t) argp, (xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res, TIMEOUT);
-		printf ("err:%d\n",err);
-		clnt_perrno(err);
-		int err1 = clnt_res.status;
-		free(argp);
-		//return hsi_nfs3_stat_to_errno(err);
-		return err1;
-	}
+		
+		err = clnt_call (hsfs_inode->sb->clntp, NFSPROC3_RMDIR,
+			       	(xdrproc_t) xdr_diropargs3, (caddr_t) argp,
+			       	(xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res,
+			       	TIMEOUT);
+		
+		if (0 != err) {
+			return hsi_rpc_stat_to_errno(err);
+		}
+		else {
+			free(argp);
+
+			return hsi_nfs3_stat_to_errno(clnt_res.status);
+		}
 };
 //#ifdef TEST
 char *cliname = NULL;
