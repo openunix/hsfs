@@ -6,6 +6,7 @@
 #define FUSE_USE_VERSION 26
 #endif
 
+#include <sys/stat.h>
 #include <fuse/fuse_lowlevel.h>
 #include <rpc/rpc.h>
 
@@ -118,7 +119,7 @@ struct hsfs_readdir_ctx{
 	char	cookieverf[NFS3_COOKIEVERFSIZE];
 	struct stat	stbuf;
 	struct hsfs_readdir_ctx *next;
- }
+ };
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 
