@@ -3,21 +3,6 @@
 
 
 #include "hsfs.h"
-#include "nfs3.h"
-#include <sys/types.h>
-//#include <time.h>
-
-struct hsfs_inode
-{
-	uint64_t	ino;
-	unsigned long	generation;
-	nfs_fh3  	fh;
-	unsigned long  	nlookup;
-	fattr3   	attr;
-	struct hsfs_super 	*sb;
-	struct hsfs_inode 	*child;
-	struct hsfs_inode 	*next;
-};
 
 /**
  * Make/Remove dir
