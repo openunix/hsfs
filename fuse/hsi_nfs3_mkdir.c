@@ -17,7 +17,7 @@
 #include <libgen.h>
 
 static struct timeval TIMEOUT = { 25, 0 };
-int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
+int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	       		char *name, mode_t mode)
 {
 		int err = 0;
@@ -30,24 +30,26 @@ int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 		memset(argp, 0, sizeof(mkdir3args));
 		memset(clnt_res, 0, sizeof(diropres3));
 		
-		argp->where.dir.data.data_len = parent->fh.data.data_len;
-		argp->where.dir.data.data_val = parent->fh.data.data_val;
+		argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
+		argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
 		argp->where.name = name;
 		argp->attributes.mode.set = 1;
 		argp->attributes.mode.set_uint32_u.val = mode&0xfff;
 		
-		err = clnt_call (parent->sb->clntp, NFSPROC3_MKDIR,
+		err = clnt_call (hi_parent->sb->clntp, NFSPROC3_MKDIR,
 			       	(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
 			       	(xdrproc_t) xdr_diropres3, (caddr_t) clnt_res,
 			       	TIMEOUT);
-		if ( 0 != err) {
+		if ( 0 != err) {	/*RPC error*/
+			free (argp);
+			free (clnt_res);
 #ifdef RELEASE
-			return hsi_rpc_stat_to_errno(parent->sb->clntp);
+			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
 #endif
 		}
-		else if (0 != clnt_res->status)	{
+		else if (0 != clnt_res->status)	{	/*RPC is OK, nfs error*/
 			int err = clnt_res->status;
-			*new = NULL;
+			*hi_new = NULL;
 			
 			free (argp);
 			free (clnt_res);
@@ -58,9 +60,14 @@ int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 		}
 		else {
 #ifdef RELEASE
-			*new = hsi_nfs3_ifind (parent->sb,
+			*hi_new = hsi_nfs3_ifind (hi_parent->sb,
 			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
+
+			if(NULL == *hi_new)
+			{
+				printf("Error in create inode.\n");
+			}
 #endif /*RELEASE*/
 			
 			free(argp);
