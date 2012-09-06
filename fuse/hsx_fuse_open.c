@@ -1,3 +1,7 @@
+/**
+ * hsx_fuse_open
+ * liuyoujin
+ */
 #include "hsx_fuse.h"
 #include <errno.h>
 #include <stdio.h>
