@@ -12,7 +12,7 @@
  *
  * @param sb[IN]:	the information of the superblock
  * 
- * @return:		0 if successfull, other values show an error
+ * @return:	0 if successfull, other values show an error
  *
  * */
 int  hsx_fuse_init(struct hsfs_super *sb)
@@ -36,7 +36,7 @@ int  hsx_fuse_init(struct hsfs_super *sb)
  *  
  * @param ino[IN]:	the inode number
  *
- * @return:	        the hash value
+ * @return:	the hash value
  *
  * */
 uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
@@ -52,7 +52,7 @@ uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
  * @param pfh[IN]:      a pointer to the filehandle of node 
  * @param ino[IN]:      the inode number
  * @param pattr[IN]:    a pointer to the attributes of node 
- * @return:             a pointer to the object if successfull,else NULL
+ * @return:	a pointer to the object if successfull,else NULL
  *
  * */
 struct hsfs_inode *hsi_fuse_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint64_t ino, fattr3 *pattr)
@@ -89,7 +89,7 @@ struct hsfs_inode *hsi_fuse_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint
  * @param hsfs_node[IN]:a pointer to an object of type hash_inode which 
  * describe the node information in memory
  *
- * @return:		void
+ * @return:	void
  *
  * */
 void   hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
@@ -107,7 +107,7 @@ void   hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
  *  
  * @param ino[IN]:	the inode number
  *
- * @return:		a pointer to the object found if successfull,else NULL 
+ * @return:	a pointer to the object found if successfull,else NULL 
  *
  * */
 struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
@@ -135,7 +135,7 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
  * @param sb[IN]:	The information of the superblock
  * @param fh[IN]:	Filehandle of the parent directory 
  * @param attr[IN]:	Node attributes
- * @return:		A pointer to the node information
+ * @return:	A pointer to the node information
  *
  * */
 struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *pattr)
@@ -176,7 +176,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
  * @param hsfs_node[IN]:a pointer to an object of type hash_inode which 
  * describe the node information in memory
  *
- * @return:		0 if successfull, other values show an error
+ * @return:	0 if successfull, other values show an error
  *
  * */
 
