@@ -10,5 +10,5 @@ extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_i
 	if (fi->fh != NULL){
 		free (fi->fh);
 	}
-	fuse_reply_open(req, 0);
+	fuse_reply_err(req, 0);
 }
