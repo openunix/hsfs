@@ -2,10 +2,7 @@
 #define __HSI_NFS3_H__
 
 
-#include <sys/stat.h>
 #include "hsfs.h"
-#include<sys/types.h>
-#include<time.h>
 
 /**
  * Make/Remove dir
@@ -22,35 +19,35 @@ extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new, ch
 extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, char *name);
 
 /**
-* Remove a file
-*
-* @param hsfs_inode
-* @param name to remove
-*
-* @return error number
-**/
+ * Remove a file
+ *
+ * @param hsfs_inode
+ * @param name to remove
+ *
+ * @return error number
+ **/
 extern int hsi_nfs3_remove(struct hsfs_inode *hi, const char *name);
 
 /**
-* Rename a file
-*
-* @param source hsfs_inode
-* @param source name
-* @param target hsfs_inode
-* @param target name
-*
-* @return error number
-**/
+ * Rename a file
+ *
+ * @param source hsfs_inode
+ * @param source name
+ * @param target hsfs_inode
+ * @param target name
+ *
+ * @return error number
+ **/
 extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
- 		struct hsfs_inode *newhi, const char *newname);
+			   struct hsfs_inode *newhi, const char *newname);
 
 /**
-* Change nfs3 status number to fuse error number
-*
-* @param nfs3 status number
-*
-* @return fuse error number
-**/
+ * Change nfs3 status number to fuse error number
+ *
+ * @param nfs3 status number
+ *
+ * @return fuse error number
+ **/
 extern int hsi_nfs3_stat_to_errno(int stat);
 
 /**
@@ -64,6 +61,15 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
 
 
 /**
+<<<<<<< .mine
+ * Read the contents of the symbolic link
+ *
+ * @param hi           the struct hsfs_inode of the symbolic link 
+ * @param nfs_link     the contents of the symbolic link
+ *
+ * @return error number
+ **/
+=======
 * Read the contents of the symbolic link
 *
 * @param hi           the struct hsfs_inode of the symbolic link
@@ -71,10 +77,24 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
 *
 * @return error number
 **/
+>>>>>>> .r8376
 extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char *nfs_link);
 
 
 /**
+<<<<<<< .mine
+ * Create a symbolic link
+ *
+ * @param parent      the struct hsfs_inode of the parent 
+ * @param new         the struct hsfs_inode of the new
+ * @param nfs_link    the contents of the new symbolic link
+ * @param nfs_name    the name of the new symbolic link
+ *
+ * @return error number
+ **/
+extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new, 
+			    const char *nfs_link, const char *nfs_name);
+=======
 * Create a symbolic link
 *
 * @param parent      the struct hsfs_inode of the parent
@@ -85,17 +105,36 @@ extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char *nfs_link);
 * @return error number
 **/
 extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new, const char *nfs_link, const char *nfs_name);
+>>>>>>> .r8376
 
 /**
+<<<<<<< .mine
+ * File read 
+ *
+ * @param rw      	the content of the read operation 
+ *
+ * @return error number
+ **/
+=======
 * File read
 *
 * @param rw      	the content of the read operation
 *
 * @return error number
 **/
+>>>>>>> .r8376
 extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
 
 
+<<<<<<< .mine
+/**  
+ * File write 
+ *
+ * @param rw      	the content of the write operation 
+ *
+ * @return error number
+ **/
+=======
 /**
 * File write
 *
@@ -103,32 +142,33 @@ extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
 *
 * @return error number
 **/
+>>>>>>> .r8376
 extern int hsi_nfs3_write(struct hsfs_rw_info* rw);
 
 
 /**
-* hsi_nfs3_access
-*
-* To request whether or not you have the permission to perform an operation.
-*
-* @param hi the struct hsfs_inode of the node you want to request
-* @param mask the permission you want to request
-**/
+ * hsi_nfs3_access
+ *
+ * To request whether or not you have the permission to perform an operation.
+ *
+ * @param hi the struct hsfs_inode of the node you want to request
+ * @param mask the permission you want to request
+ **/
 extern int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
 
 
 /**
-* hsi_nfs3_create
-*
-* To create a new regular file.
-*
-* @param hi the struct hsfs_inode of the node you want to create a file
-* @param newhi the struct hsfs_inode of the node that you just create
-* @param name the name of the file you want to create
-*	@param mode the access mode of the file
-**/
+ * hsi_nfs3_create
+ *
+ * To create a new regular file.
+ *
+ * @param hi the struct hsfs_inode of the node you want to create a file
+ * @param newhi the struct hsfs_inode of the node that you just create
+ * @param name the name of the file you want to create
+ *	@param mode the access mode of the file
+ **/
 extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
-							const char *name, mode_t mode);
+			   const char *name, mode_t mode);
 
 
 /**
@@ -142,8 +182,9 @@ extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
  *  @param   mode	file type and access mode of the file
  *  @param   rdev	device number of the file: only used for CHR and BLK
  *  * */
-extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name,
-				mode_t mode, dev_t rdev);
+extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, 
+			   struct hsfs_inode **newinode, const char *name,
+			   mode_t mode, dev_t rdev);
 
 
 /**
@@ -182,21 +223,28 @@ extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode **newin
  * @return:			A pointer to the node information
  *
  * */
-extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, fattr3 *attr);
+extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, 
+					 fattr3 *attr);
 
 /**
+<<<<<<< .mine
+ * The four internal functions used to convert fattr3 to struct stat, 
+ * struct stat to hsfs_sattr by to_set and call nfs procedures are defined 
+ * below, which use the standard errno as return valules defined in errno.h.
+ */
+=======
 * The four internal functions used to convert fattr3 to struct stat, struct stat
 * to hsfs_sattr by to_set and call nfs procedures are defined below,
 * which use the standard errno as return valules defined in errno.h.
 *
 * Date:2012-09-04
 */
+>>>>>>> .r8376
 
 extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
 extern int hsi_nfs3_fattr2stat(fattr3 *fattr, struct stat *st);
-
-extern struct hsfs_sattr;
-extern int hsi_nfs3_stat2fattr(struct stat *st, int to_set,struct hsfs_sattr *attr);
+extern int hsi_nfs3_stat2fattr(struct stat *st, int to_set, 
+			       struct hsfs_sattr *attr);
 extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 
 /**
@@ -214,7 +262,8 @@ extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
  *
  * @return error number
  * */
-extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, size_t *dircount, size_t maxcount);
+extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
+			    size_t *dircount, size_t maxcount);
 
 /* Get NFS filesystem info */
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
@@ -224,7 +273,7 @@ extern struct fuse_chan * hsi_fuse_mount(const char *spec, const char *point,
 					 struct fuse_args *args, char *udata,
 					 struct hsfs_super *userdata);
 extern int hsi_fuse_unmount(const char *spec, const char *point,
-					struct fuse_chan *ch,
-					struct hsfs_super *super);
+			    struct fuse_chan *ch,
+			    struct hsfs_super *super);
 
 #endif
