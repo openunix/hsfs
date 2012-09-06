@@ -61,7 +61,6 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
 
 
 /**
-<<<<<<< .mine
  * Read the contents of the symbolic link
  *
  * @param hi           the struct hsfs_inode of the symbolic link 
@@ -69,20 +68,11 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
  *
  * @return error number
  **/
-=======
-* Read the contents of the symbolic link
-*
-* @param hi           the struct hsfs_inode of the symbolic link
-* @param nfs_link     the contents of the symbolic link
-*
-* @return error number
-**/
->>>>>>> .r8376
+
 extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char *nfs_link);
 
 
 /**
-<<<<<<< .mine
  * Create a symbolic link
  *
  * @param parent      the struct hsfs_inode of the parent 
@@ -94,39 +84,17 @@ extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char *nfs_link);
  **/
 extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new, 
 			    const char *nfs_link, const char *nfs_name);
-=======
-* Create a symbolic link
-*
-* @param parent      the struct hsfs_inode of the parent
-* @param new         the struct hsfs_inode of the new
-* @param nfs_link    the contents of the new symbolic link
-* @param nfs_name    the name of the new symbolic link
-*
-* @return error number
-**/
-extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new, const char *nfs_link, const char *nfs_name);
->>>>>>> .r8376
 
 /**
-<<<<<<< .mine
  * File read 
  *
  * @param rw      	the content of the read operation 
  *
  * @return error number
  **/
-=======
-* File read
-*
-* @param rw      	the content of the read operation
-*
-* @return error number
-**/
->>>>>>> .r8376
 extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
 
 
-<<<<<<< .mine
 /**  
  * File write 
  *
@@ -134,15 +102,6 @@ extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
  *
  * @return error number
  **/
-=======
-/**
-* File write
-*
-* @param rw      	the content of the write operation
-*
-* @return error number
-**/
->>>>>>> .r8376
 extern int hsi_nfs3_write(struct hsfs_rw_info* rw);
 
 
@@ -186,7 +145,6 @@ extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent,
 			   struct hsfs_inode **newinode, const char *name,
 			   mode_t mode, dev_t rdev);
 
-
 /**
  * hsi_nfs3_link
  *
@@ -227,19 +185,10 @@ extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh,
 					 fattr3 *attr);
 
 /**
-<<<<<<< .mine
  * The four internal functions used to convert fattr3 to struct stat, 
  * struct stat to hsfs_sattr by to_set and call nfs procedures are defined 
  * below, which use the standard errno as return valules defined in errno.h.
  */
-=======
-* The four internal functions used to convert fattr3 to struct stat, struct stat
-* to hsfs_sattr by to_set and call nfs procedures are defined below,
-* which use the standard errno as return valules defined in errno.h.
-*
-* Date:2012-09-04
-*/
->>>>>>> .r8376
 
 extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
 extern int hsi_nfs3_fattr2stat(fattr3 *fattr, struct stat *st);
