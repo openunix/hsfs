@@ -1,5 +1,6 @@
 
 #include "hsi_nfs3.h"
+#include "log.h"
 
 int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 {

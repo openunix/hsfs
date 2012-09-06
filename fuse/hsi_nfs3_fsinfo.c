@@ -3,6 +3,7 @@
 #include <sys/user.h>
 
 #include "hsi_nfs3.h"
+#include "log.h"
 
 static inline void hsi_fsinfo_to_super(struct hsfs_super *super, 
 					struct fsinfo3resok *fsinfo)

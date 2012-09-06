@@ -135,6 +135,11 @@ struct hsfs_readdir_ctx{
   struct hsfs_readdir_ctx *next;
 };
 
+/* for nfs3 */
+unsigned long hsfs_block_bits(unsigned long bsize, unsigned char *nrbitsp);
+unsigned long hsfs_block_size(unsigned long bsize, unsigned char *nrbitsp);
+
+
 /* table function declaration */
 extern	int hsx_fuse_itable_init(struct hsfs_super *sb);
 extern	void hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node);

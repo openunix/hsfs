@@ -416,7 +416,6 @@ static int hsi_nfs3_parse_options(char *old_opts, struct hsfs_super *super,
 /*
  * Determine the actual block size (and log2 thereof)
  */
-static inline
 unsigned long hsfs_block_bits(unsigned long bsize, unsigned char *nrbitsp)
 {
 	/* make sure blocksize is a power of two */
@@ -436,7 +435,6 @@ unsigned long hsfs_block_bits(unsigned long bsize, unsigned char *nrbitsp)
 /*
  * Compute and set NFS server blocksize
  */
-static inline
 unsigned long hsfs_block_size(unsigned long bsize, unsigned char *nrbitsp)
 {
 	if (bsize < HSFS_MIN_FILE_IO_SIZE)
@@ -497,6 +495,32 @@ void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
 	if (*retry == -1) {
 		*retry = 10000;  /* 10000 mins == ~1 week*/
 	}
+}
+
+static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
+{
+	struct hsfs_inode *root = NULL;
+	int ret = 0;
+
+	ret = hsx_fuse_itable_init(super);
+	if (ret)
+		goto out;
+
+	root = hsi_nfs3_alloc_node(super, fh, FUSE_ROOT_ID, NULL);
+	if (root == NULL) {
+		ret = ENOMEM;
+		goto out;
+	}
+
+	ret = hsi_nfs3_fsinfo(super->root);
+	if (ret)
+		goto out;
+	
+	ret = hsi_nfs3_pathconf(super->root);
+	if (ret)
+		goto out;
+out:
+	return ret;
 }
 
 struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
@@ -637,10 +661,8 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 		/* skip flavors */
 
 		fhandle = &mntres.mountres3_u.mountinfo.fhandle;
-		super->root = hsi_nfs3_ifind(super, (nfs_fh3 *)fhandle, NULL);
-		if (super->root == NULL) {
+		if (hsi_fill_super(super, (nfs_fh3 *)fhandle))
 			goto umnt_fail;
-		}
 	}
 
 	/* nfs3 client */
