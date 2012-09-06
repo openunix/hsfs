@@ -140,8 +140,7 @@ struct hsfs_readdir_ctx{
 };
 
 /* table function declaration */
-extern	int hsx_fuse_init(struct hsfs_super *sb);
-extern	uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino);
+extern	int hsx_fuse_itable_init(struct hsfs_super *sb);
 extern	void hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node);
 extern	struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino);
 extern	int hsx_fuse_idel(struct hsfs_super *sb, struct hsfs_inode *hs_node);
