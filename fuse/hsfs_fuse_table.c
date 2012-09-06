@@ -121,8 +121,7 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
 	    hsfs_node=hsfs_node->next)
 		if(hsfs_node->ino  ==  ino)
 		{
-			if(hsfs_node->sb != sb)
-				hsfs_node->sb = sb;
+			hsfs_node->sb = sb;
 			return hsfs_node;
 		}
 			
