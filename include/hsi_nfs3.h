@@ -159,7 +159,7 @@ extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_in
 			  struct hsfs_inode **newinode ,  const char *name);
 
 /**
- * Look up a directory entry by name
+ * hsi_nfs3_lookup:		Look up a directory entry by name
  *
  * @param parent[IN]:		The information of the parent node
  * @param newinode[OUT]:	Point to the node information obtained by name
@@ -171,7 +171,19 @@ extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_in
 extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode **newinode, char *name);
 
 /**
- * Look up a node from hash table
+ * hsi_fuse_alloc_node: allocate memory for a node 
+ *
+ * @param sb[IN]:       the information of the superblock
+ * @param pfh[IN]:      a pointer to the filehandle of node 
+ * @param ino[IN]:      the inode number
+ * @param pattr[IN]:    a pointer to the attributes of node 
+ * @return:             a pointer to the object if successfull,else NULL
+ *
+ * */
+extern struct hsfs_inode *hsi_fuse_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint64_t ino, fattr3 *pattr);
+
+/**
+ * hsi_nfs3_ifind:		Look up a node from hash table
  *
  * @param sb[IN]:		The information of the superblock
  * @param fh[IN]:		Filehandle of the parent directory

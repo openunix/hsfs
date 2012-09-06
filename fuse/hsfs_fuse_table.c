@@ -46,6 +46,42 @@ uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
 }
 
 /**
+ * hsi_fuse_alloc_node: allocate memory for a node 
+ *
+ * @param sb[IN]:       the information of the superblock
+ * @param pfh[IN]:      a pointer to the filehandle of node 
+ * @param ino[IN]:      the inode number
+ * @param pattr[IN]:    a pointer to the attributes of node 
+ * @return:             a pointer to the object if successfull,else NULL
+ *
+ * */
+struct hsfs_inode *hsi_fuse_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint64_t ino, fattr3 *pattr)
+{
+        struct hsfs_inode *hsfs_node;
+
+        hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode));
+        if(hsfs_node == NULL)
+        {
+                return  NULL;
+        }
+        if(sb == NULL | pfh == NULL)
+        {
+                free(hsfs_node);
+                return NULL;
+        }
+
+        hsfs_node->ino = ino;
+        hsfs_node->generation = 1;
+        hsfs_node->fh = *pfh;
+        hsfs_node->nlookup = 0;
+        hsfs_node->sb = sb;
+        if(pattr != NULL)
+                hsfs_node->attr = *pattr;
+
+        return hsfs_node;
+}
+
+/**
  * hsx_fuse_iadd:	set a inode into the Hash Table
  *
  * @param sb[IN]:	the information of the superblock
@@ -102,7 +138,7 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
  * @return:		A pointer to the node information
  *
  * */
-struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3_new *pattr)
+struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *pattr)
 {
 	struct hsfs_inode *hsfs_node = NULL;
 	if(sb == NULL | pfh == NULL | pattr == NULL)
