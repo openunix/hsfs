@@ -22,6 +22,7 @@ void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param **e)
 		}
 		else
 			ERR("Error in get file type!\n");
+		return;
 	}
 		
 	else
