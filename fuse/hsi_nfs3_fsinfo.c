@@ -52,6 +52,7 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 	struct hsfs_super *sb = inode->sb;
 	CLIENT *clnt = sb->clntp;
 	fsinfo3res res = {};
+	post_op_attr *pattr = NULL;
 	struct timeval to = {sb->timeo / 10, sb->timeo % 10 * 100};
 	enum clnt_stat st;
 	int ret = 0;
@@ -73,6 +74,12 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 	}
 
 	hsi_fsinfo_to_super(sb, &res.fsinfo3res_u.resok);
+
+	pattr = &res.fsinfo3res_u.resok.obj_attributes;
+	if (pattr->present) {
+		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes,
+			sizeof(fattr3));
+	}
 out:
 	return ret;
 }
