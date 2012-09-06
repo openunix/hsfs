@@ -1,3 +1,8 @@
+/**
+ * hsi_nfs3_rmdir.c
+ * Hu yuwei
+ * 2012/09/06
+ */
 #include "apis.h"
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
