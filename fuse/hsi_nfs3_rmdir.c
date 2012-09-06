@@ -16,8 +16,8 @@
 #include <sys/vfs.h>
 #include <libgen.h>
 
-static struct timeval TIMEOUT = { 25, 0 };
-int hsi_nfs3_rmdir (struct hsfs_inode *hsfs_inode, char *name)
+static struct timeval TIMEOUT = { 25, 0 };	/* Just use for testing. Hu yuwei*/
+int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, char *name)
 {
 		int err = 0;
 		diropargs3 *argp;
@@ -28,24 +28,24 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hsfs_inode, char *name)
 		memset (argp, 0, sizeof(diropargs3));
 		memset (&clnt_res, 0, sizeof(wccstat3));
 		
-		argp->dir.data.data_len = hsfs_inode->fh.data.data_len;
-		argp->dir.data.data_val = hsfs_inode->fh.data.data_val;
+		argp->dir.data.data_len = hi_parent->fh.data.data_len;
+		argp->dir.data.data_val = hi_parent->fh.data.data_val;
 		argp->name = name;
 		
-		err = clnt_call (hsfs_inode->sb->clntp, NFSPROC3_RMDIR,
+		err = clnt_call (hi_parent->sb->clntp, NFSPROC3_RMDIR,
 			       	(xdrproc_t) xdr_diropargs3, (caddr_t) argp,
 			       	(xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res,
 			       	TIMEOUT);
 		
-		if (0 != err) {
+		if (0 != err) {					/*err is a RPC clnt error. So use hsi_rpc_stat_to_errno().*/
 #ifdef RELEASE
 			return hsi_rpc_stat_to_errno(err);
 #endif	
 		}
 		else {
 			free(argp);
-#ifdef RELEASE
-			return hsi_nfs3_stat_to_errno(clnt_res.status);
+#ifdef RELEASE		
+			return hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
 #endif	
 		}
 };
