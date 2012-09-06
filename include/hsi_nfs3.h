@@ -211,8 +211,14 @@ extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 /**
  * hsi_nfs3_statfs
  * Get Dynamic file system information
- * */
+ */
 extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
+
+/**
+ * hsi_super2statvfs
+ * Change some fields of hsfs_super to statvfs
+ */
+extern int hsi_super2statvfs (struct hsfs_super *sp, struct statvfs *stbuf);
 
 /**
  * Read dir
