@@ -13,7 +13,7 @@ extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 
 	uint64_t fh = malloc (FI_FH_LEN);
 	if (fh){
-		fuse_reply_error(req, -ENOMEM);
+		fuse_reply_err(req, -ENOMEM);
 
 	}
 	else {
