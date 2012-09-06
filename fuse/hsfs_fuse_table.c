@@ -8,14 +8,14 @@
 #define  HSFS_TABLE_SIZE  4096
 
 /**
- * hsx_fuse_init:	initialize the Hash Table
+ * hsx_fuse_itable_init:	initialize the Hash Table
  *
  * @param sb[IN]:	the information of the superblock
  * 
  * @return:	0 if successfull, other values show an error
  *
  * */
-int  hsx_fuse_init(struct hsfs_super *sb)
+int  hsx_fuse_itable_init(struct hsfs_super *sb)
 {
 	sb->hsfs_fuse_ht.size =  HSFS_TABLE_SIZE ;
 	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, sizeof(struct hsfs_inode *) * sb->hsfs_fuse_ht.size);
@@ -46,7 +46,7 @@ uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
 }
 
 /**
- * hsi_fuse_alloc_node: allocate memory for a node 
+ * hsi_nfs3_alloc_node: allocate memory for a node 
  *
  * @param sb[IN]:       the information of the superblock
  * @param pfh[IN]:      a pointer to the filehandle of node 
@@ -55,7 +55,7 @@ uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
  * @return:	a pointer to the object if successfull,else NULL
  *
  * */
-struct hsfs_inode *hsi_fuse_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint64_t ino, fattr3 *pattr)
+struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint64_t ino, fattr3 *pattr)
 {
         struct hsfs_inode *hsfs_node;
 
