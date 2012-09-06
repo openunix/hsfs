@@ -18,6 +18,7 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([fuse], [fuse_lowlevel_new], [], AC_MSG_ERROR([You need libfuse to run.]))
+AC_CHECK_LIB([tirpc], [clnt_create], [], AC_MSG_ERROR([You need libtirpc to run.]))
 
 
 # Checks for header files.
