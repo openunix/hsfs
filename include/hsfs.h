@@ -6,11 +6,12 @@
 #define FUSE_USE_VERSION 26
 #endif
 
+#include <fuse/fuse_lowlevel.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#include "nfs3.h"
 
+#include "nfs3.h"
 
 #define HSFS_TYPE "hsfs"
 
@@ -34,11 +35,6 @@ extern int fg;
  * a vmapped array of pages.
  */
 #define HSFS_MAX_READDIR_PAGES 8
-
-struct hsfs_fh {
-  unsigned short  size;
-  unsigned char   data[64];
-};
 
 struct hsfs_inode
 {

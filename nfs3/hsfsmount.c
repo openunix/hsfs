@@ -499,7 +499,7 @@ void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
 	}
 }
 
-struct fuse_chan *hsi_fuse_mount(const char *spec, const char *point,
+struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 				  struct fuse_args *args, char *udata,
 				  struct hsfs_super *super)
 {
@@ -663,7 +663,7 @@ fail:
 	return NULL;
 }
 
-int hsi_fuse_unmount(const char *spec, const char *point,
+int hsx_fuse_unmount(const char *spec, const char *point,
 					struct fuse_chan *ch,
 					struct hsfs_super *super)
 {

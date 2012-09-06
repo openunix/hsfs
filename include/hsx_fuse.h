@@ -2,12 +2,9 @@
 #ifndef __HSX_FUSE_H__
 #define __HSX_FUSE_H__ 
 
-#include <fuse/fuse_lowlevel.h>
 #include <sys/stat.h>
 
 extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
-
-struct hsfs_inode;
 
 extern void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name, mode_t mode);
 
@@ -212,5 +209,12 @@ extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off
  * @param fi          the file information
  **/
 extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_info  *fi);
+
+extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
+					struct fuse_args *args, char *udata,
+					struct hsfs_super *userdata);
+extern int hsx_fuse_unmount(const char *spec, const char *point,
+					struct fuse_chan *ch,
+					struct hsfs_super *super);
 
 #endif

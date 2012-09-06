@@ -14,7 +14,7 @@
 
 #include "log.h"
 #include "hsfs.h"
-#include "hsi_nfs3.h"
+#include "hsx_fuse.h"
 #include "config.h"
 #include "xcommon.h"
 #include "mount_constants.h"
@@ -412,7 +412,7 @@ int main(int argc, char **argv)
 	if (err != 0)
 		goto out;
 
-	ch = hsi_fuse_mount(mountspec, mountpoint, &args, udata, &super);
+	ch = hsx_fuse_mount(mountspec, mountpoint, &args, udata, &super);
 	if (ch == NULL)
 		goto out;
 
@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 
 	hsi_del_mtab(mountpoint);
 
-	hsi_fuse_unmount(mountspec, mountpoint, ch, &super);
+	hsx_fuse_unmount(mountspec, mountpoint, ch, &super);
 out:
 	if (udata)
 		free(udata);
