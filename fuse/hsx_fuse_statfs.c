@@ -1,3 +1,7 @@
+/**
+ * hsx_fuse_statfs
+ * liuyoujin
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/errno.h>
