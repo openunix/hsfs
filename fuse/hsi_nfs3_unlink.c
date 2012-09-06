@@ -1,12 +1,12 @@
 /**
  * hsi_nfs3_unlink.c
  * yanhuan
- * 2012.9.5
+ * 2012.9.6
  **/
 
-#define TEST
+#define TEST_UNLINK
 
-#ifdef TEST
+#ifdef TEST_UNLINK
 # include <rpc/rpc.h>
 # include <libgen.h>
 # include <errno.h>
@@ -112,7 +112,7 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	args.dir.data.data_val = hi->fh.data.data_val;
 	args.name = name;
 
-	ret = clnt_call(hi->sb->clntp, NFSPROC3_REMOVE, 
+	ret = clnt_call(hi->sb->clntp, NFSPROC3_REMOVE,
 			(xdrproc_t)xdr_diropargs3, (caddr_t)&args,
 			(xdrproc_t)xdr_wccstat3, (caddr_t)&res, to);
 	if (ret) {
@@ -120,13 +120,12 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 			"(%s).\n", progname, svraddr,
 		       	NFS_PROGRAM, NFS_V3, clnt_sperrno(ret));
 		err = hsi_rpc_stat_to_errno(hi->sb->clntp);
-		printf("%d\n",err);
 		goto out;
-	}                 
+	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
 		ERR("%s: Path (%s) on Server (%s) is not "
-			"accessible: (%d).\n", progname, name, 
+			"accessible: (%d).\n", progname, name,
 			svraddr, ret);
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
@@ -142,7 +141,7 @@ out:
 	return err;
 }
 
-#ifdef TEST
+#ifdef TEST_UNLINK
 int main(int argc, char *argv[])
 {
 	int err = 0;
@@ -154,7 +153,7 @@ int main(int argc, char *argv[])
 	if (NULL == sb.clntp) {
 		fprintf(stderr, "%s: Create handle to RPC server "
 			"(%s, %u, %u) failed: (%s).\n", progname,
-			svraddr, NFS_PROGRAM, NFS_V3, 
+			svraddr, NFS_PROGRAM, NFS_V3,
 			clnt_spcreateerror(progname));
 		err = ENXIO;
 		goto out;
