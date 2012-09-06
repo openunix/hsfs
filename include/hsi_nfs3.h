@@ -1,5 +1,5 @@
 #ifndef __HSI_NFS3_H__
-#define __HSI_NFS3_H__ 
+#define __HSI_NFS3_H__
 
 
 #include <sys/stat.h>
@@ -13,7 +13,7 @@
  * @param hsfs_inode
  * @param name to create
  * @param mode
- * 
+ *
  * @return error number
  *
  * */
@@ -21,7 +21,7 @@ extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new, ch
 
 extern int hsi_nfs3_rmdir(struct hsfs_inode *hsfs_inode, char *name);
 
-/**  
+/**
 * Remove a file
 *
 * @param hsfs_inode
@@ -44,7 +44,7 @@ extern int hsi_nfs3_remove(struct hsfs_inode *hi, const char *name);
 extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
  		struct hsfs_inode *newhi, const char *newname);
 
-/**  
+/**
 * Change nfs3 status number to fuse error number
 *
 * @param nfs3 status number
@@ -53,10 +53,20 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 **/
 extern int hsi_nfs3_stat_to_errno(int stat);
 
-/**  
+/**
+* Change rpc status number to fuse error number
+*
+* @param rpc status number
+*
+* @return fuse error number
+**/
+extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
+
+
+/**
 * Read the contents of the symbolic link
 *
-* @param hi           the struct hsfs_inode of the symbolic link 
+* @param hi           the struct hsfs_inode of the symbolic link
 * @param nfs_link     the contents of the symbolic link
 *
 * @return error number
@@ -64,10 +74,10 @@ extern int hsi_nfs3_stat_to_errno(int stat);
 extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char *nfs_link);
 
 
-/**  
+/**
 * Create a symbolic link
 *
-* @param parent      the struct hsfs_inode of the parent 
+* @param parent      the struct hsfs_inode of the parent
 * @param new         the struct hsfs_inode of the new
 * @param nfs_link    the contents of the new symbolic link
 * @param nfs_name    the name of the new symbolic link
@@ -77,19 +87,19 @@ extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char *nfs_link);
 extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new, const char *nfs_link, const char *nfs_name);
 
 /**
-* File read 
+* File read
 *
-* @param rw      	the content of the read operation 
+* @param rw      	the content of the read operation
 *
 * @return error number
 **/
 extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
 
 
-/**  
-* File write 
+/**
+* File write
 *
-* @param rw      	the content of the write operation 
+* @param rw      	the content of the write operation
 *
 * @return error number
 **/
@@ -117,7 +127,7 @@ extern int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
 * @param name the name of the file you want to create
 *	@param mode the access mode of the file
 **/
-extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi, 
+extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 							const char *name, mode_t mode);
 
 
@@ -129,7 +139,7 @@ extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
  *  @param   parent	the inode of the parent directory
  *  @param   newinode 	the inode of the created file
  *  @param   name 	the name to create
- *  @param   mode	file type and access mode of the file 
+ *  @param   mode	file type and access mode of the file
  *  @param   rdev	device number of the file: only used for CHR and BLK
  *  * */
 extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name,
@@ -139,36 +149,36 @@ extern	int hsi_nfs3_mknod(fuse_req_t req, struct hsfs_inode *parent, struct hsfs
 /**
  * hsi_nfs3_link
  *
- * To create a hard link to a file 
+ * To create a hard link to a file
  *
  * @param   ino		the inode of the file
  * @param   newparent	the inode of the new parent
- * @param   newinode	the inode of the linked file 
+ * @param   newinode	the inode of the linked file
  * @param   name	the name to of the link to create
  * */
 extern 	int hsi_nfs3_link(fuse_req_t req, struct hsfs_inode *ino, struct hsfs_inode *newparent,
 			  struct hsfs_inode **newinode ,  const char *name);
 
 /**
- * Look up a directory entry by name  
+ * Look up a directory entry by name
  *
  * @param parent[IN]:		The information of the parent node
  * @param newinode[OUT]:	Point to the node information obtained by name
  * @param name[IN]:		The name to look up
- * 
+ *
  * @return error number
  *
  * */
 extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode **newinode, char *name);
 
 /**
- * Look up a node from hash table  
+ * Look up a node from hash table
  *
  * @param sb[IN]:		The information of the superblock
- * @param fh[IN]:		Filehandle of the parent directory 
+ * @param fh[IN]:		Filehandle of the parent directory
  * @param attr[IN]:		Node attributes
 
- * 
+ *
  * @return:			A pointer to the node information
  *
  * */
@@ -176,7 +186,7 @@ extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, fat
 
 /**
 * The four internal functions used to convert fattr3 to struct stat, struct stat
-* to hsfs_sattr by to_set and call nfs procedures are defined below, 
+* to hsfs_sattr by to_set and call nfs procedures are defined below,
 * which use the standard errno as return valules defined in errno.h.
 *
 * Date:2012-09-04
@@ -201,7 +211,7 @@ extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
  * @param hrc       the content of the fuse_add_direntry and fi->fh
  * @param dircount  the maximum number of bytes of directory information returned
  * @param maxcount  the maximum size of the READDIRPLUS3resok structure in bytes
- * 
+ *
  * @return error number
  * */
 extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, size_t *dircount, size_t maxcount);
