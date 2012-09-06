@@ -64,7 +64,7 @@ struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint
         {
                 return  NULL;
         }
-        if(sb == NULL | pfh == NULL)
+        if(sb == NULL || pfh == NULL)
         {
                 free(hsfs_node);
                 return NULL;
@@ -141,7 +141,7 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
 struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *pattr)
 {
 	struct hsfs_inode *hsfs_node = NULL;
-	if(sb == NULL | pfh == NULL | pattr == NULL)
+	if(sb == NULL || pfh == NULL || pattr == NULL)
 	{
 		return  NULL;
 	}
@@ -182,7 +182,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
 
 int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 {
-	if(sb == NULL | hs_node == NULL)
+	if(sb == NULL || hs_node == NULL)
 	{
 		DEBUG("Delete failed : the input parameter is invalid !");
 		return EINVAL;
@@ -199,6 +199,7 @@ int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 			return  0;
 		}
 		
+	return EINVAL;
 }
 
 
