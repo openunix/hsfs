@@ -2,12 +2,11 @@
  * hsx_fuse_open
  * liuyoujin
  */
-#include "hsx_fuse.h"
-#include <errno.h>
+#include <sys/errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <rpc/rpc.h>
-
+#include "hsx_fuse.h"
 #define FI_FH_LEN    10;
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
