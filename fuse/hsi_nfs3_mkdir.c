@@ -6,6 +6,8 @@
 #include "apis.h"
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
+#include "log.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -66,7 +68,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 
 			if(NULL == *hi_new)
 			{
-				printf("Error in create inode.\n");
+				ERR("Error in create inode.\n");
 			}
 #endif /*RELEASE*/
 			
