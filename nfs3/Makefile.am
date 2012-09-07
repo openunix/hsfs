@@ -18,7 +18,7 @@ libhsi_nfs3_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
 			$(HSFS_MNT_CLNT) fstab.c nfs_mntent.c hsi_nfs3_mount.c \
 			hsi_nfs3_fattr2stat.c hsi_nfs3_unlink.c hsi_nfs3_getattr.c \
-			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c
+			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c hsi_nfs3_statfs.c
 
 $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
 	test -f $@ && rm -rf $@ || true

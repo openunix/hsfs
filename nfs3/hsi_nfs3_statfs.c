@@ -39,7 +39,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	if (NFS3_OK != st){
 
 		//st = hsi_nfs_stat_to_errno (st);
-		ERR ("rpc request failed: %s\n",st);
+		ERR ("rpc request failed: %d\n",st);
 		goto out;
 	}
 	resok = res.fsstat3res_u.resok;
@@ -53,6 +53,7 @@ out:
 	return st;
 
 }
+
 int hsi_super2statvfs(struct hsfs_super *sp, struct statvfs *stbuf)
 {
 	unsigned long block_res;
@@ -88,6 +89,7 @@ pout:
 	return 1;
 }
 
+#ifdef HSFS_NFS3_TEST
 int main (int argc, char *argv[])
 {
 	int err;
@@ -150,4 +152,4 @@ int main (int argc, char *argv[])
 exit:
 	exit (err);
 }
-
+#endif

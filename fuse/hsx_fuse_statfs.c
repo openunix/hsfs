@@ -14,11 +14,11 @@ extern void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino)
 	struct hsfs_inode *root = super->root;
 	struct hsfs_super *sp = root->sb;
 	int err=0;
-	err = hsi_fuse_statfs(root);
+	err = hsi_nfs3_statfs(root);
         if (err){
-		goto out:
+		goto out;
 	}
-	err = hsi_super2statvfs(sp, stbuf);
+	err = hsi_super2statvfs(sp, &stbuf);
 	if (err){
 		err = EINVAL;
 		goto out;

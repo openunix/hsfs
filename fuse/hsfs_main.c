@@ -76,6 +76,7 @@ static inline int hsi_fuse_add_opt(struct fuse_args *args, const char *opt)
 
 static struct fuse_lowlevel_ops hsfs_oper = {
 	.getattr = hsx_fuse_getattr,
+	.statfs = hsx_fuse_statfs,
 };
 
 /*
