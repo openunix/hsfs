@@ -25,7 +25,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 
 	buf = (char *) malloc(size);
 	if( NULL == buf)
-	  fuse_reply_err(req, err);
+		fuse_reply_err(req, err);
 	
 	hi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
 	hrc = (struct hsfs_readdir_ctx *)malloc(sizeof(struct hsfs_readdir_ctx));
