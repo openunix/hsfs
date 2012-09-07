@@ -69,7 +69,7 @@ int hsi_super2statvfs(struct hsfs_super *sp, struct statvfs *stbuf)
 	}
 	stbuf->f_bsize = sp-> bsize;
 	stbuf->f_frsize = sp->bsize;
-	stbuf->f_blocks = (sp->bsize+block_res)>>block_bits;
+	stbuf->f_blocks = (sp->tbytes+block_res)>>block_bits;
 	
 	stbuf->f_bfree = (sp->fbytes+block_res)>>block_bits;
 	stbuf->f_bavail = (sp->abytes+block_res)>>block_bits;
