@@ -713,5 +713,8 @@ int hsx_fuse_unmount(const char *spec, const char *point,
 		ump->pm_prot = IPPROTO_UDP;
 	}
 
+	hsx_fuse_idel(super, super->root);
+	hsx_fuse_itable_del(super);
+
 	return hsi_nfs3_unmount(&mnt_server, &dirname);
 }
