@@ -34,12 +34,11 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount=size;
 	hi = hsx_fuse_iget(hs,ino);
-	hi->sb->clntp=clntp;
-	fi->fh = (size_t)hrc;
+
 	if(off){
-	  	while(off != fi->fh.off)
-		  fi.fh = fi->fh.next;
-	  	hrc=fi->fh;
+		hrc = fi->fh; 
+	  	while(off != hrc->off)
+		  hrc = hrc->next;
 	}
 
 	err=hsi_nfs3_readdir(hi,hrc,dircount,maxcount);
@@ -55,8 +54,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	  	fi->fh=(size_t)hrc;
 	  	size_t tmplen=newlen;
 	  	newlen += fuse_add_direntry(req, NULL, 0, hrc->name, NULL, 0);
-	 	fuse_add_direntry(req, buf + tmplen,size - tmplen, name,
-			    hrc->stbuf, hrc->off);
+	 	fuse_add_direntry(req, buf + tmplen,size - tmplen, hrc->name,
+			    &hrc->stbuf, hrc->off);
 	  	if(newlen>size)
 	    		break;
 	  
