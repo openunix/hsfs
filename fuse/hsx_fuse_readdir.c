@@ -35,6 +35,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	maxcount=size;
 	hi = hsx_fuse_iget(hs,ino);
 	hi->sb->clntp=clntp;
+	fi->fh = (size_t)hrc;
 	if(off){
 	  	while(off != fi->fh.off)
 		  fi.fh = fi->fh.next;
