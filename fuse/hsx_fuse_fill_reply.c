@@ -11,14 +11,14 @@
 void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param **e)
 {	
 	if (0 == hsi_nfs3_fattr2stat(inode->attr, (*e)->attr)) {
-		(*)e->ino = inode->ino;
-		if (1 == inode->attr.ftype) {
-			(*e)->attr_timeout = inode->sp->acregmin;
-			(*e)->entry_timeout = inode->sp->acregmax;
+		(*e)->ino = inode->ino;
+		if (1 == inode->attr.type) {
+			(*e)->attr_timeout = inode->sb->acregmin;
+			(*e)->entry_timeout = inode->sb->acregmax;
 		}
-		else if (2 == inode->attr.ftype) {
-			(*e)->attr_timeout = inode->sp->acdirmin;
-			(*e)->entry_timeout = inode->sp->acdirmax;
+		else if (2 == inode->attr.type) {
+			(*e)->attr_timeout = inode->sb->acdirmin;
+			(*e)->entry_timeout = inode->sb->acdirmax;
 		}
 		else
 			ERR("Error in get file type!\n");
