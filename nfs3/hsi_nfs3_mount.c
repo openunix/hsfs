@@ -512,6 +512,8 @@ static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 		goto out;
 	}
 
+	hsx_fuse_iadd(super, root);
+
 	ret = hsi_nfs3_fsinfo(super->root);
 	if (ret)
 		goto out;
