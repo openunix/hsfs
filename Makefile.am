@@ -1,1 +1,1 @@
-SUBDIRS = fuse nfs3
+SUBDIRS = nfs3 fuse
