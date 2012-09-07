@@ -15,7 +15,7 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 		printf("No menory: hrc.");
 	
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	fi->fh = hrc;
+	fi->fh = (size_t)hrc;
 	fuse_reply_open(req, fi);
 
 out:	
