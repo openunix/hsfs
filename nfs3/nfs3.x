@@ -4,17 +4,10 @@
 # define RFC_SYNTAX 1
 #endif /* RFC_SYNTAX */
 
-#if 1
-typedef unsigned hyper uint64;
-typedef hyper int64;
-typedef unsigned int uint32;
-typedef int int32;
-#else
-#define uint64 unsigned hyper
-#define int64 hyper
+#define uint64 u_int64_t
+#define int64 int64_t
 #define uint32 unsigned
 #define int32 int
-#endif
 
 const NFS3_FHSIZE = 64;
 const NFS3_COOKIEVERFSIZE = 8;
