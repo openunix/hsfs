@@ -8,17 +8,17 @@
  *  Edit:2012/09/03 Hu yuwei
  *  
  */
-void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param **e)
+void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 {	
-	if (0 == hsi_nfs3_fattr2stat(inode->attr, (*e)->attr)) {
-		(*e)->ino = inode->ino;
+	if (0 == hsi_nfs3_fattr2stat(&(inode->attr), &(e->attr))) {
+		e->ino = inode->ino;
 		if (1 == inode->attr.type) {
-			(*e)->attr_timeout = inode->sb->acregmin;
-			(*e)->entry_timeout = inode->sb->acregmax;
+			e->attr_timeout = inode->sb->acregmin;
+			e->entry_timeout = inode->sb->acregmax;
 		}
 		else if (2 == inode->attr.type) {
-			(*e)->attr_timeout = inode->sb->acdirmin;
-			(*e)->entry_timeout = inode->sb->acdirmax;
+			e->attr_timeout = inode->sb->acdirmin;
+			e->entry_timeout = inode->sb->acdirmax;
 		}
 		else
 			ERR("Error in get file type!\n");
