@@ -2,13 +2,13 @@
 #include "hsfs.h"
 #include "hsx_fuse.h"
 #include "hsi_nfs3.h"
-
+#include "log.h"
 void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 {
 	struct  hsfs_super	*sb;
 	struct  hsfs_inode	*parent;
 	struct  hsfs_inode	*child;
-	struct  fuse_entry_param	*e;
+	struct  fuse_entry_param	e;
 	int	err = 0;
 
 	sb = fuse_req_userdata(req);
@@ -25,6 +25,6 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 
 	hsx_fuse_fill_reply(child,&e);
 
-	fuse_reply_entry(req, e);
+	fuse_reply_entry(req, &e);
 
 }
