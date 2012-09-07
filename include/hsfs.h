@@ -12,6 +12,7 @@
 #include <time.h>
 
 #include "nfs3.h"
+#include "log.h"
 
 #define HSFS_TYPE "hsfs"
 
