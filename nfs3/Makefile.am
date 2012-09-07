@@ -17,6 +17,7 @@ libhsi_nfs3_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			 `pkg-config fuse --cflags`
 libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
 			$(HSFS_MNT_CLNT) fstab.c nfs_mntent.c hsi_nfs3_mount.c \
+			hsi_nfs3_fattr2stat.c hsi_nfs3_unlink.c hsi_nfs3_getattr.c \
 			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c
 
 $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
@@ -25,7 +26,7 @@ $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
 
 $(HSFS_NFS3_XDR) : $(HSFS_NFS3_X) $(HSFS_NFS3_H)
 	test -f $@ && rm -rf $@ || true
-	rpcgen -c -o $@ $<
+	rpcgen -c -C -o $@ $<
 
 $(HSFS_NFS3_CLNT) : $(HSFS_NFS3_X) $(HSFS_NFS3_H)
 	test -f $@ && rm -rf $@ || true
@@ -37,7 +38,7 @@ $(HSFS_MNT_H) : $(HSFS_MNT_X)
 
 $(HSFS_MNT_XDR) : $(HSFS_MNT_X) $(HSFS_MNT_H)
 	test -f $@ && rm -rf $@ || true
-	rpcgen -c -o $@ $<
+	rpcgen -c -C -o $@ $<
 
 $(HSFS_MNT_CLNT) : $(HSFS_MNT_X) $(HSFS_MNT_H)
 	test -f $@ && rm -rf $@ || true

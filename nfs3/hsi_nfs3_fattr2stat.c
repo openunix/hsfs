@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <sys/vfs.h>
 #include <libgen.h>
+
+#include "log.h"
 #include "nfs3.h"
 
 int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st){
