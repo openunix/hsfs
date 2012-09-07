@@ -3,9 +3,8 @@
  *  sunxiaobin
  *  2012/09/06
  */
-#define TEST_MKNOD
 
-#ifdef TEST_MKNOD
+#ifdef HSFS_NFS3_TEST
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -134,7 +133,7 @@ out:
 }
 #else 
 #include "hsi_nfs3.h"
-#endif /*#ifdef TEST_MKNOD*/
+#endif /*#ifdef HSFS_NFS3_TEST*/
 int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode	**newinode, const char *name,mode_t mode, dev_t rdev)
 {
 	int err=0;
@@ -192,7 +191,7 @@ pipe_sattrs:
 		err=hsi_rpc_stat_to_errno(parent-sb->clntp);	
 		goto out;
 	}	
-	else if(!res.status){
+	else if(res.status){
 		err=hsi_nfs3_stat_to_errno(res.status);
 		goto out;
 	}
