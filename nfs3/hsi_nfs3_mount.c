@@ -646,6 +646,12 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 			goto fail;
 	}
 
+	/* nfs3 client */
+	super->clntp = hsi_nfs3_clnt_create(&nfs_server);
+	if (super->clntp == NULL) {
+		goto umnt_fail;
+	}
+
 	/* root filehandle */
 	{
 		mountres3_ok *mountres;
@@ -666,12 +672,6 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 		fhandle = &mntres.mountres3_u.mountinfo.fhandle;
 		if (hsi_fill_super(super, (nfs_fh3 *)fhandle))
 			goto umnt_fail;
-	}
-
-	/* nfs3 client */
-	super->clntp = hsi_nfs3_clnt_create(&nfs_server);
-	if (super->clntp == NULL) {
-		goto umnt_fail;
 	}
 
 	ch = fuse_mount(point, args);
