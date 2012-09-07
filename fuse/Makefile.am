@@ -9,4 +9,4 @@ hsfs_SOURCES = xcommon.c hsfs_main.c
 noinst_LIBRARIES = libhsx_fuse.a
 libhsx_fuse_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			`pkg-config fuse --cflags`
-libhsx_fuse_a_SOURCES = hsfs_fuse_table.c
+libhsx_fuse_a_SOURCES = hsfs_fuse_table.c  
