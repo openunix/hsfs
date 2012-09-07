@@ -4,7 +4,7 @@
  * 2012.9.5
  **/
 
-#include "../include/hsx_fuse.h"
+#include "hsx_fuse.h"
 
 #define MAXNAMELEN 255
 

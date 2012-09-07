@@ -4,6 +4,8 @@
  * 2012.9.5
  **/
 
+#include "hsx_fuse.h"
+
 #define MAXNAMELEN 255
 
 extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
