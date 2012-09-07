@@ -203,14 +203,14 @@ int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 
 
 /**
- * hsx_fuse_delall:     Remove and free all member from the hashtable
+ * hsx_fuse_itable_del:	Remove and free all member from the hashtable
  *
- * @param sb[IN]:       the information of the superblock
+ * @param sb[IN]:	the information of the superblock
  *  
- * @return:     0 if successfull, other values show an error
+ * @return:	0 if successfull, other values show an error
  *
  * */
-int  hsx_fuse_delall(struct hsfs_super *sb)
+int  hsx_fuse_itable_del(struct hsfs_super *sb)
 {
         struct hsfs_inode *hsfs_node;
         struct hsfs_inode *hsfs_inext;
