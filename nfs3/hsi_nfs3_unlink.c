@@ -4,8 +4,6 @@
  * 2012.9.6
  **/
 
-#define HSFS_NFS3_TEST
-
 #ifdef HSFS_NFS3_TEST
 # include <rpc/rpc.h>
 # include <libgen.h>
@@ -33,7 +31,8 @@ struct hsfs_inode
 	struct hsfs_inode 	*next;
 };
 #else
-# include "../include/hsi_nfs3.h"
+#include <errno.h>
+#include "hsi_nfs3.h"
 #endif
 
 #define errno_NFSERR_IO         EIO
@@ -116,17 +115,16 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 			(xdrproc_t)xdr_diropargs3, (caddr_t)&args,
 			(xdrproc_t)xdr_wccstat3, (caddr_t)&res, to);
 	if (ret) {
-		ERR("%s: Call RPC Server (%s, %u, %u) failure: "
-			"(%s).\n", progname, svraddr,
-		       	NFS_PROGRAM, NFS_V3, clnt_sperrno(ret));
+		ERR("%s: Call RPC Server (%u, %u) failure: "
+			"(%s).\n", progname, NFS_PROGRAM,
+		       	NFS_V3, clnt_sperrno(ret));
 		err = hsi_rpc_stat_to_errno(hi->sb->clntp);
 		goto out;
 	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
-		ERR("%s: Path (%s) on Server (%s) is not "
-			"accessible: (%d).\n", progname, name,
-			svraddr, ret);
+		ERR("%s: Path (%s) on Server is not "
+			"accessible: (%d).\n", progname, name, ret);
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
 	}
@@ -134,7 +132,7 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 		if (res.wccstat3_u.wcc.after.present) {
 			memcpy(&(hi->attr), &res.wccstat3_u.wcc.
 				after.post_op_attr_new_u.
-				attributes, sizeof(fattr3_new));
+				attributes, sizeof(fattr3));
 		}
 	}
 out:
