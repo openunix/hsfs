@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include "hsfs.h"
 #include "hsi_nfs3.h"
 #include "log.h"
 
