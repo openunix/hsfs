@@ -24,7 +24,7 @@ struct hsfs_super s;
 struct hsfs_super *sb=&s;
 #endif /* HSFS_NFS3_TEST */
 
-int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, char *name)
+int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, const  char *name)
 {
 	struct diropargs3	args;
 	struct lookup3res	res;
@@ -53,6 +53,7 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, cha
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).\n",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
+		ERR("%d",err);
 		goto out;
         }
 		

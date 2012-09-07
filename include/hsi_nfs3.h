@@ -164,7 +164,7 @@ extern 	int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, 
  * @return error number
  *
  * */
-extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode **newinode, char *name);
+extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name);
 
 /**
  * hsi_nfs3_alloc_node: allocate memory for a node 
