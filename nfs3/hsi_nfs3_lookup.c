@@ -9,7 +9,7 @@
 #include <rpc/rpc.h>
 #include <libgen.h>
 
-#define HSFS_NFS3_TEST
+//#define HSFS_NFS3_TEST
 
 #ifndef HSFS_NFS3_TEST
 #include "hsfs.h"
@@ -28,7 +28,7 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, cha
 {
 	struct diropargs3	args;
 	struct lookup3res	res;
-	struct fattr3_new	*pattr = NULL;
+	struct fattr3	*pattr = NULL;
 	nfs_fh3	name_fh;
 	enum clnt_stat	st;
 	int err = 0;
@@ -56,10 +56,10 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, cha
 		goto out;
         }
 		
-        pattr = &res.lookup3res_u.resok.obj_attributes.post_op_attr_new_u.attributes;
+        pattr = &res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
         name_fh = res.lookup3res_u.resok.object;
         
-	*newinode = hsi_nfs3_ifind(sb,&name_fh,pattr);
+	*newinode = hsi_nfs3_ifind(parent->sb,&name_fh,pattr);
 	
 out:
         return(err);
@@ -76,13 +76,10 @@ int main(int argc ,char *argv[])
 	char *fpath = NULL;
 	size_t fhlen = 0;
 	unsigned char *pnfsfh = NULL;
-	nfs_fh3  parent_fh;
 	
 	struct hsfs_inode parent;
         struct hsfs_inode *child;
 
-
-	enum clnt_stat st;
 	int err = 0;
 
 	cliname = basename(argv[0]);
@@ -92,7 +89,7 @@ int main(int argc ,char *argv[])
 		fprintf(stderr, "%s $svraddr $fpath.\n", cliname);
 		goto out;
 	}
-	hsx_fuse_init(sb);
+	hsx_fuse_itable_init(sb);
 	svraddr = argv[1];
 	fpath = argv[2];
 
@@ -118,14 +115,18 @@ int main(int argc ,char *argv[])
 	parent.fh.data.data_val = (char *)pnfsfh;
 	parent.fh.data.data_len = fhlen;
 
-	hsi_fuse_lookup(&parent,&child,argv[3]);
+	if((err = hsi_nfs3_lookup(&parent,&child,argv[3])))
+	{
+		fprintf(stderr,"Call hsi_nfs3_lookup function fails , Error code : %d\n",err);	
+		goto out;
+	}
 
 	fprintf(stdout, "Attributes of path '%s':\n""\tino=%lu\t\n\t"\
-                        "generation=%d\t\n\t""nlookup=%u\t\n\t"\
-                        "type=%d\t\n\t""mode=%08x\t\n\t"\
+                        "generation=%lu\t\n\t""nlookup=%lu\t\n\t"\
+                        "type=%u\t\n\t""mode=%08x\t\n\t"\
                         "nlink=%u\n\tuid=%u\n\tgid=%u\n\t"\
-                        "size=%u\n\tused=%u\n\t"\
-                        "fsid=%u\n\tfileid=%lu\n",argv[3],child->ino,
+                        "size=%lu\n\tused=%lu\n\t"\
+                        "fsid=%lu\n\tfileid=%lu\n",argv[3],child->ino,
                         child->generation,child->nlookup,child->attr.type,
                         child->attr.mode,child->attr.nlink,child->attr.uid,
                         child->attr.gid,child->attr.size,child->attr.used,
