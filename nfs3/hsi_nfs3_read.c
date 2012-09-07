@@ -4,7 +4,6 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
-#define HSFS_TEST
 
 int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 {
@@ -30,7 +29,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	if (err) {
 		ERR("Call RPC Server failure:%s", clnt_sperrno(err));
 		clnt_geterr(rinfo->inode->sb->clntp, &rerr);
-		err = rerr.re_errno;
+		err = rerr.re_errno == 0 ? EIO : rerr.re_errno;
 		goto out;
 	}
 
@@ -41,7 +40,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	}	
 
 	resok = &res.read3res_u.resok;
-	DEBUG("hsi_nfs3_read OUTPUT: read3resok.count:%x    read3resok.eof:%x",
+	DEBUG("hsi_nfs3_read OUTPUT: count:%x    eof:%x",
 			resok->count, resok->eof);
 	rinfo->data.data_val = resok->data.data_val;
 	rinfo->data.data_len = resok->data.data_len;
@@ -52,7 +51,8 @@ out:
 	return err;
 }
 
-#ifdef HSFS_TEST
+#ifdef HSFS_NFS3_TEST
+
 int main(int argc, char *argv[])
 {
 	struct hsfs_rw_info rinfo;
@@ -64,20 +64,24 @@ int main(int argc, char *argv[])
 	CLIENT *clntp = NULL;
 	size_t fhlen = 0 ;
 	unsigned char *fhvalp = NULL;
+	size_t iosize = 0;
 	int err = 0;
-	int i = 0;
 	
-	if(argc != 4){
-		ERR("USEAGE: hsi_nfs3_read  SERVER_IP   FILEPATH	MOUNTPOINT.\n");
+	if(argc != 5){
+		ERR("USEAGE: hsi_nfs3_read  SERVER_IP   FILEPATH   IOSIZE   "
+			"MOUNTPOINT\n");
 		ERR("EXAMPLE: ./hsi_nfs3_read	10.10.99.120	"
-			"/nfsXport/a/file	/mnt/hsfs.\n");
+			"/nfsXport/a/file   512  /mnt/hsfs\n");
 		err = EINVAL;
 		goto out;
 	}
 	
 	svraddr = argv[1];
 	fpath = argv[2];
-	mpoint = argv[3];
+	iosize = atoi(argv[3]);
+	if(0 == iosize)
+		DEBUG("IOSIZE is zero\n");
+	mpoint = argv[4];
 	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
 	if(NULL == clntp) {
 		ERR("Create handle to RPC server (%s, %u, %u) failed\n",
@@ -105,18 +109,15 @@ int main(int argc, char *argv[])
 	inode.fh.data.data_len = fhlen;
 	inode.fh.data.data_val = fhvalp;
 	
-#define TEST_FILE_SIZE		(100 * 0x100000) //100MB
-#define TEST_READ_MAX_SIZE 	0x10000 //64KB
 	rinfo.rw_off = 0;
-	rinfo.rw_size = TEST_READ_MAX_SIZE;
+	rinfo.rw_size = iosize;
 
-	for(i = 0; i < TEST_FILE_SIZE; ){
+	while(1){
 		rinfo.rw_off += rinfo.ret_count;
 		err = hsi_nfs3_read(&rinfo);
 		if(err)
 			break;
 		
-		i += rinfo.ret_count;		
 		if(rinfo.eof)
 			break;		
 	}
@@ -125,4 +126,4 @@ out:
 	return err;
 }
 
-#endif /*HSFS_TEST*/
+#endif /*HSFS_NFS3_TEST*/

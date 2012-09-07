@@ -4,7 +4,6 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
-#define HSFS_TEST
 
 int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 {
@@ -19,6 +18,8 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	memset(&res, 0, sizeof(res));
 	args.file.data.data_len = winfo->inode->fh.data.data_len;
 	args.file.data.data_val = winfo->inode->fh.data.data_val;
+	args.data.data_len = winfo->data.data_len;
+	args.data.data_val = winfo->data.data_val;
 	args.offset = winfo->rw_off;
 	args.count = winfo->rw_size;
 	args.stable = winfo->stable;
@@ -31,7 +32,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	if(err){
 		ERR("Call RPC Server failure: %s", clnt_sperrno(err));
 		clnt_geterr(winfo->inode->sb->clntp, &rerr);
-		err = rerr.re_errno;
+		err = rerr.re_errno == 0 ? EIO : rerr.re_errno ;
 		goto out;
 	}
 
@@ -42,15 +43,15 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	}	
 
 	resok = &res.write3res_u.resok;
-	DEBUG("hsi_nfs3_write OUTPUT: write3resok.count: %x", resok->count);
+	DEBUG("hsi_nfs3_write OUTPUT: count: %x", resok->count);
 	winfo->ret_count = resok->count;
 
 out:
 	return err;
 }
 
+#ifdef HSFS_NFS3_TEST
 
-#ifdef HSFS_TEST
 int main(int argc, char *argv[])
 {
 	struct hsfs_rw_info winfo;
@@ -63,20 +64,27 @@ int main(int argc, char *argv[])
 	CLIENT *clntp = NULL;
 	size_t fhlen = 0 ;
 	unsigned char *fhvalp = NULL;
+	size_t iosize = 0;
+	size_t fsize = 0;
 	int err = 0;
-	int i = 0;
+	size_t i = 0;
 	
-	if(argc != 4){
-		ERR("USEAGE: hsi_nfs3_write  SERVER_IP   FILEPATH	MOUNTPOINT.\n");
+	if(argc != 6){
+		ERR("USEAGE: hsi_nfs3_write  SERVER_IP   FILEPATH   IOSIZE  FILESIZE"
+			"MOUNTPOINT\n");
 		ERR("EXAMPLE: ./hsi_nfs3_write	10.10.99.120	"
-			"/nfsXport/a/file	/mnt/hsfs.\n");
+			"/nfsXport/a/file   512   1000000  /mnt/hsfs\n");
 		err = EINVAL;
 		goto out;
 	}
 	
 	svraddr = argv[1];
 	fpath = argv[2];
-	mpoint = argv[3];
+	iosize = atoi(argv[3]);
+	fsize = atoi(argv[4]);
+	if(0 == iosize | 0 == fsize)
+		DEBUG("IOSIZE or FILESIZE is zero.\n");
+	mpoint = argv[5];
 	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
 	if(NULL == clntp){
 		ERR("Create handle to RPC server (%s, %u, %u) failed\n",
@@ -103,18 +111,19 @@ int main(int argc, char *argv[])
 	inode.fh.data.data_len = fhlen;
 	inode.fh.data.data_val = fhvalp;
 	
-#define TEST_FILE_SIZE		(100 * 0x100000) //100MB
-#define TEST_WRITE_MAX_SIZE 	0x10000 //64KB
 	winfo.rw_off = 0;
-	winfo.rw_size = TEST_WRITE_MAX_SIZE;
-	buffer = (char *) malloc(TEST_WRITE_MAX_SIZE);
+	winfo.rw_size = iosize;
+	buffer = (char *) malloc(iosize);
 	if( NULL == buffer){
 		ERR("insufficient memory.\n");
 		err = ENOMEM;
 		goto out;
 	}
-	memset(buffer, '0', TEST_WRITE_MAX_SIZE);
-	for(i = 0; i < TEST_FILE_SIZE; ){
+	winfo.stable = HSFS_FILE_SYNC;
+	memset(buffer, '0', iosize);
+	winfo.data.data_len = iosize;
+	winfo.data.data_val = buffer;
+	for(i = 0; i < fsize; ){
 		winfo.rw_off += winfo.ret_count;
 		err = hsi_nfs3_write(&winfo);
 		if(err)
@@ -129,4 +138,4 @@ out:
 	return err;
 }
 
-#endif /*HSFS_TEST*/
+#endif /*HSFS_NFS3_TEST*/
