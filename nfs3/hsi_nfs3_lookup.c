@@ -9,17 +9,20 @@
 #include <rpc/rpc.h>
 #include <libgen.h>
 
+#define HSFS_NFS3_TEST
+
+#ifndef HSFS_NFS3_TEST
+#include "hsfs.h"
+#include "log.h"
+#include "hsi_nfs3.h"
+#else
 #include "../include/hsfs.h"
 #include "../include/log.h"
 #include "../include/hsi_nfs3.h"
-
-#define TEST_LOOKUP
-
-#ifdef TEST_LOOKUP
 #include "apis.h"
 struct hsfs_super s;
 struct hsfs_super *sb=&s;
-#endif
+#endif /* HSFS_NFS3_TEST */
 
 int  hsi_fuse_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, char *name)
 {
@@ -63,7 +66,7 @@ out:
 
 }
 
-#ifdef	 TEST_LOOKUP
+#ifdef	 HSFS_NFS3_TEST
 
 int main(int argc ,char *argv[])
 {
@@ -134,6 +137,6 @@ out:
 	exit(err);
 }
 
-#endif
+#endif/* HSFS_NFS3_TEST */
 
 
