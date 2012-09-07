@@ -131,7 +131,7 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	else {
 		if (res.wccstat3_u.wcc.after.present) {
 			memcpy(&(hi->attr), &res.wccstat3_u.wcc.
-				after.post_op_attr_new_u.
+				after.post_op_attr_u.
 				attributes, sizeof(fattr3));
 		}
 	}

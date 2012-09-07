@@ -4,8 +4,6 @@
  * 2012.9.6
  **/
 
-#define HSFS_NFS3_TEST
-
 #ifdef HSFS_NFS3_TEST
 # include <rpc/rpc.h>
 # include <libgen.h>
@@ -59,30 +57,29 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 			(xdrproc_t)xdr_rename3args, (caddr_t)&args,
 			(xdrproc_t)xdr_rename3res, (caddr_t)&res, to);
 	if (ret) {
-		ERR("%s: Call RPC Server (%s, %u, %u) failure: "
-			"(%s).\n", progname, svraddr,
-			NFS_PROGRAM, NFS_V3, clnt_sperrno(ret));
+		ERR("%s: Call RPC Server (%u, %u) failure: "
+			"(%s).\n", progname, NFS_PROGRAM,
+		       	NFS_V3, clnt_sperrno(ret));
 		err = hsi_rpc_stat_to_errno(hi->sb->clntp);
 		goto out;
 	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
-		ERR("%s: Path (%s) on Server (%s) is not "
-			"accessible: (%d).\n", progname, name,
-			svraddr, ret);
+		ERR("%s: Path (%s) on Server is not "
+			"accessible: (%d).\n", progname, name, ret);
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
 	}
 	else {
 		if(res.rename3res_u.res.fromdir_wcc.after.present) {
 			memcpy(&(hi->attr), &res.rename3res_u.res.fromdir_wcc.
-				after.post_op_attr_new_u.
-				attributes, sizeof(fattr3_new));
+				after.post_op_attr_u.
+				attributes, sizeof(fattr3));
 		}
 		if(res.rename3res_u.res.todir_wcc.after.present) {
 			memcpy(&(newhi->attr), &res.rename3res_u.res.todir_wcc.
-				after.post_op_attr_new_u.
-				attributes, sizeof(fattr3_new));
+				after.post_op_attr_u.
+				attributes, sizeof(fattr3));
 		}
 	}
 out:
