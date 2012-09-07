@@ -14,12 +14,12 @@ extern struct hsfs_super g_super;
 void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
                          struct fuse_file_info *fi)
 {
-	struct hsfs_readdir_ctx *hrc=NULL;
-	struct hsfs_inode *hi=NULL;
-	struct hsfs_super *hs=NULL;
-	size_t *dircount=NULL;
-	size_t maxcount=0;
-	size_t newlen= 0;
+	struct hsfs_readdir_ctx *hrc = NULL;
+	struct hsfs_inode *hi = NULL;
+	struct hsfs_super *hs = NULL;
+	size_t *dircount = NULL;
+	size_t maxcount = 0;
+	size_t newlen = 0;
 	char * buf = NULL;
 	int err=0;
 
@@ -27,12 +27,12 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	if( NULL == buf)
 	  fuse_reply_err(req, err);
 	
-	hi = (struct hsfs_inode*)malloc(sizeof(struct hsfs_inode));
-	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
+	hi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
+	hrc = (struct hsfs_readdir_ctx *)malloc(sizeof(struct hsfs_readdir_ctx));
 	hi->sb = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
 	hs = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	maxcount=size;
+	maxcount = size;
 	hi = hsx_fuse_iget(hs,ino);
 
 	if(off){
@@ -41,25 +41,25 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		  hrc = hrc->next;
 	}
 
-	err=hsi_nfs3_readdir(hi,hrc,dircount,maxcount);
+	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
 	
 	if(err)
 	{
 		fuse_reply__err(req, err);
 		goto out;
 	}
-	
-	hrc=hrc->next;
+
+	fi->fh = (size_t)hrc;
+	hrc = hrc->next;
 	while(hrc!=NULL){
-	  	fi->fh=(size_t)hrc;
-	  	size_t tmplen=newlen;
+	  	size_t tmplen = newlen;
 	  	newlen += fuse_add_direntry(req, NULL, 0, hrc->name, NULL, 0);
 	 	fuse_add_direntry(req, buf + tmplen,size - tmplen, hrc->name,
 			    &hrc->stbuf, hrc->off);
 	  	if(newlen>size)
 	    		break;
 	  
-		hrc=hrc->next;
+		hrc = hrc->next;
 	}
 
        	size_t temp_size = min(newlen, size);
