@@ -39,7 +39,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	}
 	else
 	{
-		hsx_fuse_fill_reply(new, &e);
+		hsx_fuse_fill_reply(new, e);
 		fuse_reply_entry(req, e);
 		goto out;
 	}
