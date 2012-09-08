@@ -5,7 +5,7 @@
  */
 
 
-void hsx_fuse_readlink(fuse_req_t req,fuse_ino_t ino){
+void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino){
 
         int st = 0;
 				int err = 0;
@@ -21,7 +21,7 @@ void hsx_fuse_readlink(fuse_req_t req,fuse_ino_t ino){
         hi = hsx_fuse_iget(hi->sb, ino);
         
         st = hsi_nfs3_readlink(&hi, link);
-        if(st !=0){
+        if(st != 0){
 		            err = st;
                 goto out;
 	}
@@ -33,7 +33,7 @@ void hsx_fuse_readlink(fuse_req_t req,fuse_ino_t ino){
 	}
 
 out:
-        if(st !=0){
+        if(st != 0){
 		            fuse_reply_err(req, err);
 	}
         return 0;
