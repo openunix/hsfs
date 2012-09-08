@@ -4,9 +4,8 @@
  *2012.9.6
  **/
 
-//#define test-hsi_nfs3_symlink
 
-#ifdef test-hsi_nfs3_symlink
+#ifdef HSFS_NFS3_TEST
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -4,7 +4,7 @@
  * 2012.9.6
  */
 
-#ifdef test-hsi_nfs3_readlink
+#ifdef HSFS_NFS3_TEST
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
 out:
        return err;
 }
-
 #endif
 
 #include "nfs3.h"
