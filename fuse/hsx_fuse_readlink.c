@@ -5,10 +5,10 @@
  */
 
 
-void readlink(fuse_req_t req,fuse_ino_t ino){
+void hsx_fuse_readlink(fuse_req_t req,fuse_ino_t ino){
 
         int st = 0;
-	int err = 0;
+				int err = 0;
         struct hsfs_inode hi;
         struct hsfs_super hi_sb;
         const char *link = NULL;
@@ -22,28 +22,22 @@ void readlink(fuse_req_t req,fuse_ino_t ino){
         
         st = hsi_nfs3_readlink(&hi, link);
         if(st !=0){
-		err = st;
+		            err = st;
                 goto out;
 	}
  	
         st = fuse_reply_readlink(req, link);
         if(st != 0){
-		err = st;
-		goto out;
+		            err = st;
+		            goto out;
 	}
 
 out:
         if(st !=0){
-		fuse_reply_err(req, err);
+		            fuse_reply_err(req, err);
 	}
         return 0;
 }
 
 
 
-
-
-
-
-
-}
