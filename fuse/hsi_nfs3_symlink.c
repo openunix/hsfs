@@ -87,6 +87,8 @@ out:
 
 #endif
 
+#include "nfs3.h"
+#include "hsfs.h"
 int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
                      const char *nfs_link, const char *nfs_name){
 

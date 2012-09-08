@@ -82,6 +82,9 @@ out:
 
 #endif
 
+#include "nfs3.h"
+#include "hsfs.h"
+
 int hsi_nfs3_readlink(struct hsfs_inode *hi, const char *nfs_link){
         
         struct readlink3res res;
