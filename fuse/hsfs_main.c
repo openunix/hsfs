@@ -219,8 +219,8 @@ static int hsi_add_mtab(const char *spec, const char *mount_point,
 	if (nomtab)
 		return 0;
 
-	ment.mnt_fsname = spec;
-	ment.mnt_dir = mount_point;
+	ment.mnt_fsname = (char *)spec;
+	ment.mnt_dir = (char *)mount_point;
 	ment.mnt_type = fstype;
 	ment.mnt_opts = hsi_fix_opts_string(flags, opts);
 	ment.mnt_freq = 0;
