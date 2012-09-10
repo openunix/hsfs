@@ -13,24 +13,15 @@ void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
 	int err = 0;
 	struct hsfs_inode *hi_parent;
-	struct hsfs_super *sp;
+	struct hsfs_super *sb;
 	char *dirname =name;
 
-	hi_parent = (struct hsfs_inode *) malloc (sizeof(struct hsfs_inode));
-	sp = (struct hsfs_super) malloc (sizeof(struct hsfs_super));
-
-	memset(hi_parent, 0, sizeof(struct hsfs_inode));
-	memset(sp, 0, sizeof(struct hsfs_super));
-
-	sp = fuse_req_userdata(req);
-	hi_parent = hsx_fuse_iget(&sp, req);
+	sb = fuse_req_userdata(req);
+	hi_parent = hsx_fuse_iget(sb, parent);
 	
 	err = hsi_nfs3_rmdir(hi_parent, dirname);
 
 	fuse_reply_err(req, err);
 	
-	free(hi_parent);
-	free(sp);
-
 	return;
 };
