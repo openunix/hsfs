@@ -4,12 +4,14 @@
  * 2012.9.5
  **/
 
+#include "hsfs.h"
 #include "hsx_fuse.h"
 
 #define MAXNAMELEN 255
 
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
+	DEBUG_IN("%s",in);
 	int err = 0;
 	if (name == NULL) {
 		ERR("%s name to remove is NULL\n", progname);
@@ -29,7 +31,7 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 
 	struct hsfs_super *sb = NULL;
 	struct hsfs_inode *hi = NULL;
-	if (!(hs = fuse_req_userdata(req))) {
+	if (!(sb = fuse_req_userdata(req))) {
 		ERR("%s get user data failed\n", progname);
 		err = EIO;
 		goto out;
@@ -46,5 +48,6 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 out:
 	/* remove ino <=> fh? */
 	fuse_reply_err(req, err);
+	DEBUG_OUT("%s","out");
 }
 
