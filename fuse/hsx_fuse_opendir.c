@@ -12,8 +12,11 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	if (hrc == NULL)
+	{
 		printf("No menory: hrc.");
-	
+		err = 12;
+		goto out;
+	}
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	fi->fh = (size_t)hrc;
 	fuse_reply_open(req, fi);
