@@ -43,11 +43,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 		goto out;
 	}
 	err = hsi_nfs3_stat2sattr(attr, to_set, &sattr);
-	if (err) {
-		DEBUG_OUT("Leave hsx_fuse_setattr() with errno : %d.\n", err);
-		fuse_reply_err(req, err);
-	}
-	else
+	if (!err)
 		err = hsi_nfs3_setattr(inode, &sattr);
  out:
 	if (err) {
