@@ -39,7 +39,7 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode){
 	fh.data.data_val = inode->fh.data.data_val;
 	/*check and print filehandle*/
 	/* fprintf(stdout, "Filehandle : Len=%lu, Content=", fh.data.data_len); */
-	INFO("Filehandle : Len=%lu, Content=", fh.data.data_len);
+	INFO("Filehandle : Len=%u, Content=", fh.data.data_len);
 	for (i=0; i < fh.data.data_len; i++)
 		/*fprintf(stdout, "%02x", (unsigned char) (fh.data.data_val[i])); */
 		INFO("%02x", (unsigned char) (fh.data.data_val[i]));
