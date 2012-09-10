@@ -15,7 +15,7 @@
 #include <sys/vfs.h>
 #include <libgen.h>
 
-int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, char *name)
+int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 {
 		int err = 0;
 		diropargs3 *argp;
