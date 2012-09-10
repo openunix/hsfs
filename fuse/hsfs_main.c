@@ -21,6 +21,8 @@
 #include "fstab.h"
 #include "nfs_mntent.h"
 
+int __INIT_DEBUG = 0;
+
 char *progname = NULL;
 int verbose = 0;
 int nomtab = 0;
