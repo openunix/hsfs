@@ -183,6 +183,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
 
 int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 {
+	DEBUG("Enter hsx_fuse_idel()");
 	if(sb == NULL || hs_node == NULL)
 	{
 		DEBUG("Delete failed : the input parameter is invalid !");
@@ -196,7 +197,7 @@ int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 			*hs_nodep = hs_node->next;
 			sb->hsfs_fuse_ht.use--;
 			free(hs_node);
-			DEBUG("delete success ....");
+			DEBUG("Exit hsx_fuse_idel : delete success ");
 			return  0;
 		}
 		
