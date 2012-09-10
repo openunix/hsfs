@@ -13,7 +13,8 @@
  * @return error number
  *
  * */
-extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new, char *name, mode_t mode);
+extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new,
+	       		const char *name, mode_t mode);
 
 extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, const char *name);
 
