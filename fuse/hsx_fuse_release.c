@@ -4,7 +4,7 @@
  */
 #include <errno.h>
 #include <stdio.h>
-#include "hsx_fuse.h"
+#include <fuse/fuse_lowlevel.h>
 extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
 	if (fi->fh != NULL){
