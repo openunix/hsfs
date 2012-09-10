@@ -16,7 +16,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct hsfs_inode *new;
 	struct fuse_entry_param *e;
 	struct hsfs_super *sb;
-	char *dirname = name;
+	const char *dirname = name;
 	
 	new = (struct hsfs_inode *) malloc (sizeof(struct hsfs_inode));
 	e = (struct fuse_entry_param *) malloc (sizeof(struct fuse_entry_param));
