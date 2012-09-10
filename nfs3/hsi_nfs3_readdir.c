@@ -33,7 +33,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	args.dir.data.data_val = hi->fh.data.data_val;
         args.dir.data.data_len = hi->fh.data.data_len;
 	args.maxcount = maxcount;
-	dircount = (size_t)&args.dircount;
+	dircount = (size_t *)&args.dircount;
 	args.dircount = 1024;
 	clntp = hi->sb->clntp;
 
