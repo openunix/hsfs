@@ -26,6 +26,7 @@ struct hsfs_super *sb=&s;
 
 int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, const  char *name)
 {
+	DEBUG_IN("%s","()");
 	struct diropargs3	args;
 	struct lookup3res	res;
 	struct fattr3	*pattr = NULL;
@@ -61,7 +62,7 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, con
         name_fh = res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,&name_fh,pattr);
-	
+	DEBUG_OUT("%s","() success ");	
 out:
         return(err);
 

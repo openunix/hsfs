@@ -99,6 +99,7 @@ void   hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
 	hsfs_node->next = sb->hsfs_fuse_ht.array[hash];
 	sb->hsfs_fuse_ht.array[hash]  = hsfs_node;
 	sb->hsfs_fuse_ht.use++;
+	DEBUG("Add success,the ino of a new node : %lu",hsfs_node->ino);
 }
 
 /**
@@ -151,7 +152,6 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
 	hsfs_node = hsx_fuse_iget(sb,ino);
 	if (hsfs_node == NULL)
 	{
-		DEBUG("Now ,add a inode ,ino : %lu.",ino);
 		hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode ));
 		if (hsfs_node == NULL)
 			return NULL;
@@ -165,6 +165,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
 		hsx_fuse_iadd(sb,hsfs_node);
 	}
 	hsfs_node->nlookup++;
+	DEBUG("ino : %lu, nlookup : %lu ",hsfs_node->ino,hsfs_node->nlookup);
 	return hsfs_node;
 }
 

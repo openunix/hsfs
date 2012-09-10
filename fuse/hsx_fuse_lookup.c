@@ -1,10 +1,10 @@
 #include <errno.h>
-#include "hsfs.h"
-#include "hsx_fuse.h"
 #include "hsi_nfs3.h"
-#include "log.h"
+#include "hsx_fuse.h"
+
 void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 {
+	DEBUG_IN("%s", "()");
 	struct  hsfs_super	*sb;
 	struct  hsfs_inode	*parent;
 	struct  hsfs_inode	*child;
@@ -18,13 +18,12 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 		fuse_reply_err(req,err);
 	}
 
-	if(err=hsi_nfs3_lookup(parent,&child,name))
+	if((err=hsi_nfs3_lookup(parent,&child,name)))
 	{
 		fuse_reply_err(req,err);
 	}
-
 	hsx_fuse_fill_reply(child,&e);
 
 	fuse_reply_entry(req, &e);
-
+	DEBUG_OUT("%s", "() success ");
 }
