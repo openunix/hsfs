@@ -15,15 +15,19 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 	if((parent=hsx_fuse_iget(sb,ino)) == NULL)
 	{
 		err = ENOTDIR;
-		fuse_reply_err(req,err);
+		goto out;
 	}
 
 	if((err=hsi_nfs3_lookup(parent,&child,name)))
 	{
-		fuse_reply_err(req,err);
+		goto out;
 	}
 	hsx_fuse_fill_reply(child,&e);
 
 	fuse_reply_entry(req, &e);
-	DEBUG_OUT("%s", "() success ");
+	DEBUG_OUT("%s","() success");
+	return ;
+out:
+	fuse_reply_err(req,err);
+	DEBUG_OUT("%s with errno %d","()",err);
 }

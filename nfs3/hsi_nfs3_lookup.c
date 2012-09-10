@@ -54,7 +54,6 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, con
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).\n",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
-		ERR("%d",err);
 		goto out;
         }
 		
@@ -62,8 +61,8 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, con
         name_fh = res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,&name_fh,pattr);
-	DEBUG_OUT("%s","() success ");	
 out:
+	DEBUG_OUT("%s with errno %d","()",err);
         return(err);
 
 }
