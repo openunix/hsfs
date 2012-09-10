@@ -88,6 +88,16 @@ out:
 
 #include "nfs3.h"
 #include "hsfs.h"
+#include "log.h"
+#include "hsi_nfs3.h"
+#include "hsx_fuse.h"
+
+extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
+extern int hsi_nfs3_stat_to_errno(int stat);
+extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh,
+                                         fattr3 *attr);
+
+
 int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
                      const char *nfs_link, const char *nfs_name){
 
@@ -95,6 +105,8 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
         struct diropres3 res;
         enum clnt_stat st;
         struct timeval to = {120, 0};
+
+	DEBUG_IN("%s\n", "hsi_nfs3_symlink");
 
         int err = 0;
 	memset(&res, 0, sizeof(res));
@@ -108,18 +120,14 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
                        (caddr_t)&args, (xdrproc_t)xdr_diropres3,
                        (caddr_t)&res, to);
         if(st){
-                ERR( " Call RPC Server failure:%d.\n ", clnt_sperrno(st));
-#ifdef iclude hsi_nfs.h
+                ERR( " Call RPC Server failure:%s.\n ", clnt_sperrno(st));
                 err = hsi_rpc_stat_to_errno(parent->sb->clntp);
-#endif
                 goto out;
         }
         st = res.status;
         if(NFS3_OK != st){
-                ERR("the proc of symlink failure", st);
-#ifdef iclude hsi_nfs.h
+                ERR("the proc of symlink failure:%d\n", st);
                 err = hsi_nfs3_stat_to_errno(st);
-#endif
                 goto out;
         }
         
@@ -127,8 +135,11 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
         (*new)->attr =
 		res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes;
    
-	*new = hsi_nfs3_ifind((*new)->sb, &parent->fh,  &((*new)->attr));     
+	*new = hsi_nfs3_ifind((*new)->sb,&( (*new)->fh),  &((*new)->attr));     
 out:
+
+	DEBUG_OUT("hsi_nfs3_symlink failed. %d\n", err);
+
         return err;
 }
 
