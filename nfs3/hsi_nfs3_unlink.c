@@ -110,7 +110,7 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	memset(&res, 0, sizeof(res));
 	args.dir.data.data_len = hi->fh.data.data_len;
 	args.dir.data.data_val = hi->fh.data.data_val;
-	args.name = name;
+	args.name = (char *)name;
 
 	ret = clnt_call(hi->sb->clntp, NFSPROC3_REMOVE,
 			(xdrproc_t)xdr_diropargs3, (caddr_t)&args,
