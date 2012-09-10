@@ -14,7 +14,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	int err = 0;
 	char * buf = NULL;
 	
-	DEBUG_IN("inode:%d", (unsigned long)ino);
+	DEBUG_IN("%s", "...");
 	buf = (char *) malloc(size);
 	if( NULL == buf)
 		fuse_reply_err(req, ENOMEM);
@@ -47,6 +47,6 @@ out:
 	if(NULL != buf)
 		free(buf);
 		
-	DEBUG_OUT("inode:%d", (unsigned long)ino);
+	DEBUG_OUT("%s", "...");
 	return;
 }

@@ -14,7 +14,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 	int err = 0;
 	char * buffer = NULL;
 	
-	DEBUG_IN("inode:%d", (unsigned long)ino);
+	DEBUG_IN("%s", "...");
 	buffer = (char *) malloc(sb->wtmax);
 	if( NULL == buffer)
 		fuse_reply_err(req, ENOMEM);
@@ -50,7 +50,7 @@ out:
 	if(NULL != buffer)
 		free(buffer);
 	
-	DEBUG_OUT("inode:%d", (unsigned long)ino);		
+	DEBUG_OUT("%s", "...");		
 	return;
 
 }
