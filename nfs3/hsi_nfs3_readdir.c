@@ -21,6 +21,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	size_t dir_size = 0;
 	int err = 0;
 	int flag = 0;
+ DEBUG_IN("%s","...............");
 
 	temp1 = hrc;
 	memset(&args, 0, sizeof(args));
@@ -33,8 +34,10 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	dircount = (size_t *)&args.dircount;
 	args.dircount = 1024;
 	clntp = hi->sb->clntp;
+ DEBUG_IN("%s","...............1");
 
 	do{
+		
 		err = clnt_call(clntp, NFSPROC3_READDIRPLUS,
 				(xdrproc_t)xdr_readdirplus3args, &args,
 				(xdrproc_t)xdr_readdirplus3res, &res, to);
@@ -49,22 +52,32 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 
 			goto out;
 		}
+ DEBUG_OUT("%s","...............1");
 
 		resok = &res.readdirplus3res_u.resok;
 		while(resok->reply.entries != NULL){
+
 			if (flag == 1){
 				temp->off = resok->reply.entries->cookie;
 				flag = 0; 
 			}
+ DEBUG_IN("%s","...............");
 
 		 	temp = (struct hsfs_readdir_ctx *)malloc(sizeof
 				(struct hsfs_readdir_ctx));
+			memset(temp, 0, sizeof(struct hsfs_readdir_ctx));
 			temp->name = (char *)malloc(strlen
-					(resok->reply.entries->name));
+					(resok->reply.entries->name) + 1);
+			if (temp->name == NULL) {
+				ERR("Memory leak.");
+				goto out;
+			}
 			memcpy(temp->cookieverf, resok->cookieverf,
 						 NFS3_COOKIEVERFSIZE);
-			memcpy(temp->name, resok->reply.entries->name, 
-					strlen(resok->reply.entries->name));
+			strcpy(temp->name, resok->reply.entries->name);
+
+			INFO("%s.", temp->name);
+			INFO("%s.",resok->reply.entries->name);	
 			if (resok->reply.entries->nextentry != NULL)
 			  	 temp->off = resok->reply.entries->nextentry
 				->cookie;
@@ -83,7 +96,8 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 						resok->reply.entries->cookie;
 				}					
 			}		
-		
+	 DEBUG_OUT("%s","...............3");
+	
 			err = resok->reply.entries->name_attributes.present;
 			if (1 != err) {
 				ERR("Get Fattr3 failure:%s", clnt_sperrno(err));
@@ -91,9 +105,9 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				err = rerr.re_errno;
 				goto out;
 			}
-	    		
-			hsi_nfs3_fattr2stat(&resok->reply.entries->						name_attributes.post_op_attr_u.attributes, 										&temp->stbuf);
-
+	    		DEBUG_IN("%s.","......");
+			hsi_nfs3_fattr2stat(&resok->reply.entries->						name_attributes.post_op_attr_u.attributes, 									&temp->stbuf);
+			DEBUG_OUT("%s","......");
 			hrc->next = temp;
 			hrc = temp;
 			resok->reply.entries = resok->reply.entries->nextentry;
@@ -105,6 +119,8 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 
 		err = resok->reply.eof;
 	}while(err == 0);
+
+ DEBUG_OUT("%s","...............");
 
 	err = 0;
 	hrc = temp1;
