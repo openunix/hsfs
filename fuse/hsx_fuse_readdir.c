@@ -31,7 +31,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	hrc = (struct hsfs_readdir_ctx *)malloc(sizeof(struct hsfs_readdir_ctx));
 	hi->sb = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
 	hs = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
-	hs=fuse_req_userdata(req);
+	hs = fuse_req_userdata(req);
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = size;
 	hi = hsx_fuse_iget(hs,ino);
