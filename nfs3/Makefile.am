@@ -19,7 +19,8 @@ libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
 			$(HSFS_MNT_CLNT) fstab.c nfs_mntent.c hsi_nfs3_mount.c \
 			hsi_nfs3_fattr2stat.c hsi_nfs3_unlink.c hsi_nfs3_getattr.c \
 			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c hsi_nfs3_statfs.c\
-			hsi_nfs3_lookup.c hsi_nfs3_mkdir.c
+			hsi_nfs3_lookup.c hsi_nfs3_mkdir.c hsi_nfs3_read.c \
+			hsi_nfs3_write.c
 
 $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
 	test -f $@ && rm -rf $@ || true

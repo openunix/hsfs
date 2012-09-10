@@ -4,18 +4,17 @@
 #include <fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 
-extern struct hsfs_inode g_inode;
-extern struct hsfs_super g_super;
 
 void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
                           size_t size, off_t off, struct fuse_file_info *fi)
 {
 	struct hsfs_rw_info winfo;
-	struct hsfs_super * sb = &g_super;//(struct hsfs_super *)fuse_req_userdata(req);
+	struct hsfs_super * sb = (struct hsfs_super *)fuse_req_userdata(req);
 	size_t cnt = 0;
-	size_t err = 0;
+	int err = 0;
 	char * buffer = NULL;
 	
+	DEBUG_IN("inode:%d", (unsigned long)ino);
 	buffer = (char *) malloc(sb->wtmax);
 	if( NULL == buffer)
 		fuse_reply_err(req, ENOMEM);
@@ -25,7 +24,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 		winfo.stable = HSFS_FILE_SYNC;
 	else
 		winfo.stable = HSFS_UNSTABLE;
-	winfo.inode = &g_inode;//hsx_fuse_iget(ino);
+	winfo.inode = hsx_fuse_iget(sb, ino);
 	while(cnt < size)
 	{
 		size_t tmp_size = min(size - cnt, sb->wtmax);
@@ -50,7 +49,8 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 out:	
 	if(NULL != buffer)
 		free(buffer);
-		
+	
+	DEBUG_OUT("inode:%d", (unsigned long)ino);		
 	return;
 
 }
