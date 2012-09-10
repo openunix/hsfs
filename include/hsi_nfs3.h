@@ -25,7 +25,7 @@ extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, char *name);
  *
  * @return error number
  **/
-extern int hsi_nfs3_remove(struct hsfs_inode *hi, const char *name);
+extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name);
 
 /**
  * Rename a file
