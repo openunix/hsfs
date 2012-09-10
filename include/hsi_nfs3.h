@@ -15,7 +15,7 @@
  * */
 extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new, char *name, mode_t mode);
 
-extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, char *name);
+extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, const char *name);
 
 /**
  * Remove a file
