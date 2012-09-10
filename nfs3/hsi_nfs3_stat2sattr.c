@@ -20,11 +20,8 @@
 int hsi_nfs3_stat2sattr(struct stat *st, int to_set, 
 			struct hsfs_sattr *attr){
   	int err = 0;
-  	/* ASSERT(st);
-	ASSERT(attr);
-	*/
-
-  	INFO("Enter hsi_nfs3_stat2sattr().\n");
+  	
+	DEBUG_IN("%s", "Enter hsi_nfs3_stat2sattr().\n");
 
 	if (!st) {
 		err = 22; /*errno : EINVAL */
@@ -46,6 +43,6 @@ int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 	attr->mtime.tv_sec = st->st_mtime;
 	attr->mtime.tv_nsec = 0;
  out:
-	INFO("Leave hsi_nfs3_stat2sattr() with errno : %d.\n", err);
+	DEBUG_OUT("Leave hsi_nfs3_stat2sattr() with errno : %d.\n", err);
 	return err;
 }

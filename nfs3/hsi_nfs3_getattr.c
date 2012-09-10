@@ -25,40 +25,29 @@ int hsi_nfs3_stat_to_errno(int status);
 int hsi_rpc_stat_to_errno(CLIENT *clntp);
 
 int hsi_nfs3_getattr(struct hsfs_inode *inode){
-	int err = 0, i;
+	int err = 0;
 	nfs_fh3 fh;
 	CLIENT *clntp;
 	struct timeval to = {120, 0};
 	struct getattr3res res;
 	enum clnt_stat st;
 	
-	INFO("Enter hsi_nfs3_getattr().\n");
+	DEBUG_IN("%s", "Enter hsi_nfs3_getattr().\n");
 
 	clntp= inode->sb->clntp;
 	fh.data.data_len = inode->fh.data.data_len;
 	fh.data.data_val = inode->fh.data.data_val;
-	/*check and print filehandle*/
-	/* fprintf(stdout, "Filehandle : Len=%lu, Content=", fh.data.data_len); */
-	INFO("Filehandle : Len=%u, Content=", fh.data.data_len);
-	for (i=0; i < fh.data.data_len; i++)
-		/*fprintf(stdout, "%02x", (unsigned char) (fh.data.data_val[i])); */
-		INFO("%02x", (unsigned char) (fh.data.data_val[i]));
-	if (fh.data.data_len > 0)
-		/* fprintf(stdout, "\n"); */
-		INFO("\n");
 	memset(&res, 0, sizeof(res));
 	st = clnt_call(clntp, 1, (xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh, 
 		       (xdrproc_t)xdr_getattr3res, (caddr_t)&res, to);
 	if (st) {
 		err = hsi_rpc_stat_to_errno(clntp);
-		/* fprintf(stderr, "Call RPC Server failure: %d.\n", err); */
 		ERR("Call RPC Server failure: %d.\n", err);
 		goto out;
 	}
 	if (NFS3_OK != res.status) {
-		err = hsi_nfs3_stat_to_errno(res.status);  /* return negative number */
-		/* fprintf(stderr, "RPC Server return failed status : %d.\n", err); */
-		ERR("RPC Server return failed status : %d.\n", err);
+		err = hsi_nfs3_stat_to_errno(res.status);
+		ERR("RPC Server returns failed status : %d.\n", err);
 		goto out;
 	}
 	/* fill return value to fattr3 attr in struct hsfs_inode */
@@ -80,6 +69,6 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode){
 	inode->attr.ctime.seconds = res.getattr3res_u.attributes.ctime.seconds;
 	inode->attr.ctime.nseconds = res.getattr3res_u.attributes.ctime.nseconds;
  out:
-	INFO("Leave hsi_nfs3_getattr() with errno %d.\n", err);
+	DEBUG_OUT("Leave hsi_nfs3_getattr() with errno %d.\n", err);
 	return err;
 }
