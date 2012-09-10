@@ -98,6 +98,7 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp)
 
 extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 {
+	DEBUG_IN("%s", "in");
 	int ret = 0;
 	int err = 0;
 	diropargs3 args;
@@ -136,6 +137,7 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 		}
 	}
 out:
+	DEBUG_OUT("%s", "out");
 	return err;
 }
 
