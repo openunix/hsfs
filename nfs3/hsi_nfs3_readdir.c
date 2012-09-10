@@ -100,7 +100,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 		}
 	  
 		dir_size += *dircount;
-		printf("the dir size is %d.\n ", dir_size);
 		if (dir_size > maxcount)
 			break;
 
