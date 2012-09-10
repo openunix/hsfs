@@ -46,7 +46,9 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	
 	if(err)
 	{
+		#ifdef HSFS_NFS3_TEXT
 		fuse_reply__err(req, err);
+		#endif /* HSFS_NFS3_TEXT */
 		goto out;
 	}
 
