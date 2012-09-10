@@ -13,7 +13,7 @@
 
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
-	DEBUG_IN(" %s","name");
+	DEBUG_IN(" %s", name);
 	int err = 0;
 	if (name == NULL) {
 		ERR("%s name to remove is NULL\n", progname);
@@ -50,6 +50,6 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 out:
 	/* remove ino <=> fh? */
 	fuse_reply_err(req, err);
-	DEBUG_OUT(" %s","name");
+	DEBUG_OUT(" %s", name);
 }
 
