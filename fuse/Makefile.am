@@ -14,4 +14,4 @@ libhsx_fuse_a_SOURCES = hsfs_fuse_table.c hsx_fuse_getattr.c hsx_fuse_statfs.c \
 			hsx_fuse_read.c hsx_fuse_write.c hsx_fuse_open.c hsx_fuse_release.c \
 			hsx_fuse_rmdir.c hsx_fuse_forget.c hsx_fuse_setattr.c \
 			hsx_fuse_readlink.c hsx_fuse_symlink.c \
-			hsx_fuse_unlink.c hsx_fuse_rename.c
+			hsx_fuse_unlink.c hsx_fuse_rename.c hsx_fuse_readdir.c \			hsx_fuse_opendir.c
