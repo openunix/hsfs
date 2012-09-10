@@ -14,6 +14,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	struct rpc_err rerr;
 	int err = 0;
 
+	DEBUG_IN("%s", "...");
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.file.data.data_len = rinfo->inode->fh.data.data_len;
@@ -48,6 +49,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	rinfo->eof = resok->eof;
 
 out:
+	DEBUG_OUT("%s", "...");
 	return err;
 }
 
