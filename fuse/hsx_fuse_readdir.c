@@ -36,7 +36,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	hi = hsx_fuse_iget(hs,ino);
 
 	if(off){
-		hrc = fi->fh; 
+		hrc = (struct hsfs_readdir_ctx *)fi->fh; 
 	  	while(off != hrc->off)
 		  hrc = hrc->next;
 	}
