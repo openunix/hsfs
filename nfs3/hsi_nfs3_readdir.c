@@ -12,7 +12,6 @@
 int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
 					size_t *dircount, size_t maxcount)
 {
-  	enum clnt_stat st;
 	CLIENT *clntp = NULL;
 	struct hsfs_readdir_ctx *temp = NULL; 
 	struct hsfs_readdir_ctx *temp1 = NULL;
@@ -41,21 +40,14 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 		err = clnt_call(clntp, NFSPROC3_READDIRPLUS,
 				(xdrproc_t)xdr_readdirplus3args, &args,
 				(xdrproc_t)xdr_readdirplus3res, &res, to);
-		if (err) {
-			#ifdef HSFS_NFS3_TEXT
-			
+		if (err) {	
 			err = hsi_nfs3_stat_to_errno(hi->sb->clntp);
-			
-			#endif /* HSFS_NFS3_TEXT */	  
 			goto out;
 		}
 
 		if (NFS3_OK != res.status) {
-			#ifdef HSFS_NFS3_TEXT
+			err = hsi_nfs3_stat_to_errno(res.status);
 
-                        err = hsi_nfs3_stat_to_errno(res.status);
-
-                        #endif /* HSFS_NFS3_TEXT */
 
 			goto out;
 		}
