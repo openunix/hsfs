@@ -25,16 +25,20 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	to.tv_usec = (rinfo->inode->sb->timeo % 10) * 100;
 
 	err = clnt_call(rinfo->inode->sb->clntp, NFSPROC3_READ,
-		       (xdrproc_t)xdr_read3args, (char *)&args,
-		(xdrproc_t)xdr_read3res, (char *)&res, to);
-	if (err) {
+				(xdrproc_t)xdr_read3args, (char *)&args,
+				(xdrproc_t)xdr_read3res, (char *)&res, to);
+	if (err){
 		ERR("Call RPC Server failure:%s", clnt_sperrno(err));
 		clnt_geterr(rinfo->inode->sb->clntp, &rerr);
 		err = rerr.re_errno == 0 ? EIO : rerr.re_errno;
 		goto out;
 	}
 
-	err = 0;//hsi_nfs3_stat_to_errno(res.status);
+#ifdef HSFS_NFS3_TEST
+	err = res.status;
+#else
+	err = hsi_nfs3_stat_to_errno(res.status);
+#endif
 	if(err){
 		ERR("hsi_nfs3_read failure: %x", err);
 		goto out;
@@ -70,10 +74,10 @@ int main(int argc, char *argv[])
 	int err = 0;
 	
 	if(argc != 5){
-		ERR("USEAGE: hsi_nfs3_read  SERVER_IP   FILEPATH   IOSIZE   "
+		printf("USEAGE: hsi_nfs3_read  SERVER_IP   FILEPATH   IOSIZE   "
 			"MOUNTPOINT\n");
-		ERR("EXAMPLE: ./hsi_nfs3_read	10.10.99.120	"
-			"/nfsXport/a/file   512  /mnt/hsfs\n");
+		printf("EXAMPLE: ./hsi_nfs3_read    10.10.99.120   "
+			"/nfsXport/file   512  /mnt/hsfs\n");
 		err = EINVAL;
 		goto out;
 	}
@@ -82,11 +86,11 @@ int main(int argc, char *argv[])
 	fpath = argv[2];
 	iosize = atoi(argv[3]);
 	if(0 == iosize)
-		DEBUG("IOSIZE is zero\n");
+		printf("IOSIZE is zero\n");
 	mpoint = argv[4];
 	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
 	if(NULL == clntp) {
-		ERR("Create handle to RPC server (%s, %u, %u) failed\n",
+		printf("Create handle to RPC server (%s, %u, %u) failed\n",
 			svraddr, NFS_PROGRAM, NFS_V3);
 		err = EREMOTEIO;
 		goto out;
@@ -95,7 +99,7 @@ int main(int argc, char *argv[])
 	err = map_path_to_nfs3fh(svraddr, fpath, &fhlen, &fhvalp);
 	if(err)
 	{
-		ERR("map_path_to_nfs3fh error: %s.\n", strerror(err));
+		printf("map_path_to_nfs3fh error: %s.\n", strerror(err));
 		err = ENXIO;		
 		goto out;
 	}

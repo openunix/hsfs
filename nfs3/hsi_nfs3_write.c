@@ -37,7 +37,11 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 		goto out;
 	}
 
-	err = 0;//hsi_nfs3_stat_to_errno(res.status);
+#ifdef HSFS_NFS3_TEST
+	err = res.status;
+#else
+	err = hsi_nfs3_stat_to_errno(res.status);
+#endif
 	if(err){
 		ERR("hsi_nfs3_write failure: %x", err);
 		goto out;
@@ -72,10 +76,10 @@ int main(int argc, char *argv[])
 	size_t i = 0;
 	
 	if(argc != 6){
-		ERR("USEAGE: hsi_nfs3_write  SERVER_IP   FILEPATH   IOSIZE  FILESIZE"
+		printf("USEAGE: hsi_nfs3_write  SERVER_IP   FILEPATH   IOSIZE  FILESIZE"
 			"MOUNTPOINT\n");
-		ERR("EXAMPLE: ./hsi_nfs3_write	10.10.99.120	"
-			"/nfsXport/a/file   512   1000000  /mnt/hsfs\n");
+		printf("EXAMPLE: ./hsi_nfs3_write    10.10.99.120    "
+			"/nfsXport/file   512   1000000  /mnt/hsfs\n");
 		err = EINVAL;
 		goto out;
 	}
@@ -85,11 +89,11 @@ int main(int argc, char *argv[])
 	iosize = atoi(argv[3]);
 	fsize = atoi(argv[4]);
 	if(0 == iosize | 0 == fsize)
-		DEBUG("IOSIZE or FILESIZE is zero.\n");
+		printf("IOSIZE or FILESIZE is zero.\n");
 	mpoint = argv[5];
 	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
 	if(NULL == clntp){
-		ERR("Create handle to RPC server (%s, %u, %u) failed\n",
+		printf("Create handle to RPC server (%s, %u, %u) failed\n",
 			svraddr, NFS_PROGRAM, NFS_V3);
 		err = EREMOTEIO;
 		goto out;
@@ -97,7 +101,7 @@ int main(int argc, char *argv[])
 
 	err = map_path_to_nfs3fh(svraddr, fpath, &fhlen, &fhvalp);
 	if(err){
-		ERR("map_path_to_nfs3fh error: %s.\n", strerror(err));
+		printf("map_path_to_nfs3fh error: %s.\n", strerror(err));
 		err = ENXIO;		
 		goto out;
 	}
@@ -117,7 +121,7 @@ int main(int argc, char *argv[])
 	winfo.rw_size = iosize;
 	buffer = (char *) malloc(iosize);
 	if( NULL == buffer){
-		ERR("insufficient memory.\n");
+		printf("insufficient memory.\n");
 		err = ENOMEM;
 		goto out;
 	}
