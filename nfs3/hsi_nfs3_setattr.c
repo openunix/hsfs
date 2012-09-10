@@ -94,7 +94,7 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr){
         args.object.data.data_val = inode->fh.data.data_val;
 	/*check and print filehandle*/
 	/* fprintf(stdout, "Filehandle : Len=%lu, Content=",args.object.data.data_len); */
-	fprintf(stdout, "Filehandle : Len=%lu, Content=",args.object.data.data_len); 
+	fprintf(stdout, "Filehandle : Len=%u, Content=",args.object.data.data_len); 
 	//INFO("Filehandle : Len=%lu, Content=", args.object.data.data_len);
 	for (i=0; i < args.object.data.data_len; i++)
 		/* fprintf(stdout, "%02x", (unsigned char) (args.object.data.data_val[i])); */
