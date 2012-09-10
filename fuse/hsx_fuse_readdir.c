@@ -28,27 +28,26 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		fuse_reply_err(req, err);
 	
 	hi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
-	hrc = (struct hsfs_readdir_ctx *)malloc(sizeof(struct hsfs_readdir_ctx));
+	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	hi->sb = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
-	hs = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
 	hs = fuse_req_userdata(req);
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = size;
 	hi = hsx_fuse_iget(hs,ino);
-
+	DEBUG_IN("%s","...............");
 	if(off){
 		hrc = (struct hsfs_readdir_ctx *)fi->fh; 
 	  	while(off != hrc->off)
 		  hrc = hrc->next;
 	}
+ DEBUG_IN("%s","...............1");
 
 	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
-	
+	 DEBUG_OUT("%s","...............1");
+
 	if(err)
 	{
-		#ifdef HSFS_NFS3_TEXT
-		fuse_reply__err(req, err);
-		#endif /* HSFS_NFS3_TEXT */
+		fuse_reply_err(req, err);
 		goto out;
 	}
 
@@ -56,9 +55,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	hrc = hrc->next;
 	while(hrc!=NULL){
 	  	size_t tmplen = newlen;
-	  	newlen += fuse_add_direntry(req, NULL, 0, hrc->name, NULL, 0);
-	 	fuse_add_direntry(req, buf + tmplen,size - tmplen, hrc->name,
-			    &hrc->stbuf, hrc->off);
+		INFO("%s.", hrc->name);
+	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, hrc->name, &hrc->stbuf, hrc->off);
 	  	if(newlen>size)
 	    		break;
 	  
@@ -70,6 +68,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		fuse_reply_buf(req, buf, temp_size);
 	else
 		fuse_reply_buf(req, NULL, 0);
+	DEBUG_OUT("%s","...............");
 
 out:	
 	if(NULL != buf)
