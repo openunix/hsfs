@@ -124,8 +124,13 @@ static void hsi_mnt_closeclnt(CLIENT *clnt)
 static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 				mntarg_t *mntarg, mntres_t *mntres)
 {
+	struct pmap *msp = &mnt_server->pmap;
 	CLIENT *clnt = NULL;
 	int ret = 0;
+
+	DEBUG_IN("mount dir(%s) from (%s:%d) with (%lu, %lu, %lu, %lu).",
+		*mntarg, *(mnt_server->hostname), mnt_server->saddr.sin_port,
+		msp->pm_prog, msp->pm_vers, msp->pm_prot, msp->pm_port);
 
 	clnt = hsi_mnt_openclnt(mnt_server, MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
 	if (!clnt) {
@@ -142,14 +147,21 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 	}
 
 	hsi_mnt_closeclnt(clnt);
+
+	DEBUG_OUT("%s", ".");
 out:
 	return ret;
 }
 
 static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
 {
+	struct pmap *msp = &mnt_server->pmap;
 	CLIENT *clnt = NULL;
 	int ret = 0;
+
+	DEBUG_IN("umount dir(%s) from (%s:%d) with (%lu, %lu, %lu, %lu).",
+		*umntarg, *(mnt_server->hostname), mnt_server->saddr.sin_port,
+		msp->pm_prog, msp->pm_vers, msp->pm_prot, msp->pm_port);
 
 	clnt = hsi_mnt_openclnt(mnt_server, MNT_SENDBUFSIZE, MNT_RECVBUFSIZE);
 	if (!clnt) {
@@ -166,6 +178,8 @@ static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
 	}
 
 	hsi_mnt_closeclnt(clnt);
+
+	DEBUG_OUT("%s", ".");
 out:
 	return ret;
 }

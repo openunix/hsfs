@@ -12,6 +12,8 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 	enum clnt_stat st;
 	int ret = 0;
 
+	DEBUG_IN("ino: %lu.", inode->ino);
+
 	st = clnt_call(clnt, NFSPROC3_PATHCONF, (xdrproc_t)xdr_nfs_fh3,
 			 (char *)&inode->fh, (xdrproc_t)xdr_pathconf3res,
 			 (char *)&res, to);
@@ -35,6 +37,8 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes,
 			sizeof(fattr3));
 	}
+
+	DEBUG_OUT("%s", ".");
 out:
 	return ret;
 }
