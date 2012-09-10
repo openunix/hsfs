@@ -28,7 +28,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	struct hsfs_inode *inode = NULL;
 	struct hsfs_super *sb = NULL;
 	
-	DEBUG_IN("Enter hsx_fuse_setattr().\n");
+	DEBUG_IN("%s", "Enter hsx_fuse_setattr().\n");
 
 	sb = (struct hsfs_super *) fuse_req_userdata(req);
 	if (NULL == sb) {
@@ -42,7 +42,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 		ERR("ino :%lu is invalid.\n", ino);
 		goto out;
 	}
-	err = hsi_nfs3_stat2attr(attr, to_set, &sattr);
+	err = hsi_nfs3_stat2sattr(attr, to_set, &sattr);
 	if (err) {
 		DEBUG_OUT("Leave hsx_fuse_setattr() with errno : %d.\n", err);
 		fuse_reply_err(req, err);
