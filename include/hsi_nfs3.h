@@ -124,7 +124,7 @@ extern int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
  * @param newhi the struct hsfs_inode of the node that you just create
  * @param name the name of the file you want to create
  *	@param mode the access mode of the file
- **/
+ */
 extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			   const char *name, mode_t mode);
 
