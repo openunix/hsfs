@@ -3,7 +3,6 @@
  * Hu yuwei
  * 2012/09/06
  */
-#include "apis.h"
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
 #include "log.h"
@@ -57,8 +56,8 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		}
 		else {
 			*hi_new = hsi_nfs3_ifind (hi_parent->sb,
-			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
-	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
+			&(clnt_res->diropres3_u.resok.obj.post_op_fh3_u.handle),
+	&(clnt_res->diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
 
 			if(NULL == *hi_new)
 			{
