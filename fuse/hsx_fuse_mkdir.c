@@ -29,7 +29,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	memset(hi_parent, 0, sizeof(struct hsfs_inode));
 
 	sp = fuse_req_userdata(req);
-	hi_parent = hsx_fuse_iget(&sp, req);
+	hi_parent = hsx_fuse_iget(sp, parent);
 	err = hsi_nfs3_mkdir(hi_parent, &new, dirname, mode);
 	
 	if(0 != err )
