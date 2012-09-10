@@ -5,6 +5,7 @@
  **/
 
 #include "hsfs.h"
+#include "hsi_nfs3.h"
 #include "hsx_fuse.h"
 #include <errno.h>
 
@@ -13,7 +14,7 @@
 extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 				fuse_ino_t newparent, const char *newname)
 {
-	DEBUG_IN("%s","");
+	DEBUG_IN(" %s to %s", name, newname);
 	int err = 0;
 	if (name == NULL) {
 		fprintf(stderr, "%s source name is NULL\n", progname);
@@ -70,6 +71,6 @@ extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 out:
 	/* update ino <=> fh? */
 	fuse_reply_err(req, err);
-	DEBUG_OUT("%s","");
+	DEBUG_OUT(" %s to %s", name, newname);
 }
 

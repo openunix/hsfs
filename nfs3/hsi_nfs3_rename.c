@@ -37,7 +37,7 @@ struct hsfs_inode
 extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		 		struct hsfs_inode *newhi, const char *newname)
 {
-	DEBUG_IN("%s","");
+	DEBUG_IN(" %s to %s", name, newname);
 	int ret = 0;
 	int err = 0;
 	rename3args args;
@@ -49,10 +49,10 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 	memset(&res, 0, sizeof(res));
 	args.from.dir.data.data_len = hi->fh.data.data_len;
 	args.from.dir.data.data_val = hi->fh.data.data_val;
-	args.from.name = name;
+	args.from.name = (char *)name;
 	args.to.dir.data.data_len = newhi->fh.data.data_len;
 	args.to.dir.data.data_val = newhi->fh.data.data_val;
-	args.to.name = newname;
+	args.to.name = (char *)newname;
 
 	ret = clnt_call(hi->sb->clntp, NFSPROC3_RENAME,
 			(xdrproc_t)xdr_rename3args, (caddr_t)&args,
@@ -84,7 +84,7 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		}
 	}
 out:
-	DEBUG_OUT("%s","");
+	DEBUG_OUT(" %s to %s", name, newname);
 	return err;
 }
 

@@ -90,6 +90,7 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.unlink = hsx_fuse_unlink,
 	.readlink = hsx_fuse_readlink,
 	.symlink = hsx_fuse_symlink,
+	.rename = hsx_fuse_rename,
 };
 
 /*
