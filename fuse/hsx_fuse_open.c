@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <rpc/rpc.h>
-#include "hsx_fuse.h"
-#define FI_FH_LEN    10;
+//#include "hsx_fuse.h"
+#include <fuse/fuse_lowlevel.h>
+#define FI_FH_LEN    10
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
 
