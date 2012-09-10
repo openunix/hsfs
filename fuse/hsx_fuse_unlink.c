@@ -6,12 +6,14 @@
 
 #include "hsfs.h"
 #include "hsx_fuse.h"
+#include "hsi_nfs3.h"
+#include <errno.h>
 
 #define MAXNAMELEN 255
 
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
-	DEBUG_IN("%s",in);
+	DEBUG_IN("%s","");
 	int err = 0;
 	if (name == NULL) {
 		ERR("%s name to remove is NULL\n", progname);
@@ -42,12 +44,12 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 		goto out;
 	}
 
-	if ((err = hsi_nfs3_remove(hi, name))) {
+	if ((err = hsi_nfs3_unlink(hi, name))) {
 		goto out;
 	}
 out:
 	/* remove ino <=> fh? */
 	fuse_reply_err(req, err);
-	DEBUG_OUT("%s","out");
+	DEBUG_OUT("%s","");
 }
 

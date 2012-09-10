@@ -37,6 +37,7 @@ struct hsfs_inode
 extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		 		struct hsfs_inode *newhi, const char *newname)
 {
+	DEBUG_IN("%s","");
 	int ret = 0;
 	int err = 0;
 	rename3args args;
@@ -83,8 +84,8 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		}
 	}
 out:
+	DEBUG_OUT("%s","");
 	return err;
-
 }
 
 #ifdef HSFS_NFS3_TEST
