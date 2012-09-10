@@ -86,6 +86,7 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.read = hsx_fuse_read,
 	.write = hsx_fuse_write,
 	.setattr = hsx_fuse_setattr,
+	.forget = hsx_fuse_forget,
 };
 
 /*
