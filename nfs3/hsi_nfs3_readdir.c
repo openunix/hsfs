@@ -7,8 +7,6 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
-#define HSFS_NFS3_TEXT
-
 int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
 					size_t *dircount, size_t maxcount)
 {
@@ -94,12 +92,8 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				goto out;
 			}
 	    		
-			#ifdef HSFS_NFS3_TEXT
+			hsi_nfs3_fattr2stat(&resok->reply.entries->						name_attributes.post_op_attr_u.attributes, 										&temp->stbuf);
 
-			hsi_nfs3_fattr2stat(&resok->reply.entries->name_attributes.
-					post_op_attr_u.attributes, &temp->stbuf);
-
-			#endif /* HSFS_NFS3_TEXT */
 			hrc->next = temp;
 			hrc = temp;
 			resok->reply.entries = resok->reply.entries->nextentry;
