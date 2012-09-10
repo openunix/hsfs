@@ -81,6 +81,8 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.statfs = hsx_fuse_statfs,
 	.lookup = hsx_fuse_lookup,
 	.mkdir = hsx_fuse_mkdir,
+	.open = hsx_fuse_open,
+	.release = hsx_fuse_release,
 };
 
 /*
