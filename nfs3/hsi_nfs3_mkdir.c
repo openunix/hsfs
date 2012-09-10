@@ -19,7 +19,7 @@
 
 static struct timeval TIMEOUT = { 25, 0 };
 int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
-	       		char *name, mode_t mode)
+	       		const char *name, mode_t mode)
 {
 		int err = 0;
 		mkdir3args *argp;
