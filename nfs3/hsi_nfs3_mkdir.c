@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <sys/vfs.h>
 #include <libgen.h>
+#include <string.h>
 
 static struct timeval TIMEOUT = { 25, 0 };
 int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
@@ -27,13 +28,13 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		
 		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
 		clnt_res = (diropres3 *) malloc(sizeof(diropres3));
-		
+		argp->where.name = (char *) malloc(strlen(name)); 
 		memset(argp, 0, sizeof(mkdir3args));
 		memset(clnt_res, 0, sizeof(diropres3));
 		
 		argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
 		argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
-		argp->where.name = name;
+		memcpy(argp->where.name, name, strlen(name));
 		argp->attributes.mode.set = 1;
 		argp->attributes.mode.set_uint32_u.val = mode&0xfff;
 		
@@ -42,6 +43,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			       	(xdrproc_t) xdr_diropres3, (caddr_t) clnt_res,
 			       	TIMEOUT);
 		if ( 0 != err) {	/*RPC error*/
+			free (argp->where.name);
 			free (argp);
 			free (clnt_res);
 			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
@@ -50,6 +52,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			int err = clnt_res->status;
 			*hi_new = NULL;
 			
+			free (argp->where.name);
 			free (argp);
 			free (clnt_res);
 			return hsi_nfs3_stat_to_errno(err);
@@ -63,8 +66,9 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			{
 				ERR("Error in create inode.\n");
 			}
-			free(argp);
-			free(clnt_res);
+			free (argp->where.name);
+			free (argp);
+			free (clnt_res);
 			return err;			
 		}
 };
