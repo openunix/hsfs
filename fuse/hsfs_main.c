@@ -49,7 +49,7 @@ void hsi_mount_usage()
 	printf("\t-v\t\tVerbose\n");
 	printf("\t-V\t\tPrint version\n");
 	printf("\t-w\t\tMount file system read-write\n");
-	printf("\t-f\t\tFake mount, don't actually mount\n");
+	printf("\t-f\t\tForeground, not a daemon\n");
 	printf("\t-n\t\tDo not update /etc/mtab\n");
 	printf("\t-s\t\tTolerate sloppy mount options rather than failing.\n");
 	printf("\t-h\t\tPrint this help\n");
