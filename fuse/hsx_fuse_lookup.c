@@ -4,7 +4,7 @@
 
 void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 {
-	DEBUG_IN("%s", "()");
+	DEBUG_IN(": lookup %s", name);
 	struct  hsfs_super	*sb;
 	struct  hsfs_inode	*parent;
 	struct  hsfs_inode	*child;
