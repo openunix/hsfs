@@ -116,6 +116,8 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 		dir_size += *dircount;
 		if (dir_size > maxcount)
 			break;
+		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res, 
+						(char *)&res);
 
 		err = resok->reply.eof;
 	}while(err == 0);
