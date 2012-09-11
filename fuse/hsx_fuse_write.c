@@ -15,7 +15,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 	char * buffer = NULL;
 	
 	DEBUG_IN("%s", "...");
-	buffer = (char *) malloc(sb->wtmax);
+	buffer = (char *) malloc(sb->wsize);
 	if( NULL == buffer)
 		fuse_reply_err(req, ENOMEM);
 	
@@ -27,11 +27,11 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 	winfo.inode = hsx_fuse_iget(sb, ino);
 	while(cnt < size)
 	{
-		size_t tmp_size = min(size - cnt, sb->wtmax);
+		size_t tmp_size = min(size - cnt, sb->wsize);
 		
 		winfo.rw_size = tmp_size;
 		winfo.rw_off = off + cnt;
-		memcpy(buffer, buf + cnt, min(size, sb->wtmax));
+		memcpy(buffer, buf + cnt, tmp_size);
 		winfo.data.data_len = tmp_size;
 		winfo.data.data_val = buffer;
 		err = hsi_nfs3_write(&winfo);

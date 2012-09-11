@@ -45,7 +45,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	}	
 
 	resok = &res.read3res_u.resok;
-	DEBUG("hsi_nfs3_read OUTPUT: count:%x    eof:%x",
+	DEBUG("hsi_nfs3_read 0x%x done eof:%x",
 			resok->count, resok->eof);
 	rinfo->data.data_val = resok->data.data_val;
 	rinfo->data.data_len = resok->data.data_len;

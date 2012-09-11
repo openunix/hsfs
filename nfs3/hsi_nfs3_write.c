@@ -48,7 +48,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	}	
 
 	resok = &res.write3res_u.resok;
-	DEBUG("hsi_nfs3_write OUTPUT: count: %x", resok->count);
+	DEBUG("hsi_nfs3_write 0x%x done", resok->count);
 	winfo->ret_count = resok->count;
 
 out:

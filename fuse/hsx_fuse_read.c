@@ -23,7 +23,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	rinfo.inode = hsx_fuse_iget(sb, ino);
 	while(cnt < size)
 	{
-		size_t tmp_size = min(size - cnt, sb->rtmax);
+		size_t tmp_size = min(size - cnt, sb->rsize);
 		
 		rinfo.rw_size = tmp_size;
 		rinfo.rw_off  = off + cnt;
