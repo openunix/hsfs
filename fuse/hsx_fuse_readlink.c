@@ -8,22 +8,18 @@
 #include "hsx_fuse.h"
 #include "log.h"
 
-void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino)
-{
+void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino){
+
 	int st = 0;
-        int err = 0;
-	struct hsfs_inode *hi;
-	struct hsfs_super *hi_sb;
-	const char *link = NULL;
-	hi = (struct hsfs_inode*)malloc(sizeof(struct hsfs_inode));
-	hi_sb = (struct hsfs_super*)malloc(sizeof(struct hsfs_super));
-	memset(&hi, 0, sizeof(struct hsfs_inode));
-	memset(&hi_sb, 0, sizeof(struct hsfs_super));
-	hi->sb = hi_sb;
-	hi->sb = fuse_req_userdata(req);
-	hi = hsx_fuse_iget(hi->sb, ino);
+	int err = 0;
+	struct hsfs_inode *hi = NULL;
+	struct hsfs_super *hi_sb = NULL;
+	char *link = NULL;
+	
+	hi_sb = fuse_req_userdata(req);
+	hi = hsx_fuse_iget(hi_sb, ino);
 	DEBUG_IN("%s\n","THE HSX_FUSE_READLINK.");
-	st = hsi_nfs3_readlink(hi, link);
+	st = hsi_nfs3_readlink(hi,&link);
 	if(st != 0){
 		err = st;
 		goto out;
@@ -35,8 +31,6 @@ void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino)
 	}
 
 out:
-	free(hi);
-	free(hi_sb);
 	if(st != 0){
 		fuse_reply_err(req, err);
 	}
