@@ -12,12 +12,12 @@
  */
 void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	       	mode_t mode)
-{	
+{	DEBUG_IN("%s\n",hsx_fuse_mkdir);
 	int err = 0;
-	struct hsfs_inode *hi_parent;
-	struct hsfs_inode *new;
-	struct fuse_entry_param *e;
-	struct hsfs_super *sb;
+	struct hsfs_inode *hi_parent = NULL;
+	struct hsfs_inode *new = NULL;
+	struct fuse_entry_param *e = NULL;
+	struct hsfs_super *sb = NULL;
 	const char *dirname = name;
 	
 	e = (struct fuse_entry_param *) malloc (sizeof(struct fuse_entry_param));
@@ -40,6 +40,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	}
 out:
 	free(e);
+	DEBUG_OUT("%s\n",hsx_fuse_mkdir);
 	return;
 };
 

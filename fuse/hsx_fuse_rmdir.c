@@ -13,17 +13,17 @@
  */
 void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
+	DEBUG_IN("%s\n",hsx_fuse_rmdir);
 	int err = 0;
-	struct hsfs_inode *hi_parent;
-	struct hsfs_super *sb;
+	struct hsfs_inode *hi_parent = NULL;
+	struct hsfs_super *sb = NULL;
 	const char *dirname =name;
 
 	sb = fuse_req_userdata(req);
 	hi_parent = hsx_fuse_iget(sb, parent);
 	
 	err = hsi_nfs3_rmdir(hi_parent, dirname);
-
 	fuse_reply_err(req, err);
-	
+	DEBUG_OUT("%s\n",hsx_fuse_rmdir);
 	return;
 };
