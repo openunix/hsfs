@@ -29,7 +29,7 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 		
 		argp->dir.data.data_len = hi_parent->fh.data.data_len;
 		argp->dir.data.data_val = hi_parent->fh.data.data_val;
-		memcpy(argp->name, name, strlen(name));
+		argp->name = name;
 		
 		err = clnt_call (hi_parent->sb->clntp, NFSPROC3_RMDIR,
 			       	(xdrproc_t) xdr_diropargs3, (caddr_t) argp,
