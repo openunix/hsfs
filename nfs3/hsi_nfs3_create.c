@@ -72,8 +72,9 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	}
 
 out:	
-	return status;
 	DEBUG_OUT("%s", "Out of hsi_nfs3_create()");
+	return status;
+	
 }
 
 #define HSFS_NFS3_TEST
