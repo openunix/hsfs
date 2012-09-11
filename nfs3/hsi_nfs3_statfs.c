@@ -51,6 +51,7 @@ DEBUG_IN ("%s","...");
 	inode->sb->afiles = resok.afiles;
 out:	
 DEBUG_OUT ("%s","...");
+	clnt_freeres (inode->sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
 	return st;
 
 }
