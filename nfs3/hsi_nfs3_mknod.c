@@ -203,6 +203,7 @@ pipe_sattrs:
 out:
 	if(args.where.name)
 		free(args.where.name);
+	clnt_freeres(nfs_client,(xdrproc_t)xdr_diropres3,(char *)&res);
 	DEBUG_OUT(" err:%d",err);
 	return err;	
 }

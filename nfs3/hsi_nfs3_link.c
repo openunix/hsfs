@@ -152,6 +152,7 @@ int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct h
 out:
 	if(args.link.name)
 		free(args.link.name);	
+	clnt_freeres(clntp,(xdrproc_t)xdr_link3res,(char *)&res);
 	DEBUG_OUT("  err%d",err);
 	return err;
 }
