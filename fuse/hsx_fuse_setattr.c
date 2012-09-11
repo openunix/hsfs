@@ -45,17 +45,16 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	err = hsi_nfs3_stat2sattr(attr, to_set, &sattr);
 	if (!err)
 		err = hsi_nfs3_setattr(inode, &sattr);
- out:
-	if (err) {
-		DEBUG_OUT("Leave hsx_fuse_setattr() with errno : %d.\n", err);
-		fuse_reply_err(req, err);
-	}
-	else {
+	else 
+		goto out;
+	if (!err) {		
+		memset(&st, 0, sizeof(st));
 		err = hsi_nfs3_fattr2stat(&inode->attr, &st);
-		DEBUG_OUT("Leave hsx_fuse_setattr() with errno : %d.\n", err);
-		if (err)
-			fuse_reply_err(req, err);
-		else
-			fuse_reply_attr(req, &st, inode->sb->timeo * 10);
 	}
+ out:
+	DEBUG_OUT("Leave hsx_fuse_setattr() with errno : %d.\n", err);
+	if (err)
+		fuse_reply_err(req, err);	
+	else
+		fuse_reply_attr(req, &st, inode->sb->timeo * 10);
 }

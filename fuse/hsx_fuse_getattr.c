@@ -41,17 +41,14 @@ void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 		goto out;
 	}
 	err = hsi_nfs3_getattr(inode);
- out:
-	if (err) {
-		DEBUG_OUT("Leave hsx_fuse_getattr() with errno : %d.\n", err);
-		fuse_reply_err(req, err);
-	}
-	else {
+	if(!err) {
+		memset(&st, 0, sizeof(st));
 		err = hsi_nfs3_fattr2stat(&inode->attr, &st);
-		DEBUG_OUT("Leave hsx_fuse_getattr() with errno : %d.\n", err);
-		if (err)
-			fuse_reply_err(req, err);
-		else
-			fuse_reply_attr(req, &st, inode->sb->timeo * 10);
 	}
+ out:
+	DEBUG_OUT("Leave hsx_fuse_getattr() with errno : %d.\n", err);
+	if (err)
+		fuse_reply_err(req, err);
+	else
+		fuse_reply_attr(req, &st, inode->sb->timeo * 10);
 }
