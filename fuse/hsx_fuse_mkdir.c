@@ -20,11 +20,9 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct hsfs_super *sb;
 	const char *dirname = name;
 	
-	new = (struct hsfs_inode *) malloc (sizeof(struct hsfs_inode));
 	e = (struct fuse_entry_param *) malloc (sizeof(struct fuse_entry_param));
 	
 	memset(e, 0, sizeof(struct fuse_entry_param));
-	memset(new, 0, sizeof(struct hsfs_inode));
 
 	sb = fuse_req_userdata(req);
 	hi_parent = hsx_fuse_iget(sb, parent);
@@ -41,7 +39,6 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 		goto out;
 	}
 out:
-	free(new);
 	free(e);
 	return;
 };
