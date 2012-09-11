@@ -20,8 +20,8 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	       		const char *name, mode_t mode)
 {
 		int err = 0;
-		mkdir3args *argp;
-		diropres3 *clnt_res;
+		mkdir3args *argp = NULL;
+		diropres3 *clnt_res = NULL;
 		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
 		
 		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
@@ -40,7 +40,6 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			       	(xdrproc_t) xdr_diropres3, (caddr_t) clnt_res,
 			       	TIMEOUT);
 		if ( 0 != err) {	/*RPC error*/
-			free (argp->where.name);
 			free (argp);
 			free (clnt_res);
 			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
@@ -49,7 +48,6 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			int err = clnt_res->status;
 			*hi_new = NULL;
 			
-			free (argp->where.name);
 			free (argp);
 			free (clnt_res);
 			return hsi_nfs3_stat_to_errno(err);

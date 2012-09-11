@@ -18,7 +18,7 @@
 int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 {
 		int err = 0;
-		diropargs3 *argp;
+		diropargs3 *argp = NULL;
 		wccstat3 clnt_res;
 		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo%10)*100 };
 
