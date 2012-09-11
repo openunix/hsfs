@@ -70,5 +70,6 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode){
 	inode->attr.ctime.nseconds = res.getattr3res_u.attributes.ctime.nseconds;
  out:
 	DEBUG_OUT("Leave hsi_nfs3_getattr() with errno %d.\n", err);
+	clnt_freeres(clntp, (xdrproc_t)xdr_getattr3res, (char *)&res);
 	return err;
 }

@@ -177,5 +177,6 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr){
 	}	
  out:
 	DEBUG_OUT("Leave hsi_nfs3_setattr() with errno : %d.\n", err);
+	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
 	return err;
 }
