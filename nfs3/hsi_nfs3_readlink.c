@@ -83,11 +83,12 @@ out:
 
 #include "nfs3.h"
 #include "hsfs.h"
+#include "log.h"
 
 extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
 extern int hsi_nfs3_stat_to_errno(int stat);
 
-int hsi_nfs3_readlink(struct hsfs_inode *hi, const char *nfs_link){
+int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link){
         
         struct readlink3res res;
         enum clnt_stat st;
@@ -95,7 +96,7 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, const char *nfs_link){
         struct nfs_fh3 fh_readlink;
 	CLIENT *clntp = NULL;
 	int err = 0;
-
+	int len = 0;
 	DEBUG_IN("%s\n", "hsi_nfs3_readlink");       
         memset(&res, 0, sizeof(res));
         memset(&fh_readlink, 0, sizeof(fh_readlink));
@@ -117,9 +118,9 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, const char *nfs_link){
                 err = hsi_nfs3_stat_to_errno(st);
 	        goto out;
         }
-        nfs_link = res.readlink3res_u.resok.data;
-        fprintf(stderr, "the contents of the symlink is %s.\n", nfs_link);
-
+	len = strlen(res.readlink3res_u.resok.data);
+	*nfs_link = (char *)malloc(len+1);
+	strcpy(*nfs_link, res.readlink3res_u.resok.data);
 out:
         DEBUG_OUT("hsi_nfs3_readlink failed.%d\n", err);
 	return st;

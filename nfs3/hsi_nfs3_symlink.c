@@ -112,8 +112,8 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 	memset(&res, 0, sizeof(res));
         memset(&args, 0, sizeof(args));
         args.where.dir = parent->fh;
-        args.where.name = nfs_name;
-        args.symlink.symlink_data = nfs_link;
+        args.where.name = (char *)nfs_name;
+        args.symlink.symlink_data = (char *)nfs_link;
        
         st = clnt_call(parent->sb->clntp, NFSPROC3_SYMLINK,
 		       (xdrproc_t)xdr_symlink3args,
@@ -131,11 +131,10 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
                 goto out;
         }
         
-        (*new)->fh = res.diropres3_u.resok.obj.post_op_fh3_u.handle;
-        (*new)->attr =
-		res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes;
    
-	*new = hsi_nfs3_ifind((*new)->sb,&( (*new)->fh),  &((*new)->attr));     
+	*new = hsi_nfs3_ifind(parent->sb, 
+            &(res.diropres3_u.resok.obj.post_op_fh3_u.handle),  
+            &(res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));     
 out:
 
 	DEBUG_OUT("hsi_nfs3_symlink failed. %d\n", err);
