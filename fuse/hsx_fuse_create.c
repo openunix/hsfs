@@ -1,21 +1,23 @@
-#include <stdio.h>
-#include <fuse/fush.h>
 #include <errno.h>
-#include "log.h"
 #include "hsfs.h"
+#include "hsx_fuse.h"
+#include "hsi_nfs3.h"
+#include "log.h"
+
 
 void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 			mode_t mode, struct fuse_file_info *fi)
 {
+	DEBUG_IN("%s", "Now we come into hsx_fuse_create()");
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_inode *newhi = NULL;
 	struct hsfs_super *hs = NULL;
 	struct fuse_entry_param *e = NULL;
 	int mymode = 0;
 	int err =0xFFFFFFFF;
-
 	newhi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
 	e = (struct fuse_entry_param *)malloc(sizeof(struct fuse_entry_param));
+	DEBUG_IN("%ld", parent);
 	if (NULL == e){
 		ERR("ERROR occur while getting new <struct fuse_entry_param>"
 			"in <hsx_fuse_create>!\n");
@@ -42,9 +44,10 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 		err = EIO;
 		goto out;
 	}
+
+	mymode = (mode & S_IRWXO) | ((mode & S_IRWXG)) 
+			| ((mode & S_IRWXU));//identify the file mode
 	
-	mymode = (mode & S_IRWXO) | ((mode & S_IRWXG)>>1) 
-			| ((mode & S_IRWXU)>>2);//identify the file mode
 
 	if (fi->flags & O_EXCL) {
 		mymode |= 0x2 << 16;
@@ -53,10 +56,10 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	} else {
 		mymode |= 0x0;
 	}
-
+	ERR("This is hsi_nfs3_create()\n");
 	err = hsi_nfs3_create(hi, &newhi, name, mymode);
 	if (0 == err) {
-		hsx_fuse_fill_reply(newhi, &e);
+		hsx_fuse_fill_reply(newhi, e);
 		fi->fh = hi->fh.data.data_val;
 		fuse_reply_create(req, e, fi);
 	} else {
@@ -68,9 +71,10 @@ out:
 		hi = NULL;
 	}
 	if (NULL !=hs) {
-		hs = NULL;
+	//	hs = NULL;
 	}
 	if (NULL != newhi) {
-		newhi = NULL;
+	//	newhi = NULL;
 	}
+	DEBUG_OUT("%s", "Out of hsx_fuse_create()");
 }

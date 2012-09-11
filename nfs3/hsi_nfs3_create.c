@@ -1,5 +1,3 @@
-#ifdef HSFS_NFS3_TEST
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,15 +6,15 @@
 #include <sys/vfs.h>
 #include <libgen.h>
 
-#include "apis.h"
+
 #include "hsi_nfs3.h"
 #include "nfs3.h"
-
-#endif /*end of HSFS_NFS3_TEST*/
+#include "log.h"
 
 int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 		const char *name, mode_t mode)
 {
+	DEBUG_IN("%s", "Now we come into hsi_fuse_create()");
 	struct create3args args;
 	struct diropres3 res;
 	struct timeval to = {120, 0};
@@ -56,7 +54,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			(xdrproc_t)xdr_create3args, (caddr_t)&args,
 			(xdrproc_t)xdr_diropres3, (caddr_t)&res, to);
 	if (st) {
-		status = hsi_rpc_stat_to_errno(hi->sb->clntp);
+//		status = hsi_rpc_stat_to_errno(hi->sb->clntp);
 		goto out;
 	}
 	if (NFS3_OK == res.status) {
@@ -70,15 +68,17 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 				obj_attributes.post_op_attr_u.attributes;
 		
 	} else {
-		status = hsi_nfs_stat_to_errno(res.status);
+//		status = hsi_nfs3_stat_to_errno(res.status);
 	}
 
 out:	
 	return status;
+	DEBUG_OUT("%s", "Out of hsi_nfs3_create()");
 }
 
 #define HSFS_NFS3_TEST
 #ifdef HSFS_NFS3_TEST
+/*
 int main(int argc, char *argv[])
 {
 	struct hsfs_inode hi;
@@ -123,4 +123,6 @@ int main(int argc, char *argv[])
 out:
 	printf("Hello, this is out!\n");
 }
+*/
 #endif /*end of HSFS_NFS3_TEST*/
+
