@@ -21,7 +21,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	size_t dir_size = 0;
 	int err = 0;
 	int flag = 0;
- DEBUG_IN("%s","...............");
+ 
 
 	temp1 = hrc;
 	memset(&args, 0, sizeof(args));
@@ -34,7 +34,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	dircount = (size_t *)&args.dircount;
 	args.dircount = 1024;
 	clntp = hi->sb->clntp;
- DEBUG_IN("%s","...............1");
+ 
 
 	do{
 		
@@ -52,7 +52,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 
 			goto out;
 		}
- DEBUG_OUT("%s","...............1");
+ 
 
 		resok = &res.readdirplus3res_u.resok;
 		while(resok->reply.entries != NULL){
@@ -61,7 +61,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				temp->off = resok->reply.entries->cookie;
 				flag = 0; 
 			}
- DEBUG_IN("%s","...............");
+
 
 		 	temp = (struct hsfs_readdir_ctx *)malloc(sizeof
 				(struct hsfs_readdir_ctx));
@@ -96,7 +96,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 						resok->reply.entries->cookie;
 				}					
 			}		
-	 DEBUG_OUT("%s","...............3");
+	 
 	
 			err = resok->reply.entries->name_attributes.present;
 			if (1 != err) {
@@ -105,9 +105,9 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				err = rerr.re_errno;
 				goto out;
 			}
-	    		DEBUG_IN("%s.","......");
+	    		
 			hsi_nfs3_fattr2stat(&resok->reply.entries->						name_attributes.post_op_attr_u.attributes, 									&temp->stbuf);
-			DEBUG_OUT("%s","......");
+			
 			hrc->next = temp;
 			hrc = temp;
 			resok->reply.entries = resok->reply.entries->nextentry;
@@ -120,7 +120,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 		err = resok->reply.eof;
 	}while(err == 0);
 
- DEBUG_OUT("%s","...............");
+ 
 
 	err = 0;
 	hrc = temp1;
