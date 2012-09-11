@@ -18,23 +18,23 @@
 #include <libgen.h>
 #include <string.h>
 
-static struct timeval TIMEOUT = { 25, 0 };
 int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	       		const char *name, mode_t mode)
 {
 		int err = 0;
 		mkdir3args *argp;
 		diropres3 *clnt_res;
+		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
 		
 		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
 		clnt_res = (diropres3 *) malloc(sizeof(diropres3));
-		argp->where.name = (char *) malloc(strlen(name)); 
+		//argp->where.name = (char *) malloc(strlen(name)); 
 		memset(argp, 0, sizeof(mkdir3args));
 		memset(clnt_res, 0, sizeof(diropres3));
 		
 		argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
 		argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
-		memcpy(argp->where.name, name, strlen(name));
+		argp->where.name = name;
 		argp->attributes.mode.set = 1;
 		argp->attributes.mode.set_uint32_u.val = mode&0xfff;
 		
@@ -61,14 +61,14 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			*hi_new = hsi_nfs3_ifind (hi_parent->sb,
 			&(clnt_res->diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(clnt_res->diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
-
+			INFO("ifind ok\n");
 			if(NULL == *hi_new)
 			{
 				ERR("Error in create inode.\n");
 			}
-			free (argp->where.name);
 			free (argp);
 			free (clnt_res);
+			INFO("OK");
 			return err;			
 		}
 };
