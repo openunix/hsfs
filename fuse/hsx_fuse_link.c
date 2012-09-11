@@ -7,6 +7,7 @@
 #include <errno.h>
 #include "hsfs.h"
 #include "hsx_fuse.h"
+#include "hsi_nfs3.h"
 
 
 void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent, const char *newname)
