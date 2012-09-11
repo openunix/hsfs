@@ -38,7 +38,7 @@ DEBUG_IN ("%s","...");
 	st = res.status;
 	if (NFS3_OK != st){
 
-		st = hsi_nfs_stat_to_errno (st);
+		st = hsi_nfs3_stat_to_errno (st);
 		ERR ("rpc request failed: %d\n",st);
 		goto out;
 	}
