@@ -60,7 +60,6 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	err = hsi_nfs3_create(hi, &newhi, name, mymode);
 	if (0 == err) {
 		hsx_fuse_fill_reply(newhi, e);
-		fi->fh = hi->fh.data.data_val;
 		fuse_reply_create(req, e, fi);
 	} else {
 		fuse_reply_err(req, err);
