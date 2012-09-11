@@ -35,55 +35,56 @@ struct hsfs_inode
 #endif
 
 extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
-		 		struct hsfs_inode *newhi, const char *newname)
+		struct hsfs_inode *newhi, const char *newname)
 {
 	DEBUG_IN(" %s to %s", name, newname);
 	int ret = 0;
 	int err = 0;
+	struct hsfs_super *sb = hi->sb;
+	CLIENT *clntp = sb->clntp;
 	rename3args args;
 	rename3res res;
 	struct timeval to;
-	to.tv_sec = hi->sb->timeo / 10;
-	to.tv_usec = (hi->sb->timeo % 10) * 100;
+	to.tv_sec = sb->timeo / 10;
+	to.tv_usec = (sb->timeo % 10) * 100;
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.from.dir.data.data_len = hi->fh.data.data_len;
-	args.from.dir.data.data_val = hi->fh.data.data_val;
+	args.from.dir = hi->fh;
 	args.from.name = (char *)name;
-	args.to.dir.data.data_len = newhi->fh.data.data_len;
-	args.to.dir.data.data_val = newhi->fh.data.data_val;
+	args.to.dir = newhi->fh;
 	args.to.name = (char *)newname;
 
-	ret = clnt_call(hi->sb->clntp, NFSPROC3_RENAME,
-			(xdrproc_t)xdr_rename3args, (caddr_t)&args,
-			(xdrproc_t)xdr_rename3res, (caddr_t)&res, to);
+	ret = clnt_call(clntp, NFSPROC3_RENAME, (xdrproc_t)xdr_rename3args,
+			(caddr_t)&args, (xdrproc_t)xdr_rename3res,
+			(caddr_t)&res, to);
 	if (ret) {
 		ERR("%s: Call RPC Server (%u, %u) failure: "
-			"(%s).\n", progname, NFS_PROGRAM,
-		       	NFS_V3, clnt_sperrno(ret));
-		err = hsi_rpc_stat_to_errno(hi->sb->clntp);
+				"(%s).\n", progname, NFS_PROGRAM,
+				NFS_V3, clnt_sperrno(ret));
+		err = hsi_rpc_stat_to_errno(clntp);
 		goto out;
 	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
 		ERR("%s: Path (%s) on Server is not "
-			"accessible: (%d).\n", progname, name, ret);
+				"accessible: (%d).\n", progname, name, ret);
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
 	}
 	else {
 		if(res.rename3res_u.res.fromdir_wcc.after.present) {
 			memcpy(&(hi->attr), &res.rename3res_u.res.fromdir_wcc.
-				after.post_op_attr_u.
-				attributes, sizeof(fattr3));
+					after.post_op_attr_u.attributes, 
+					sizeof(fattr3));
 		}
 		if(res.rename3res_u.res.todir_wcc.after.present) {
 			memcpy(&(newhi->attr), &res.rename3res_u.res.todir_wcc.
-				after.post_op_attr_u.
-				attributes, sizeof(fattr3));
+					after.post_op_attr_u.attributes, 
+					sizeof(fattr3));
 		}
 	}
 out:
+	clnt_freeres(clntp, (xdrproc_t)xdr_rename3res, (char *)&res);
 	DEBUG_OUT(" %s to %s", name, newname);
 	return err;
 }
@@ -99,9 +100,9 @@ int main(int argc, char *argv[])
 	sb.clntp = clnt_create(svraddr,	NFS_PROGRAM, NFS_V3, "udp");
 	if (NULL == sb.clntp) {
 		fprintf(stderr, "%s: Create handle to RPC server "
-			"(%s, %u, %u) failed: (%s).\n", progname,
-			svraddr, NFS_PROGRAM, NFS_V3,
-			clnt_spcreateerror(progname));
+				"(%s, %u, %u) failed: (%s).\n", progname,
+				svraddr, NFS_PROGRAM, NFS_V3,
+				clnt_spcreateerror(progname));
 		err = ENXIO;
 		goto out;
 	}
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
 	size_t fhlen;
 	if ((err = map_path_to_nfs3fh(svraddr, fpath, &fhlen, &nfs3fhp))){
 		fprintf(stderr, "%s: Mapping %s on server to its FH feiled.%d\n",
-			progname, fpath, err);
+				progname, fpath, err);
 		goto out;
 	}
 	struct hsfs_inode *hi = NULL;
@@ -126,7 +127,7 @@ int main(int argc, char *argv[])
 	unsigned char *nfs3fhp2 = NULL;
 	if ((err = map_path_to_nfs3fh(svraddr, fpath, &fhlen, &nfs3fhp2))){
 		fprintf(stderr, "%s: Mapping %s on server to its FH feiled.%d\n",
-			progname, fpath, err);
+				progname, fpath, err);
 		goto out;
 	}
 	struct hsfs_inode *newhi = NULL;

@@ -66,15 +66,15 @@ static const struct {
 	{ NFS3ERR_WFLUSH,       EWFLUSH        	},
 #endif
 	/*
-	{ NFS3ERR_BADHANDLE,  -EBADHANDLE     	},
-	{ NFS3ERR_NOT_SYNC,   -ENOTSYNC       	},
-	{ NFS3ERR_BAD_COOKIE, -EBADCOOKIE     	},
-	{ NFS3ERR_NOTSUPP,    -ENOTSUPP       	},
-	{ NFS3ERR_TOOSMALL,   -ETOOSMALL      	},
-	{ NFS3ERR_SERVERFAULT,-EREMOTEIO      	},
-	{ NFS3ERR_BADTYPE,    -EBADTYPE       	},
-	{ NFS3ERR_JUKEBOX,    -EJUKEBOX       	},
-	*/
+	   { NFS3ERR_BADHANDLE,  -EBADHANDLE     	},
+	   { NFS3ERR_NOT_SYNC,   -ENOTSYNC       	},
+	   { NFS3ERR_BAD_COOKIE, -EBADCOOKIE     	},
+	   { NFS3ERR_NOTSUPP,    -ENOTSUPP       	},
+	   { NFS3ERR_TOOSMALL,   -ETOOSMALL      	},
+	   { NFS3ERR_SERVERFAULT,-EREMOTEIO      	},
+	   { NFS3ERR_BADTYPE,    -EBADTYPE       	},
+	   { NFS3ERR_JUKEBOX,    -EJUKEBOX       	},
+	   */
 	{ -1,                   EIO           	}
 };
 
@@ -101,42 +101,44 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	DEBUG_IN(" %s", name);
 	int ret = 0;
 	int err = 0;
+	struct hsfs_super *sb = hi->sb;
+	CLIENT *clntp = sb->clntp;
 	diropargs3 args;
 	wccstat3 res;
 	struct timeval to;
-	to.tv_sec = hi->sb->timeo / 10;
-	to.tv_usec = (hi->sb->timeo % 10) * 100;
+	to.tv_sec = sb->timeo / 10;
+	to.tv_usec = (sb->timeo % 10) * 100;
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.dir.data.data_len = hi->fh.data.data_len;
-	args.dir.data.data_val = hi->fh.data.data_val;
+	args.dir = hi->fh;
 	args.name = (char *)name;
 
-	ret = clnt_call(hi->sb->clntp, NFSPROC3_REMOVE,
-			(xdrproc_t)xdr_diropargs3, (caddr_t)&args,
-			(xdrproc_t)xdr_wccstat3, (caddr_t)&res, to);
+	ret = clnt_call(clntp, NFSPROC3_REMOVE,	(xdrproc_t)xdr_diropargs3,
+			(caddr_t)&args, (xdrproc_t)xdr_wccstat3,
+			(caddr_t)&res, to);
 	if (ret) {
 		ERR("%s: Call RPC Server (%u, %u) failure: "
-			"(%s).\n", progname, NFS_PROGRAM,
-		       	NFS_V3, clnt_sperrno(ret));
-		err = hsi_rpc_stat_to_errno(hi->sb->clntp);
+				"(%s).\n", progname, NFS_PROGRAM,
+				NFS_V3, clnt_sperrno(ret));
+		err = hsi_rpc_stat_to_errno(clntp);
 		goto out;
 	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
 		ERR("%s: Path (%s) on Server is not "
-			"accessible: (%d).\n", progname, name, ret);
+				"accessible: (%d).\n", progname, name, ret);
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
 	}
 	else {
 		if (res.wccstat3_u.wcc.after.present) {
 			memcpy(&(hi->attr), &res.wccstat3_u.wcc.
-				after.post_op_attr_u.
-				attributes, sizeof(fattr3));
+					after.post_op_attr_u.attributes, 
+					sizeof(fattr3));
 		}
 	}
 out:
+	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
 	DEBUG_OUT(" %s", name);
 	return err;
 }
@@ -152,9 +154,9 @@ int main(int argc, char *argv[])
 	sb.clntp = clnt_create(svraddr,	NFS_PROGRAM, NFS_V3, "udp");
 	if (NULL == sb.clntp) {
 		fprintf(stderr, "%s: Create handle to RPC server "
-			"(%s, %u, %u) failed: (%s).\n", progname,
-			svraddr, NFS_PROGRAM, NFS_V3,
-			clnt_spcreateerror(progname));
+				"(%s, %u, %u) failed: (%s).\n", progname,
+				svraddr, NFS_PROGRAM, NFS_V3,
+				clnt_spcreateerror(progname));
 		err = ENXIO;
 		goto out;
 	}
@@ -163,7 +165,7 @@ int main(int argc, char *argv[])
 	size_t fhlen;
 	if ((err = map_path_to_nfs3fh(svraddr, fpath, &fhlen, &nfs3fhp))){
 		fprintf(stderr, "%s: Mapping %s on server to its FH feiled.%d\n",
-			progname, fpath, err);
+				progname, fpath, err);
 		goto out;
 	}
 	struct hsfs_inode *hi = NULL;
