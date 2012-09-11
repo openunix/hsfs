@@ -4,8 +4,6 @@
  * 2012/09/06
  */
 #include "hsi_nfs3.h"
-#include "hsx_fuse.h"
-#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +32,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		
 		argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
 		argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
-		argp->where.name = name;
+		argp->where.name = (char *)name;
 		argp->attributes.mode.set = 1;
 		argp->attributes.mode.set_uint32_u.val = mode&0xfff;
 		
