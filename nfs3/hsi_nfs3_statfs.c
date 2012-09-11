@@ -17,11 +17,11 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	struct fsstat3res res;	
 	struct fsstat3resok resok;       
 	enum clnt_stat st;
-	int err;
-	int i;
+//	int err;
+//	int i;
 	struct timeval to = {120, 0};
 	struct nfs_fh3 fh ;
-
+DEBUG_IN ("%s","...");
 	memset (&res, 0, sizeof(res));
 	memset (&fh, 0, sizeof(fh));
 	memset (&resok, 0, sizeof(resok));
@@ -50,6 +50,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	inode->sb->ffiles = resok.ffiles;
 	inode->sb->afiles = resok.afiles;
 out:	
+DEBUG_OUT ("%s","...");
 	return st;
 
 }
