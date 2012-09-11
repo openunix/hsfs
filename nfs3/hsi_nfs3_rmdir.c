@@ -37,10 +37,12 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 		
 		if (0 != err) {					/*err is a RPC clnt error. So use hsi_rpc_stat_to_errno().*/
 			free(argp);
+			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3, (char *)&clnt_res);
 			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
 		}
 		else {
 			free(argp);
+			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3, (char *)&clnt_res);
 			return hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
 		}
 };

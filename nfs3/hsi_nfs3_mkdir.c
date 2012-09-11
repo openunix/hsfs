@@ -21,14 +21,13 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 {
 		int err = 0;
 		mkdir3args *argp = NULL;
-		diropres3 *clnt_res = NULL;
+		diropres3 clnt_res;
 		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
 		
 		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
-		clnt_res = (diropres3 *) malloc(sizeof(diropres3));
 		memset(argp, 0, sizeof(mkdir3args));
-		memset(clnt_res, 0, sizeof(diropres3));
-		
+		memset(&clnt_res, 0, sizeof(diropres3));
+
 		argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
 		argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
 		argp->where.name = (char *)name;
@@ -37,32 +36,31 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		
 		err = clnt_call (hi_parent->sb->clntp, NFSPROC3_MKDIR,
 			       	(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
-			       	(xdrproc_t) xdr_diropres3, (caddr_t) clnt_res,
+			       	(xdrproc_t) xdr_diropres3, (caddr_t) &clnt_res,
 			       	TIMEOUT);
 		if ( 0 != err) {	/*RPC error*/
 			free (argp);
-			free (clnt_res);
+			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
 			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
 		}
-		else if (0 != clnt_res->status)	{	/*RPC is OK, nfs error*/
-			int err = clnt_res->status;
+		else if (0 != clnt_res.status)	{	/*RPC is OK, nfs error*/
+			int err = clnt_res.status;
 			*hi_new = NULL;
 			
 			free (argp);
-			free (clnt_res);
+			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
 			return hsi_nfs3_stat_to_errno(err);
 		}
 		else {
 			*hi_new = hsi_nfs3_ifind (hi_parent->sb,
-			&(clnt_res->diropres3_u.resok.obj.post_op_fh3_u.handle),
-	&(clnt_res->diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
+			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
+	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
 			if(NULL == *hi_new)
 			{
 				ERR("Error in create inode.\n");
 			}
 			free (argp);
-			free (clnt_res);
-			INFO("OK");
+			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
 			return err;			
 		}
 };
