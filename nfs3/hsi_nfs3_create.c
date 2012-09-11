@@ -21,14 +21,14 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	mode_t cmode = mode & 0xF0000;
 	mode_t fmode = mode & 0x00FFF;
 	enum clnt_stat st;
-	int status;
+	int status = 0;
 
 	memset(&args, 0, sizeof(struct create3args));
 	memset(&res, 0, sizeof(struct diropres3));
 	memset(*newhi, 0, sizeof(struct hsfs_inode));
 	
 	args.where.dir = hi->fh;
-	args.where.name = name;
+	memcpy(args.where.name, name, strlen(name));
 	args.how.mode = cmode >> 16;
 	if (EXCLUSIVE == args.how.mode) {
 		memcpy(args.how.createhow3_u.verf, &hi->ino,
