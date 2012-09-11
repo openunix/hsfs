@@ -23,7 +23,6 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo%10)*100 };
 
 		argp = (diropargs3 *) malloc(sizeof(diropargs3));
-		argp->name = (char *) malloc(strlen(name));
 		memset (argp, 0, sizeof(diropargs3));
 		memset (&clnt_res, 0, sizeof(wccstat3));
 		
