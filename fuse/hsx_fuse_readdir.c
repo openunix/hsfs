@@ -5,6 +5,7 @@
 #include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 #define NFS3_COOKIEVERFSIZE 8
+#define RPCCOUNT 8
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 
@@ -30,7 +31,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	hs = fuse_req_userdata(req);
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	maxcount = size;
+	maxcount = RPCCOUNT*size;
 	hrc->off = off;
 	hi = hsx_fuse_iget(hs,ino);
 	
