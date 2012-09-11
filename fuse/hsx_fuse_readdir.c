@@ -27,19 +27,14 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	if( NULL == buf)
 		fuse_reply_err(req, err);
 	
-	hi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
-	hi->sb = (struct hsfs_super *)malloc(sizeof(struct hsfs_super));
 	hs = fuse_req_userdata(req);
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = size;
+	hrc->off = off;
 	hi = hsx_fuse_iget(hs,ino);
 	
-	if(off){
-		hrc = (struct hsfs_readdir_ctx *)fi->fh; 
-	  	while(off != hrc->off)
-		  hrc = hrc->next;
-	}
+	
 
 	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
 	
