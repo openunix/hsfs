@@ -26,7 +26,6 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		
 		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
 		clnt_res = (diropres3 *) malloc(sizeof(diropres3));
-		//argp->where.name = (char *) malloc(strlen(name)); 
 		memset(argp, 0, sizeof(mkdir3args));
 		memset(clnt_res, 0, sizeof(diropres3));
 		
@@ -59,7 +58,6 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			*hi_new = hsi_nfs3_ifind (hi_parent->sb,
 			&(clnt_res->diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(clnt_res->diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
-			INFO("ifind ok\n");
 			if(NULL == *hi_new)
 			{
 				ERR("Error in create inode.\n");
