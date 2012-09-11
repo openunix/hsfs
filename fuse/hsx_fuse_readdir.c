@@ -16,6 +16,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
                          struct fuse_file_info *fi)
 {
 	struct hsfs_readdir_ctx *hrc = NULL;
+	struct hsfs_readdir_ctx *temp_ctx = NULL;
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_super *hs = NULL;
 	size_t *dircount = NULL;
@@ -47,6 +48,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	}
 
 	fi->fh = (size_t)hrc;
+	temp_ctx = hrc;
 	hrc = hrc->next;
 	while(hrc!=NULL){
 	  	size_t tmplen = newlen;
@@ -54,8 +56,9 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, hrc->name, &hrc->stbuf, hrc->off);
 	  	if(newlen>size)
 	    		break;
-	  
+		  
 		hrc = hrc->next;
+		
 	}
 
        	size_t temp_size = min(newlen, size);
@@ -68,6 +71,12 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 out:	
 	if(NULL != buf)
 		free(buf);
+	while(temp_ctx->next != NULL){
+		hrc = temp_ctx->next;
+		free(temp_ctx);
+		temp_ctx = hrc;
+}	
+	free(temp_ctx);
 		
 	return;
 }
