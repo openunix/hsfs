@@ -42,7 +42,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				(xdrproc_t)xdr_readdirplus3args, &args,
 				(xdrproc_t)xdr_readdirplus3res, &res, to);
 		if (err) {	
-			err = hsi_nfs3_stat_to_errno(hi->sb->clntp);
+			err = hsi_rpc_stat_to_errno(hi->sb->clntp);
 			goto out;
 		}
 
