@@ -87,6 +87,7 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.write = hsx_fuse_write,
 	.setattr = hsx_fuse_setattr,
 	.forget = hsx_fuse_forget,
+	.rmdir = hsx_fuse_rmdir,
 	.unlink = hsx_fuse_unlink,
 	.readlink = hsx_fuse_readlink,
 	.symlink = hsx_fuse_symlink,
