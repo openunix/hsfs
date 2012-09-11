@@ -13,7 +13,6 @@
 void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	       	mode_t mode)
 {	
-	DEBUG_IN("%s\n", "hsx_fuse_mkdir");
 	int err = 0;
 	struct hsfs_inode *hi_parent;
 	struct hsfs_inode *new;
@@ -44,7 +43,6 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 out:
 	free(new);
 	free(e);
-	DEBUG_OUT("%d\n",err);
 	return;
 };
 
