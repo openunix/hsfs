@@ -7,6 +7,8 @@
 
 int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 {
+	struct hsfs_super *sb = winfo->inode->sb;
+	CLIENT *clnt = sb->clntp;
 	struct write3args args;
 	struct write3res res;
 	struct write3resok * resok = NULL;
@@ -24,15 +26,15 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	args.offset = winfo->rw_off;
 	args.count = winfo->rw_size;
 	args.stable = winfo->stable;
-	to.tv_sec = winfo->inode->sb->timeo / 10;
-	to.tv_usec = (winfo->inode->sb->timeo % 10) * 100;
+	to.tv_sec = sb->timeo / 10;
+	to.tv_usec = (sb->timeo % 10) * 100;
 
-	err = clnt_call(winfo->inode->sb->clntp, NFSPROC3_WRITE,
+	err = clnt_call(clnt, NFSPROC3_WRITE,
 		       (xdrproc_t)xdr_write3args, (char *)&args, 
 		(xdrproc_t)xdr_write3res, (char *)&res, to);
 	if(err){
 		ERR("Call RPC Server failure: %s", clnt_sperrno(err));
-		clnt_geterr(winfo->inode->sb->clntp, &rerr);
+		clnt_geterr(clnt, &rerr);
 		err = rerr.re_errno == 0 ? EIO : rerr.re_errno ;
 		goto out;
 	}
@@ -50,6 +52,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	resok = &res.write3res_u.resok;
 	DEBUG("hsi_nfs3_write 0x%x done", resok->count);
 	winfo->ret_count = resok->count;
+	clnt_freeres(clnt, (xdrproc_t)xdr_write3res, (char *)&res);
 
 out:
 	DEBUG_OUT("%s", "...");
