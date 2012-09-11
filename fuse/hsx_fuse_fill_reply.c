@@ -8,6 +8,7 @@
  *  Edit:2012/09/03 Hu yuwei
  *  
  */
+int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st);
 void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 {	
 	if (0 == hsi_nfs3_fattr2stat(&(inode->attr), &(e->attr))) {
