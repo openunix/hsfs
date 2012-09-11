@@ -38,6 +38,8 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 			sizeof(fattr3));
 	}
 
+	clnt_freeres(clnt, (xdrproc_t)xdr_pathconf3res, (char *)&res);
+
 	DEBUG_OUT("%s", ".");
 out:
 	return ret;

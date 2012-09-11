@@ -79,6 +79,8 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 			sizeof(fattr3));
 	}
 
+	clnt_freeres(clnt, (xdrproc_t)xdr_fsinfo3res, (char *)&res);
+
 	DEBUG_OUT("%s", ".");
 out:
 	return ret;
