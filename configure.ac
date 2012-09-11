@@ -39,6 +39,10 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([alarm gethostbyname hasmntopt inet_ntoa memset realpath socket strchr strcspn strdup strerror strrchr strstr uname])
 
+AC_CHECK_MEMBERS([struct stat.st_atim])
+AC_CHECK_MEMBERS([struct stat.st_atimespec])
+
+
 AC_CONFIG_FILES([Makefile
                  fuse/Makefile
                  nfs3/Makefile
