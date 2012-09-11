@@ -28,7 +28,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	memset(*newhi, 0, sizeof(struct hsfs_inode));
 	
 	args.where.dir = hi->fh;
-	args.where.name = name;
+	args.where.name = (char *)name;
 	args.how.mode = cmode >> 16;
 	if (EXCLUSIVE == args.how.mode) {
 		memcpy(args.how.createhow3_u.verf, &hi->ino,
