@@ -32,13 +32,13 @@ DEBUG_IN ("%s","...");
 	if (st){
 		ERR("clnt_call failed: %s\n",clnt_sperrno(st));
 
-		//st = hsi_rpc_stat_to_errno (inode->sb->clntp);	
+		st = hsi_rpc_stat_to_errno (inode->sb->clntp);	
 		goto out;
 	}
 	st = res.status;
 	if (NFS3_OK != st){
 
-		//st = hsi_nfs_stat_to_errno (st);
+		st = hsi_nfs_stat_to_errno (st);
 		ERR ("rpc request failed: %d\n",st);
 		goto out;
 	}
