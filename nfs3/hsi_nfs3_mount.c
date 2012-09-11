@@ -11,6 +11,8 @@
 #include <arpa/inet.h>
 #include <mntent.h>
 #include <errno.h>
+#include <rpc/rpc.h>
+#include <rpc/rpc_com.h>
 
 #include "log.h"
 #include "hsfs.h"
@@ -184,13 +186,14 @@ out:
 	return ret;
 }
 
-static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server)
+static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server,
+						int ssize, int rsize)
 {
 	CLIENT *clnt = NULL;
 	static char clnt_res;
 	int ret = 0;
 
-	clnt = hsi_mnt_openclnt(nfs_server, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
+	clnt = hsi_mnt_openclnt(nfs_server, ssize, rsize);
 	if (!clnt)
 		goto out;
 
@@ -504,7 +507,16 @@ void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
 	np->pm_vers = NFS_V3;
 	if (!np->pm_prot)
 		np->pm_prot = IPPROTO_TCP;
-	
+
+	/* initial as __rpc_get_t_size at libtirpc */
+	if (np->pm_prot == IPPROTO_TCP) {
+		super->rsize = super->wsize = 64 * 1024;
+	} else if (np->pm_prot == IPPROTO_UDP) {
+		super->rsize = super->wsize = UDPMSGSIZE;
+	} else {
+		super->rsize = super->wsize = RPC_MAXDATASIZE;
+	}
+
 	/* init retry */
 	if (*retry == -1) {
 		*retry = 10000;  /* 10000 mins == ~1 week*/
@@ -661,7 +673,8 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 	}
 
 	/* nfs3 client */
-	super->clntp = hsi_nfs3_clnt_create(&nfs_server);
+	super->clntp = hsi_nfs3_clnt_create(&nfs_server, super->wsize,
+						super->rsize);
 	if (super->clntp == NULL) {
 		goto umnt_fail;
 	}

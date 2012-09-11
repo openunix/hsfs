@@ -18,13 +18,9 @@ static inline void hsi_fsinfo_to_super(struct hsfs_super *super,
 	if (fsinfo->wtmax >= 512 && super->wsize > fsinfo->wtmax)
 		super->wsize = hsfs_block_size(fsinfo->wtmax, NULL);
 
-	if (super->rsize > RPCSMALLMSGSIZE)
-		super->rsize = RPCSMALLMSGSIZE;
 	if (super->rsize > HSFS_MAX_FILE_IO_SIZE)
 		super->rsize = HSFS_MAX_FILE_IO_SIZE;
 
-	if (super->wsize > RPCSMALLMSGSIZE)
-		super->wsize = RPCSMALLMSGSIZE;
 	if (super->wsize > HSFS_MAX_FILE_IO_SIZE)
 		super->wsize = HSFS_MAX_FILE_IO_SIZE;
 
