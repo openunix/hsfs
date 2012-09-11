@@ -23,7 +23,8 @@ libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
 			hsi_nfs3_write.c hsi_nfs3_stat2sattr.c hsi_nfs3_setattr.c \
 			hsi_nfs3_rmdir.c hsi_nfs3_readlink.c hsi_nfs3_symlink.c \
 			hsi_nfs3_rename.c hsi_nfs3_readdir.c \
-			hsi_nfs3_mknod.c  hsi_nfs3_link.c hsi_nfs3_create.c
+			hsi_nfs3_mknod.c  hsi_nfs3_link.c hsi_nfs3_create.c \
+			hsi_nfs3_access.c
 
 $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
 	test -f $@ && rm -rf $@ || true

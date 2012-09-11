@@ -97,6 +97,7 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.mknod = hsx_fuse_mknod,
 	.link = hsx_fuse_link,
 	.create = hsx_fuse_create,
+	.access = hsx_fuse_access,
 };
 
 /*

@@ -1,12 +1,13 @@
 #include <stdio.h>
-#include <fuse/fuse.h>
 #include <linux/fs.h>
 #include <errno.h>
 #include "log.h"
 #include "hsfs.h"
-
+#include "hsx_fuse.h"
+#include "hsi_nfs3.h"
 void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 {
+	DEBUG_IN("%s", "We now come into hsx_fuse_access()\n");
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_super *hs = NULL;
 	int mode = 0;
@@ -19,7 +20,7 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 		err = EIO;
 		goto out;
 	}
-	hi = hsx_fuse_iget(hs, (uint64_t)ino);
+	hi = hsx_fuse_iget(hs, ino);
 	if (NULL == hi) {
 		ERR("ERROR occur while getting <struct hsfs_inode>"
 			"in <hsx_fuse_access>!\n");
@@ -58,6 +59,6 @@ out:
 	}
 	
 	fuse_reply_err(req, err);
-
+DEBUG_OUT("%s", "Out of hsx_fuse_access()\n");
 }
 

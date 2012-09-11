@@ -8,7 +8,7 @@
 void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 			mode_t mode, struct fuse_file_info *fi)
 {
-	DEBUG_IN("%s", "Now we come into hsx_fuse_create()");
+	DEBUG_IN("%s", "Now we come into hsx_fuse_create()\n");
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_inode *newhi = NULL;
 	struct hsfs_super *hs = NULL;
@@ -17,7 +17,6 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	int err =0xFFFFFFFF;
 	newhi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
 	e = (struct fuse_entry_param *)malloc(sizeof(struct fuse_entry_param));
-	DEBUG_IN("%ld", parent);
 	if (NULL == e){
 		ERR("ERROR occur while getting new <struct fuse_entry_param>"
 			"in <hsx_fuse_create>!\n");
@@ -56,7 +55,6 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	} else {
 		mymode |= 0x0;
 	}
-	ERR("This is hsi_nfs3_create()\n");
 	err = hsi_nfs3_create(hi, &newhi, name, mymode);
 	if (0 == err) {
 		hsx_fuse_fill_reply(newhi, e);
@@ -70,10 +68,10 @@ out:
 		hi = NULL;
 	}
 	if (NULL !=hs) {
-	//	hs = NULL;
+		hs = NULL;
 	}
 	if (NULL != newhi) {
-	//	newhi = NULL;
+		newhi = NULL;
 	}
-	DEBUG_OUT("%s", "Out of hsx_fuse_create()");
+	DEBUG_OUT("%s", "Out of hsx_fuse_create()\n");
 }

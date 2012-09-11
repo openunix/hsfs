@@ -54,7 +54,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			(xdrproc_t)xdr_create3args, (caddr_t)&args,
 			(xdrproc_t)xdr_diropres3, (caddr_t)&res, to);
 	if (st) {
-//		status = hsi_rpc_stat_to_errno(hi->sb->clntp);
+		status = hsi_rpc_stat_to_errno(hi->sb->clntp);
 		goto out;
 	}
 	if (NFS3_OK == res.status) {
@@ -68,7 +68,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 				obj_attributes.post_op_attr_u.attributes;
 		
 	} else {
-//		status = hsi_nfs3_stat_to_errno(res.status);
+		status = hsi_nfs3_stat_to_errno(res.status);
 	}
 
 out:	

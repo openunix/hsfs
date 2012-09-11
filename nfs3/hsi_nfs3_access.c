@@ -1,4 +1,3 @@
-#ifdef HSFS_NFS3_TEST
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,12 +6,13 @@
 #include <sys/vfs.h>
 #include <libgen.h>
 
-#include "apis.h"
 #include "hsi_nfs3.h"
-#endif
+#include "log.h"
+#include "nfs3.h"
 
 int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 {
+	DEBUG_IN("%s", "We now come into hsi_nfs3_access()\n");
 	struct access3args args;
 	struct access3res res;
 	struct timeval to = {120, 0};
@@ -22,7 +22,7 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 	memset(&args, 0, sizeof(struct access3args));
 	memset(&res, 0, sizeof(struct access3res));
 	args.object = hi->fh;
-	args.access = (uint32)mask & 0x3F;
+	args.access = mask & 0x3F;
 	
 	st = clnt_call(hi->sb->clntp, NFSPROC3_ACCESS,
 		(xdrproc_t)xdr_access3args, (caddr_t)&args,
@@ -40,6 +40,7 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 	}
 
 out:
+DEBUG_OUT("%s", "Out of hsi_nfs3_access()\n");
 	return res.status;
 }
 
