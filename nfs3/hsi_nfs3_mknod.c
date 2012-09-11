@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <linux/kdev_t.h>
+#include <linux/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -132,10 +132,13 @@ out:
 	return err;	
 }
 #else 
+#include <linux/kdev_t.h>
 #include "hsi_nfs3.h"
+#define MNTNAMLEN 255
 #endif /*#ifdef HSFS_NFS3_TEST*/
 int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode	**newinode, const char *name,mode_t mode, dev_t rdev)
 {
+	DEBUG_IN("%s","()");
 	int err=0;
 	CLIENT *nfs_client=NULL;
 	struct mknod3args args;
@@ -188,7 +191,7 @@ pipe_sattrs:
 	memset(&res,0,sizeof(res));
 	err=clnt_call(nfs_client,NFSPROC3_MKNOD,(xdrproc_t)xdr_mknod3args,&args,(xdrproc_t)xdr_diropres3,&res,to);
 	if(err){
-		err=hsi_rpc_stat_to_errno(parent-sb->clntp);	
+		err=hsi_rpc_stat_to_errno(parent->sb->clntp);	
 		goto out;
 	}	
 	else if(res.status){
@@ -200,5 +203,6 @@ pipe_sattrs:
 out:
 	if(args.where.name)
 		free(args.where.name);
+	DEBUG_OUT(" err:%d",err);
 	return err;	
 }

@@ -103,20 +103,23 @@ out:
 	return err;	
 }
 #else
+#include <errno.h>
 #include "hsi_nfs3.h"
+#define MNTNAMLEN 255
 #endif
 
 
-hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct hsfs_inode **newinode, const char *name)
+int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct hsfs_inode **newinode, const char *name)
 {
+	DEBUG_IN("%s","()");
 	CLIENT *clntp=NULL;
 	int err=0;
 	struct link3args args;
 	struct link3res res;
 	struct timeval to;
 
-	to.tv_sec = parent->sb->timeo /10;
-	to.tv_usec = (parent->sb->timeo % 10) * 100;
+	to.tv_sec =newparent->sb->timeo /10;
+	to.tv_usec = (newparent->sb->timeo % 10) * 100;
 
 
 	memset(&args, 0, sizeof(args));
@@ -128,7 +131,7 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct hsfs_
 	args.link.name=(char *)malloc(MNTNAMLEN * sizeof(char));
 
 	if(!args.link.name){
-		err=ENOMEM;
+		err=-ENOMEM;
 		goto out;
 	}
 	strcpy(args.link.name, name);
@@ -137,7 +140,7 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct hsfs_
 	clntp=newparent->sb->clntp; //get the client	
 	err=clnt_call(clntp, NFSPROC3_LINK,(xdrproc_t)xdr_link3args,&args,				(xdrproc_t)xdr_link3res,&res,to);
 	if(err){
-		err=hsi_rpc_stat_to_errno(parent-sb->clntp);	
+		err=hsi_rpc_stat_to_errno(newparent->sb->clntp);	
 		goto out;
 	}	
 	else if(res.status){
@@ -149,5 +152,6 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct hsfs_
 out:
 	if(args.link.name)
 		free(args.link.name);	
+	DEBUG_OUT("  err%d",err);
 	return err;
 }
