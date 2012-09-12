@@ -115,19 +115,20 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 	if(st){
 		ERR( " Call RPC Server failure:%s.\n ", clnt_sperrno(st));
 		err = hsi_rpc_stat_to_errno(parent->sb->clntp);
-		goto out;
+		goto out2;
 	}
 	st = res.status;
 	if(NFS3_OK != st){
 		ERR("the proc of symlink failure:%d\n", st);
 		err = hsi_nfs3_stat_to_errno(st);
-		goto out;
+		goto out1;
 	}
 	*new = hsi_nfs3_ifind(parent->sb, 
 	&(res.diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
+out1:
 	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char*)&res);
-out:
+out2:
 	DEBUG_OUT("the hsi_nfs3_symlink return with errno %d\n", err);
 	return err;
 }
