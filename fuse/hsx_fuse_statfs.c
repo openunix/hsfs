@@ -36,3 +36,38 @@ out:
 
 }
 
+
+int hsi_super2statvfs(struct hsfs_super *sp, struct statvfs *stbuf)
+{
+	unsigned long block_res = 0;
+	unsigned char block_bits = 0;
+
+	if (sp->bsize_bits == 0){
+		ERR ("hsfs_super->bsize_bits is 0!");
+		goto pout;
+	}
+	block_bits  = sp->bsize_bits;
+	block_res = (1 << block_bits)-1;
+	if (sp->bsize == 0){
+		ERR ("hsfs_super->bsize is 0!\n");
+		goto pout;
+	}
+	stbuf->f_bsize = sp->bsize;
+	stbuf->f_frsize = sp->bsize;
+	stbuf->f_blocks = (sp->tbytes+block_res)>>block_bits;
+	stbuf->f_bfree = (sp->fbytes+block_res)>>block_bits;
+	stbuf->f_bavail = (sp->abytes+block_res)>>block_bits;
+	stbuf->f_files = sp->tfiles;
+	stbuf->f_ffree = sp->ffiles;
+	stbuf->f_favail = sp->afiles;
+	stbuf->f_fsid = 0;
+	if (sp->namlen == 0){
+		ERR("super->namemax is 0!\n");
+		goto pout;
+	}
+	stbuf->f_flag = sp->flags;
+	stbuf->f_namemax = sp->namlen;
+	return 0;
+pout:
+	return 1;
+}
