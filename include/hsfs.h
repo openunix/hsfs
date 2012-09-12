@@ -15,6 +15,14 @@
 #include "log.h"
 
 #define HSFS_TYPE "hsfs"
+#define S_ISSETMODE(to_set)       ((to_set) & FUSE_SET_ATTR_MODE)
+#define S_ISSETUID(to_set)        ((to_set) & FUSE_SET_ATTR_UID)
+#define S_ISSETGID(to_set)        ((to_set) & FUSE_SET_ATTR_GID)
+#define S_ISSETSIZE(to_set)       ((to_set) & FUSE_SET_ATTR_SIZE)
+#define S_ISSETATIME(to_set)      ((to_set) & FUSE_SET_ATTR_ATIME)
+#define S_ISSETMTIME(to_set)      ((to_set) & FUSE_SET_ATTR_MTIME)
+#define S_ISSETATIMENOW(to_set)   ((to_set) & FUSE_SET_ATTR_ATIME_NOW)
+#define S_ISSETMTIMENOW(to_set)   ((to_set) & FUSE_SET_ATTR_MTIME_NOW)
 
 extern char *progname;
 extern int nomtab;
