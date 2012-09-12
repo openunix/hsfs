@@ -107,7 +107,7 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	wccstat3 res;
 	struct timeval to;
 	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100;
+	to.tv_usec = (sb->timeo % 10) * 100000;
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.dir = hi->fh;
