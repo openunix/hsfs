@@ -3,10 +3,10 @@
 
 void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 {
-	DEBUG_IN("%s","");
 	struct hsfs_inode  *hsfs_node;
 	struct hsfs_super  *sb;
 	
+	DEBUG_IN("%s","");
 	if(ino == FUSE_ROOT_ID)
 		goto out;
 
@@ -16,7 +16,11 @@ void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 		goto out;
 	
 	if(hsfs_node->nlookup >= nlookup)
+	{
+		DEBUG("Now ,the node lookup count : %lu , the number of\
+			lookups to forget : %lu", hsfs_node->nlookup,nlookup);
 		hsfs_node->nlookup -= nlookup;
+	}
 	else
 		goto out;
 	if(! hsfs_node->nlookup)
