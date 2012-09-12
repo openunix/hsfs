@@ -111,22 +111,23 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
 	if(st){
 		ERR("call the RPC server fail %s\n", clnt_sperrno(st));
 		err = hsi_rpc_stat_to_errno(clntp);
-		goto out;
+		goto out2;
 	}
 	st = res.status;
 	if(NFS3_OK != st){
 		ERR("the proc of readlink  is failed %d\n", st);
 		err = hsi_nfs3_stat_to_errno(st);
-	        goto out;
+	        goto out1;
 	}
 	len = strlen(res.readlink3res_u.resok.data);
 	*nfs_link = (char *)malloc(len+1);
 	if((*nfs_link) == NULL){
-		goto out;
+		goto out1;
 	}
 	strcpy(*nfs_link, res.readlink3res_u.resok.data);
+out1:
 	clnt_freeres(clntp, (xdrproc_t)xdr_readlink3res, (char *)&res);
-out:
+out2:
 	DEBUG_OUT("the hsi_nfs3_readlink return with errno.%d\n", err);
 	return err;
 }
