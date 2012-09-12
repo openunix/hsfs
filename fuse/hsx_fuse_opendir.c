@@ -7,17 +7,17 @@
 
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-	DEBUG_IN("%s.","hsx_fuse_opendir");
 	struct hsfs_readdir_ctx *hrc = NULL;
 	int err = 0;
 
+	DEBUG_IN("%s.","hsx_fuse_opendir");
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	if (hrc == NULL)
 	{
-		printf("No menory: hrc.");
-		err = 12;
+		ERR("opendir_hrc menory leak.");
 		goto out;
 	}
+
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	fi->fh = (size_t)hrc;
 	fuse_reply_open(req, fi);
