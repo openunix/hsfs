@@ -8,7 +8,6 @@
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
 	struct hsfs_readdir_ctx *hrc = NULL;
-	int err = 0;
 
 	DEBUG_IN("%s.","hsx_fuse_opendir");
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
