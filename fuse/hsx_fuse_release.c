@@ -7,7 +7,7 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
-extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
+void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
 	DEBUG_IN (" fi->flags:%d",fi->flags);
 	if (fi->fh != 0){
