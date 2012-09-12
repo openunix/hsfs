@@ -1,3 +1,4 @@
+#ifdef HSFS_NFS3_TEST
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,58 +6,66 @@
 #include <errno.h>
 #include <sys/vfs.h>
 #include <libgen.h>
-
+#endif
 
 #include "hsi_nfs3.h"
+#include "hsfs.h"
 #include "nfs3.h"
 #include "log.h"
+
+#define FULL_MODE (S_IRWXU | S_IRWXG | S_IRWXO)
 
 int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 		const char *name, mode_t mode)
 {
-	DEBUG_IN("%s", "Now we come into hsi_fuse_create()");
 	struct create3args args;
 	struct diropres3 res;
-	struct timeval to = {120, 0};
+	struct timeval to = {};
 	mode_t cmode = mode & 0xF0000;
-	mode_t fmode = mode & 0x00FFF;
+	mode_t fmode = mode & FULL_MODE;
+	CLIENT *clntp = NULL;
 	enum clnt_stat st;
 	int status = 0;
 
+	DEBUG_IN("%s%d", "In hsi_fuse_create(), with MODE = ", mode);
+	
 	memset(&args, 0, sizeof(struct create3args));
 	memset(&res, 0, sizeof(struct diropres3));
-	memset(*newhi, 0, sizeof(struct hsfs_inode));
 	
 	args.where.dir = hi->fh;
 	args.where.name = (char *)name;
+	clntp = hi->sb->clntp;
+	to.tv_sec = hi->sb->timeo / 10;
+	to.tv_usec = (hi->sb->timeo % 10) * 100;
 	args.how.mode = cmode >> 16;
 	if (EXCLUSIVE == args.how.mode) {
-		memcpy(args.how.createhow3_u.verf, &hi->ino,
-			sizeof(createverf3));
+		memcpy(args.how.createhow3_u.verf, &hi->ino, NFS3_CREATEVERFSIZE);
 	} else {
-		args.how.createhow3_u.obj_attributes.mode.set = 1;
-		args.how.createhow3_u.obj_attributes.mode.set_uint32_u.val 
-			= fmode;
-		args.how.createhow3_u.obj_attributes.uid.set = 1;
-		args.how.createhow3_u.obj_attributes.uid.set_uint32_u.val 
-			= hi->attr.uid;
-		args.how.createhow3_u.obj_attributes.gid.set = 1;
-		args.how.createhow3_u.obj_attributes.gid.set_uint32_u.val
-			= hi->attr.gid;
-		args.how.createhow3_u.obj_attributes.size.set = 0;
-		args.how.createhow3_u.obj_attributes.atime.set
-			= SET_TO_SERVER_TIME;
-		args.how.createhow3_u.obj_attributes.mtime.set
-			= SET_TO_SERVER_TIME;
+		struct sattr3 sattr;
+		memset(&sattr, 0, sizeof(struct sattr3));
+		sattr.mode.set = 1;
+		sattr.mode.set_uint32_u.val = fmode;
+		sattr.uid.set = 1;
+		sattr.uid.set_uint32_u.val = hi->attr.uid;
+		sattr.gid.set = 1;
+		sattr.gid.set_uint32_u.val = hi->attr.gid;
+		sattr.size.set = 0;
+		sattr.atime.set = SET_TO_SERVER_TIME;
+		sattr.mtime.set	= SET_TO_SERVER_TIME;
+
+		args.how.createhow3_u.obj_attributes = sattr;
 	}
 	
-	st = clnt_call(hi->sb->clntp, NFSPROC3_CREATE,
+	st = clnt_call(clntp, NFSPROC3_CREATE,
 			(xdrproc_t)xdr_create3args, (caddr_t)&args,
 			(xdrproc_t)xdr_diropres3, (caddr_t)&res, to);
 	if (st) {
-		status = hsi_rpc_stat_to_errno(hi->sb->clntp);
+		status = hsi_rpc_stat_to_errno(clntp);
+		ERR("%s%d", "Fail in calling rpc process," 
+				" with ERROR_CODE = ", status);
 		goto out;
 	}
+
 	if (NFS3_OK == res.status) {
 		status = res.status;
 
@@ -64,12 +73,11 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			&res.diropres3_u.resok.obj.post_op_fh3_u.handle, 
 			&res.diropres3_u.resok.
 			obj_attributes.post_op_attr_u.attributes);
-		(*newhi)->attr = res.diropres3_u.resok.
-				obj_attributes.post_op_attr_u.attributes;
+	
 		if (EXCLUSIVE == args.how.mode) {
 			struct hsfs_sattr sattr = {};
-			sattr.valid |= FUSE_SET_ATTR_MODE;
 			sattr.mode = fmode;
+			S_SETMODE(&sattr);
 			st = hsi_nfs3_setattr(*newhi, &sattr);
 			if (st) {
 				hsi_rpc_stat_to_errno(hi->sb->clntp);
@@ -80,15 +88,14 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 		status = hsi_nfs3_stat_to_errno(res.status);
 	}
 
-out:	
-	DEBUG_OUT("%s", "Out of hsi_nfs3_create()");
+out:
+	clnt_freeres(clntp, (xdrproc_t)xdr_diropres3, (caddr_t)&res);
+	DEBUG_OUT("%s%d", "Out of hsi_nfs3_create(), with STATUS = ", status);
 	return status;
 	
 }
 
-#define HSFS_NFS3_TEST
 #ifdef HSFS_NFS3_TEST
-/*
 int main(int argc, char *argv[])
 {
 	struct hsfs_inode hi;
@@ -133,6 +140,5 @@ int main(int argc, char *argv[])
 out:
 	printf("Hello, this is out!\n");
 }
-*/
 #endif /*end of HSFS_NFS3_TEST*/
 

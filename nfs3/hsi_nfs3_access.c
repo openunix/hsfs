@@ -1,3 +1,6 @@
+/*
+*/
+#ifdef HSFS_NFS3_TEST
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,42 +8,50 @@
 #include <errno.h>
 #include <sys/vfs.h>
 #include <libgen.h>
+#endif
 
 #include "hsi_nfs3.h"
 #include "log.h"
 #include "nfs3.h"
 
+#define FULL_ACCESS (ACCESS3_READ | ACCESS3_LOOKUP | ACCESS3_MODIFY \
+		| ACCESS3_EXTEND | ACCESS3_DELETE |ACCESS3_EXECUTE )
+
 int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 {
-	DEBUG_IN("%s", "We now come into hsi_nfs3_access()\n");
-	struct access3args args;
-	struct access3res res;
-	struct timeval to = {120, 0};
-	enum clnt_stat st;
+
+	struct access3args args = {};
+	struct access3res res = {};
+	struct timeval to = {};
+	CLIENT *clntp = NULL;
+	enum clnt_stat st = 0;
 	int status = 0;
+
+	DEBUG_IN("%s%d", "In hsi_nfs3_access(), with MASK =  ", mask);
 
 	memset(&args, 0, sizeof(struct access3args));
 	memset(&res, 0, sizeof(struct access3res));
+
 	args.object = hi->fh;
-	args.access = mask & 0x3F;
+	args.access = mask & FULL_ACCESS;
+	to.tv_sec = hi->sb->timeo / 10;
+	to.tv_usec = (hi->sb->timeo % 10) * 100;
+	clntp = hi->sb->clntp;
 	
-	st = clnt_call(hi->sb->clntp, NFSPROC3_ACCESS,
-		(xdrproc_t)xdr_access3args, (caddr_t)&args,
-		(xdrproc_t)xdr_access3res, (caddr_t)&res, to);
+	st = clnt_call(clntp, NFSPROC3_ACCESS, 
+			(xdrproc_t)xdr_access3args, (caddr_t)&args, 
+			(xdrproc_t)xdr_access3res, (caddr_t)&res, to);
 	if (st) {
-		printf("ERROR occur while executing <clnt_call()> process!\n");
-		status = hsi_rpc_stat_to_errno(hi->sb->clntp);
+		status = hsi_rpc_stat_to_errno(clntp);
+		ERR("%s%d", "Fail in calling rpc process," 
+				"with ERROR_CODE = ", status);
 		goto out;
 	}
 	
-	if (NFS3_OK == res.status) {
-		status = res.status;
-	} else {
-		status = hsi_nfs3_stat_to_errno(res.status);
-	}
-
+	status = hsi_nfs3_stat_to_errno(res.status);
 out:
-DEBUG_OUT("%s", "Out of hsi_nfs3_access()\n");
+	clnt_freeres(clntp, (xdrproc_t)xdr_access3res, (caddr_t)&res);
+	DEBUG_OUT("%s%d", "Out of hsi_nfs3_access(), with STATUS = ", status);
 	return res.status;
 }
 
