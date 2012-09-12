@@ -21,7 +21,8 @@ int  hsx_fuse_itable_init(struct hsfs_super *sb)
 	sb->hsfs_fuse_ht.size =  HSFS_TABLE_SIZE ;
 	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, 
 				sizeof(struct hsfs_inode *) * HSFS_TABLE_SIZE);
-	if (sb->hsfs_fuse_ht.array == NULL) {
+	if (sb->hsfs_fuse_ht.array == NULL)
+	{
 		ERR("hsfs: memory allocation failed.");
 		return ENOMEM ;
 	}
@@ -54,7 +55,7 @@ static uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
  * @param pfh[IN]:	a pointer to the filehandle of node 
  * @param ino[IN]:	the inode number
  * @param pattr[IN]:	a pointer to the attributes of node 
- * @return:		a pointer to the object if successfull,else NULL
+ * @return:	a pointer to the object if successfull,else NULL
  *
  * */
 struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, 
@@ -205,7 +206,8 @@ int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 
 	struct hsfs_inode **hs_nodep = &sb->hsfs_fuse_ht.array[hash];
 	for (; *hs_nodep != NULL; hs_nodep = &(*hs_nodep)->next)
-		if (*hs_nodep == hs_node) {
+		if (*hs_nodep == hs_node)
+		{
 			*hs_nodep = hs_node->next;
 			sb->hsfs_fuse_ht.use--;
 			free(hs_node->fh.data.data_val);

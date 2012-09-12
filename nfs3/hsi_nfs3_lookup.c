@@ -32,20 +32,22 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	st=clnt_call(parent->sb->clntp,NFSPROC3_LOOKUP,(xdrproc_t)xdr_diropargs3
 		,(caddr_t)&args,(xdrproc_t)xdr_lookup3res, (caddr_t)&res, to);
 
-	if (st) {
+	if (st) 
+	{
 		ERR("Call RPC Server (%u, %u) failure: "
 			"(%s).\n",NFS_PROGRAM, NFS_V3, clnt_sperrno(st));
 		err = hsi_rpc_stat_to_errno(parent->sb->clntp);
                 goto out;
         }
         st = res.status;
-        if (NFS3_OK != st) {
+        if (NFS3_OK != st) 
+	{
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
 		goto out;
 	}
-	if( ! res.lookup3res_u.resok.obj_attributes.present)
+	if (! res.lookup3res_u.resok.obj_attributes.present)
 	{
 		ERR("Acquired property is invalid !");
 		err = EINVAL;
@@ -83,7 +85,8 @@ int main(int argc ,char *argv[])
 
 	cliname = basename(argv[0]);
 
-	if (argc < 4) {
+	if (argc < 4)
+	{
 		err = EINVAL;
 		fprintf(stderr, "%s $svraddr $fpath.\n", cliname);
 		goto out;
@@ -93,7 +96,8 @@ int main(int argc ,char *argv[])
 	fpath = argv[2];
 
 	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "udp");
-	if (NULL == clntp) {
+	if (NULL == clntp) 
+	{
 		fprintf(stderr, "%s: Create handle to RPC server "\
 			"(%s, %u, %u) failed: (%s).\n", cliname,\
 			svraddr, NFS_PROGRAM, NFS_V3, clnt_spcreateerror(cliname));
@@ -103,12 +107,12 @@ int main(int argc ,char *argv[])
 	
 		
 	if (map_path_to_nfs3fh(svraddr,fpath,&fhlen,&pnfsfh))
-        {
+	{
                 fprintf(stderr, "%s: Transfrom  %s  to FH failed  "\
                         "(%s, %u, %u) .\n", cliname,\
                         fpath,svraddr, NFS_PROGRAM, NFS_V3);
                 goto out;
-        }
+	}
 	parent.sb = sb;
 	parent.sb->clntp = clntp;
 	parent.fh.data.data_val = (char *)pnfsfh;
@@ -116,7 +120,8 @@ int main(int argc ,char *argv[])
 
 	if((err = hsi_nfs3_lookup(&parent,&child,argv[3])))
 	{
-		fprintf(stderr,"Call hsi_nfs3_lookup function fails , Error code : %d\n",err);	
+		fprintf(stderr,"Call hsi_nfs3_lookup function fails , Error
+			code : %d\n",err);	
 		goto out;
 	}
 
