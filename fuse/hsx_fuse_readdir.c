@@ -2,15 +2,11 @@
  *hsx_fuse_readdir.c
  */
 
+#include <errno.h>
 #include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 #define NFS3_COOKIEVERFSIZE 8
 #define RPCCOUNT 8
-
-#define min(x, y) ((x) < (y) ? (x) : (y))
-
-extern struct hsfs_inode g_inode;
-extern struct hsfs_super g_super;
 
 void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
                          struct fuse_file_info *fi)
@@ -28,13 +24,17 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	DEBUG_IN("%s.","hsx_fuse_readdir");
 	buf = (char *) malloc(size);
 	if( NULL == buf){
+		err = ENOMEM;
 		ERR("Buf memory leak.");
+		fuse_reply_err(req, err);
 		goto out;
 	}
 
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	if( NULL == hrc){
 		ERR("hrc memory leak.");
+		err = ENOMEM;
+		fuse_reply_err(req, err);
 		goto out;
 	}
 
@@ -47,6 +47,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
 	if(err)
 	{
+		ERR("Call hsi_nfs3_readdir failed.");
 		fuse_reply_err(req, err);
 		goto out;
 	}
@@ -56,7 +57,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	while(temp_ctx!=NULL){
 	  	size_t tmplen = newlen;
 	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, 
-				temp_ctx->name, &temp_ctx->stbuf, temp_ctx->off);
+				temp_ctx->name, &temp_ctx->stbuf, 
+							temp_ctx->off);
 	  	if(newlen>size)
 	    		break;
 		  
@@ -64,11 +66,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		
 	}
 
-       	size_t temp_size = min(newlen, size);
-	if (newlen)
-		fuse_reply_buf(req, buf, temp_size);
-	else
-		fuse_reply_buf(req, NULL, 0);
+	fuse_reply_buf(req, buf, temp_size);
 	
 
 out:	
