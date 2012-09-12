@@ -21,7 +21,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	size_t dir_size = 0;
 	int err = 0;
 	int flag = 0;
- 
 
 	temp1 = hrc;
 	memset(&args, 0, sizeof(args));
@@ -34,7 +33,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	dircount = (size_t *)&args.dircount;
 	args.dircount = 1024;
 	clntp = hi->sb->clntp;
- 
 
 	do{
 		
@@ -48,20 +46,15 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 
 		if (NFS3_OK != res.status) {
 			err = hsi_nfs3_stat_to_errno(res.status);
-
-
 			goto out;
 		}
  
-
 		resok = &res.readdirplus3res_u.resok;
 		while(resok->reply.entries != NULL){
-
 			if (flag == 1){
 				temp->off = resok->reply.entries->cookie;
 				flag = 0; 
 			}
-
 
 		 	temp = (struct hsfs_readdir_ctx *)malloc(sizeof
 				(struct hsfs_readdir_ctx));
@@ -72,12 +65,10 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				ERR("Memory leak.");
 				goto out;
 			}
+
 			memcpy(temp->cookieverf, resok->cookieverf,
 						 NFS3_COOKIEVERFSIZE);
 			strcpy(temp->name, resok->reply.entries->name);
-
-			INFO("%s.", temp->name);
-			INFO("%s.",resok->reply.entries->name);	
 			if (resok->reply.entries->nextentry != NULL)
 			  	 temp->off = resok->reply.entries->nextentry
 				->cookie;
@@ -97,7 +88,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				}					
 			}		
 	 
-	
 			err = resok->reply.entries->name_attributes.present;
 			if (1 != err) {
 				ERR("Get Fattr3 failure:%s", clnt_sperrno(err));
@@ -121,9 +111,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 
 		err = resok->reply.eof;
 	}while(err == 0);
-
  
-
 	err = 0;
 	hrc = temp1;
 	
