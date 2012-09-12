@@ -19,8 +19,8 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode)
 	fh.data.data_val = inode->fh.data.data_val;
 	memset(&res, 0, sizeof(res));
 	st = clnt_call(clntp, NFSPROC3_GETATTR, (xdrproc_t)xdr_nfs_fh3, 
-		(caddr_t)&fh, (xdrproc_t)xdr_getattr3res, (caddr_t)&res,
-		to);
+		       (caddr_t)&fh, (xdrproc_t)xdr_getattr3res, (caddr_t)&res,
+		       to);
 	if (st) {
 		err = hsi_rpc_stat_to_errno(clntp);
 		ERR("Call RPC Server failure: %d.\n", err);
