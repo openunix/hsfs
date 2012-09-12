@@ -27,7 +27,7 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 	if (res.status != 0) {
 		ERR("Got error when calling PATHCONF: %d.", res.status);
 		ret = hsi_nfs3_stat_to_errno(res.status);
-		goto out;
+		goto fres;
 	}
 
 	sb->namlen = res.pathconf3res_u.resok.name_max;
@@ -37,10 +37,10 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes,
 			sizeof(fattr3));
 	}
-
+fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_pathconf3res, (char *)&res);
-
-	DEBUG_OUT("%s", ".");
 out:
+	DEBUG_OUT("%s", ".");
+
 	return ret;
 }

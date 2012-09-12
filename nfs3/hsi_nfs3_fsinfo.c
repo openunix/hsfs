@@ -68,7 +68,7 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 	if (res.status != 0) {
 		ERR("Got error when calling FSINFO: %d.", res.status);
 		ret = hsi_nfs3_stat_to_errno(res.status);
-		goto out;
+		goto fres;
 	}
 
 	hsi_fsinfo_to_super(sb, &res.fsinfo3res_u.resok);
@@ -78,10 +78,10 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes,
 			sizeof(fattr3));
 	}
-
+fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_fsinfo3res, (char *)&res);
-
-	DEBUG_OUT("%s", ".");
 out:
+	DEBUG_OUT("%s", ".");
+
 	return ret;
 }
