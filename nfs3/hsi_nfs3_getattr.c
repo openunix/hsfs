@@ -1,30 +1,7 @@
+#include "hsi_nfs3.h"
 
-#ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 26
-#endif
-
-#ifndef _BSD_SOURCE
-#define _BSD_SOURCE 
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <linux/errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <libgen.h>
-#include "hsfs.h"
-#include "nfs3.h"
-#include "log.h"
-
-
-int hsi_nfs3_stat_to_errno(int status);
-
-int hsi_rpc_stat_to_errno(CLIENT *clntp);
-
-int hsi_nfs3_getattr(struct hsfs_inode *inode){
+int hsi_nfs3_getattr(struct hsfs_inode *inode)
+{
 	int err = 0;
 	nfs_fh3 fh;
 	CLIENT *clntp;

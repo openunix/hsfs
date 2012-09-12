@@ -1,24 +1,8 @@
+#include <errno.h>
+#include "hsi_nfs3.h"
 
-#ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 26
-#endif
-
-#ifndef _BSD_SOURCE
-#define _BSD_SOURCE 
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <libgen.h>
-
-#include "log.h"
-#include "nfs3.h"
-
-int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st){
+int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
+{
 	int err = 0;
 	unsigned int type = 0;
 
@@ -51,7 +35,7 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st){
 			st->st_mode |= S_IFIFO;
 			break;
 		default :
-		  err = 22; /* errno : EINVAL */
+		  	err = EINVAL;
 			goto out;
 	}
 	st->st_nlink = (nlink_t) (attr->nlink);
@@ -65,13 +49,13 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st){
 	st->st_mtime = (time_t) (attr->mtime.seconds);
 	st->st_ctime = (time_t) (attr->ctime.seconds);
 	#if defined __USE_MISC || defined __USE_XOPEN2K8
-	st->st_atim.tv_nsec = attr->atime.nseconds;           
-	st->st_mtim.tv_nsec = attr->mtime.nseconds;           
-	st->st_ctim.tv_nsec = attr->ctime.nseconds;           
+		st->st_atim.tv_nsec = attr->atime.nseconds;           
+		st->st_mtim.tv_nsec = attr->mtime.nseconds;           
+		st->st_ctim.tv_nsec = attr->ctime.nseconds;           
 	#else
-	st->st_atimensec = attr->atime.nseconds;  
-	st->st_mtimensec = attr->mtime.nseconds;  
-	st->st_ctimensec = attr->ctime.nseconds;  
+		st->st_atimensec = attr->atime.nseconds;  
+		st->st_mtimensec = attr->mtime.nseconds;  
+		st->st_ctimensec = attr->ctime.nseconds;  
 	#endif
  out:
 	DEBUG_OUT("Leave hsi_nfs3_fattr2stat() with errno %d.\n", err);

@@ -1,35 +1,20 @@
-
-#ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 26
-#endif
-
-#ifndef _BSD_SOURCE
-#define _BSD_SOURCE 
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <libgen.h>
-#include "hsfs.h"
-#include "log.h"
+#include <errno.h>
+#include "hsi_nfs3.h"
 
 int hsi_nfs3_stat2sattr(struct stat *st, int to_set, 
-			struct hsfs_sattr *attr){
+			struct hsfs_sattr *attr)
+{
   	int err = 0;
   	
 	DEBUG_IN("%s", "Enter hsi_nfs3_stat2sattr().\n");
 
 	if (!st) {
-		err = 22; /*errno : EINVAL */
+		err = EINVAL; 
 		ERR("hsi_nfs3_stat2sattr func 1st input param invalid.\n");
 		goto out;
 	}
 	if (!attr) {
-          	err = 22; /*errno : EINVAL */
+          	err = EINVAL; 
 		ERR("hsi_nfs3_stat2sattr func 2nd input param invalid.\n");
 		goto out;
         }
@@ -39,9 +24,14 @@ int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 	attr->gid = st->st_gid;
 	attr->size = st->st_size;
 	attr->atime.tv_sec = st->st_atime;
-	attr->atime.tv_nsec = 0;
 	attr->mtime.tv_sec = st->st_mtime;
-	attr->mtime.tv_nsec = 0;
+	#if defined __USE_MISC || defined __USE_XOPEN2K8
+	attr->atime.tv_nsec = st->st_atim.tv_nsec;
+        attr->mtime.tv_nsec = st->st_mtim.tv_nsec;
+        #else
+	attr->atime.tv_nsec = st->st_atimensec;
+        attr->mtime.tv_nsec = st->st_mtimensec;
+        #endif
  out:
 	DEBUG_OUT("Leave hsi_nfs3_stat2sattr() with errno : %d.\n", err);
 	return err;
