@@ -4,7 +4,6 @@
  * 2012.9.6
  */
 #include "hsi_nfs3.h"
-#include "hsfs.h"
 #include "hsx_fuse.h"
 #include "log.h"
 
@@ -35,6 +34,6 @@ out:
 	if(st != 0){
 		fuse_reply_err(req, err);
 	}
-	DEBUG_OUT("THE HSX_FUSE_READLINK FAILED. %d\n", err);
+	DEBUG_OUT("THE HSX_FUSE_READLINK RETURN WITH ERRNO %d\n", err);
 	return;
 }
