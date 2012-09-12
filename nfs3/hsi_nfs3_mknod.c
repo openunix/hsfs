@@ -133,12 +133,15 @@ out:
 }
 #else 
 #include <linux/kdev_t.h>
+#include <errno.h>
 #include "hsi_nfs3.h"
 #define MNTNAMLEN 255
 #endif /*#ifdef HSFS_NFS3_TEST*/
-int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode	**newinode, const char *name,mode_t mode, dev_t rdev)
+
+int
+hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
+               const char *name,mode_t mode, dev_t rdev)
 {
-	DEBUG_IN("%s","()");
 	int err=0;
 	CLIENT *nfs_client=NULL;
 	struct mknod3args args;
@@ -146,16 +149,22 @@ int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode	**newinode, cons
 	struct timeval to;
 
 	to.tv_sec = parent->sb->timeo /10;
-	to.tv_usec = (parent->sb->timeo % 10) * 100;
+	to.tv_usec = (parent->sb->timeo % 10) * 100000;
+
+	DEBUG_IN("%s","()");
 
 	memset(&args, 0 , sizeof(struct mknod3args));
 	memset(&res, 0 , sizeof(struct diropres3));	
 
 	// get the fh
-	args.where.dir.data.data_len=parent->fh.data.data_len;
-	args.where.dir.data.data_val=parent->fh.data.data_val;
+	args.where.dir.data=parent->fh.data;
 	// alloc memory for name
 	args.where.name=(char *)malloc(MNTNAMLEN * sizeof(char));
+
+	if(!args.where.name){
+		err=ENOMEM;
+		goto out;
+	}
 
 	memset(args.where.name, 0 , MNTNAMLEN);
 	strcpy(args.where.name,name);
@@ -171,7 +180,8 @@ sattrs:
 			args.what.mknoddata3_u.device.dev_attributes.mode.set=1;
 			args.what.mknoddata3_u.device.spec.major=MAJOR(rdev);
 			args.what.mknoddata3_u.device.spec.minor=MINOR(rdev);
-			args.what.mknoddata3_u.device.dev_attributes.mode.set_uint32_u.val=mode & 0xfff;
+			args.what.mknoddata3_u.device.dev_attributes.mode.
+						set_uint32_u.val=mode & 0xfff;
 
 			break;
 		case S_IFSOCK:
@@ -182,9 +192,11 @@ sattrs:
 			args.what.type=NF3FIFO;
 pipe_sattrs:
 			args.what.mknoddata3_u.pipe_attributes.mode.set=1;
-			args.what.mknoddata3_u.pipe_attributes.mode.set_uint32_u.val=mode & 0xfff;
+			args.what.mknoddata3_u.pipe_attributes.mode.
+					set_uint32_u.val=mode & 0xfff;
 
 			break;
+		default : break;
 	}
 	// get the client 
 	nfs_client=parent->sb->clntp; 
@@ -198,7 +210,9 @@ pipe_sattrs:
 		err=hsi_nfs3_stat_to_errno(res.status);
 		goto out;
 	}
-	*newinode=hsi_nfs3_ifind(parent->sb,&res.diropres3_u.resok.obj.post_op_fh3_u.handle,&res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes);
+	*newinode=hsi_nfs3_ifind(parent->sb,&res.diropres3_u.resok.obj.
+				post_op_fh3_u.handle,&res.diropres3_u.
+			 	resok.obj_attributes.post_op_attr_u.attributes);
 
 out:
 	if(args.where.name)

@@ -9,8 +9,9 @@
 #include "hsx_fuse.h"
 #include "hsi_nfs3.h"
 
-
-void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent, const char *newname)
+void
+hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
+                const char *newname)
 {
 	DEBUG_IN("%s","()");
 	struct fuse_entry_param *e=NULL;
@@ -21,9 +22,10 @@ void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent, const c
 	struct hsfs_inode *newinode=NULL;
 	int err= hsi_nfs3_link(inop, parent, &newinode, newname);
 	if(!err){
-		e=(struct fuse_entry_param *)malloc(sizeof(struct fuse_entry_param));
+		e=(struct fuse_entry_param *)malloc(sizeof(struct 
+                                                           fuse_entry_param));
 		if(!e){
-			err=-ENOMEM;
+			err=ENOMEM;
 			fuse_reply_err(req,err);
 			goto out;
 		}

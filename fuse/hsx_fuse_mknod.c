@@ -10,7 +10,8 @@
 #include "hsi_nfs3.h"
 
 void
-hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name, mode_t mode, dev_t rdev)
+hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
+                 mode_t mode, dev_t rdev)
 {
 	DEBUG_IN("%s","()");
 	struct fuse_entry_param *e=NULL;
@@ -21,9 +22,10 @@ hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name, mode_t mode,
 	struct hsfs_inode *newinode=NULL;
 	int err=hsi_nfs3_mknod(parentp,&newinode,name,mode,rdev);
 	if(!err){
-		e=(struct fuse_entry_param *)malloc(sizeof(struct fuse_entry_param));
+		e=(struct fuse_entry_param *)malloc(sizeof(struct
+                                                           fuse_entry_param));
 		if(!e){
-			err=-ENOMEM;
+			err=ENOMEM;
 			fuse_reply_err(req,err);
 			goto out;
 		}
@@ -40,5 +42,3 @@ out:
 	DEBUG_OUT(" err%d",err);
 	return;
 }
-
-
