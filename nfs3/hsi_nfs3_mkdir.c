@@ -22,36 +22,32 @@
 int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	       		const char *name, mode_t mode)
 {
-	DEBUG_IN(" in %s:\n","hsi_nfs3_mkdir");
 	int err = 0;
-	mkdir3args *argp = NULL;
+	mkdir3args argp;
 	diropres3 clnt_res;
-	struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
-		
-	argp = (mkdir3args *) malloc(sizeof(mkdir3args));
-	memset(argp, 0, sizeof(mkdir3args));
+	struct timeval timeout = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
+	
+	DEBUG_IN(" in\n","hsi_nfs3_mkdir");
+	memset(&argp, 0, sizeof(mkdir3args));
 	memset(&clnt_res, 0, sizeof(diropres3));
 
-	argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
-	argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
-	argp->where.name = (char *)name;
-	argp->attributes.mode.set = 1;
-	argp->attributes.mode.set_uint32_u.val = mode&0xfff;
+	argp.where.dir.data.data_len = hi_parent->fh.data.data_len;
+	argp.where.dir.data.data_val = hi_parent->fh.data.data_val;
+	argp.where.name = (char *)name;
+	argp.attributes.mode.set = 1;
+	argp.attributes.mode.set_uint32_u.val = mode&0xfff;
 		
 	err = clnt_call (hi_parent->sb->clntp, NFSPROC3_MKDIR, 
-			(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
+			(xdrproc_t) xdr_mkdir3args, (caddr_t) &argp,
 		       	(xdrproc_t) xdr_diropres3, (caddr_t) &clnt_res,
-			       	TIMEOUT);
+			       	timeout);
 	if (err) {	/*RPC error*/
-		ERR("%s: Call RPC Server (%u, %u) failure: (%s).\n", progname,
-			       	NFS_PROGRAM, NFS_V3, clnt_sperrno(err));
+		*hi_new = NULL;
 		err = hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
 		goto out;
 	}
 	if (0 != clnt_res.status) {	/*RPC is OK, nfs error*/
 		*hi_new = NULL;
-		ERR("%s: Path (%s) on Server is not accessible: (%d).\n", progname, 
-				name, clnt_res.status );
 		err = hsi_nfs3_stat_to_errno(clnt_res.status);
 		goto out;
 	}
@@ -61,13 +57,15 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
 		if(NULL == *hi_new) {
 			ERR("Error in create inode.\n");
+			goto out;
 		}
+		else
+			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, 
+					(char *)&clnt_res);
+
 	}
 out:
-	free (argp);
-	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, 
-			(char *)&clnt_res);
-	DEBUG_OUT(" out, errno:%d %s\n", err, "hsi_nfs3_mkdir");
+	DEBUG_OUT(" out, errno:%d\n", err);
 	return err;
 };
 #ifdef HSFS_NFS3_TEST
