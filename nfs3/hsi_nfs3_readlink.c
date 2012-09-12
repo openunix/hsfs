@@ -82,49 +82,52 @@ out:
 #endif
 
 #include "nfs3.h"
-#include "hsfs.h"
+#include "hsi_nfs3.h"
 #include "log.h"
 
-extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
-extern int hsi_nfs3_stat_to_errno(int stat);
 
-int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link){
-        
-        struct readlink3res res;
-        enum clnt_stat st;
-        struct timeval to = {120, 0};
-        struct nfs_fh3 fh_readlink;
+int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
+{
+	struct readlink3res res;
+	enum clnt_stat st;
+	struct nfs_fh3 fh_readlink;
 	CLIENT *clntp = NULL;
+	struct timeval to;
 	int err = 0;
 	int len = 0;
-	DEBUG_IN("%s\n", "hsi_nfs3_readlink");       
-        memset(&res, 0, sizeof(res));
-        memset(&fh_readlink, 0, sizeof(fh_readlink));
-        fh_readlink = hi->fh;
-        clntp = hi->sb->clntp;
 
-        st = clnt_call(clntp, NFSPROC3_READLINK, (xdrproc_t)xdr_nfs_fh3,
-                       (caddr_t)&fh_readlink, (xdrproc_t)xdr_readlink3res,
-                       (caddr_t)&res, to);
+	to.tv_sec = hi->sb->timeo / 10;
+	to.tv_usec = (hi->sb->timeo % 10) * 100000;
+	memset(&res, 0, sizeof(res));
+	memset(&fh_readlink, 0, sizeof(fh_readlink));
+	fh_readlink = hi->fh;
+	clntp = hi->sb->clntp;
+	DEBUG_IN("%s\n", "hsi_nfs3_readlink");
+
+	st = clnt_call(clntp, NFSPROC3_READLINK, (xdrproc_t)xdr_nfs_fh3,
+			(caddr_t)&fh_readlink, (xdrproc_t)xdr_readlink3res,
+			(caddr_t)&res, to);
 
 	if(st){
-                ERR("call the RPC server fail %s\n", clnt_sperrno(st));
-                err = hsi_rpc_stat_to_errno(clntp);
+		ERR("call the RPC server fail %s\n", clnt_sperrno(st));
+		err = hsi_rpc_stat_to_errno(clntp);
 		goto out;
-        }
-        st = res.status;
-        if(NFS3_OK != st){
-                ERR("the proc of readlink  is failed %d\n", st);
-                err = hsi_nfs3_stat_to_errno(st);
+	}
+	st = res.status;
+	if(NFS3_OK != st){
+		ERR("the proc of readlink  is failed %d\n", st);
+		err = hsi_nfs3_stat_to_errno(st);
 	        goto out;
-        }
+	}
 	len = strlen(res.readlink3res_u.resok.data);
 	*nfs_link = (char *)malloc(len+1);
+	if((*nfs_link) == NULL){
+		goto out;
+	}
 	strcpy(*nfs_link, res.readlink3res_u.resok.data);
-out:
-        DEBUG_OUT("hsi_nfs3_readlink failed.%d\n", err);
 	clnt_freeres(clntp, (xdrproc_t)xdr_readlink3res, (char *)&res);
+out:
+	DEBUG_OUT("the hsi_nfs3_readlink return with errno.%d\n", err);
 	return err;
-
 }
 
