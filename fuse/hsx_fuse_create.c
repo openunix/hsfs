@@ -14,7 +14,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct hsfs_super *hs = NULL;
 	struct fuse_entry_param *e = NULL;
 	int mymode = 0;
-	int err =0xFFFFFFFF;
+	int err =0;
 	newhi = (struct hsfs_inode *)malloc(sizeof(struct hsfs_inode));
 	e = (struct fuse_entry_param *)malloc(sizeof(struct fuse_entry_param));
 	if (NULL == e){
@@ -46,8 +46,6 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 
 	mymode = (mode & S_IRWXO) | ((mode & S_IRWXG)) 
 			| ((mode & S_IRWXU));//identify the file mode
-	
-
 	if (fi->flags & O_EXCL) {
 		mymode |= 0x2 << 16;
 	} else if (fi->flags & O_TRUNC) {
@@ -55,6 +53,8 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	} else {
 		mymode |= 0x0;
 	}
+
+	
 	err = hsi_nfs3_create(hi, &newhi, name, mymode);
 	if (0 == err) {
 		hsx_fuse_fill_reply(newhi, e);
