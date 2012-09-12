@@ -130,16 +130,14 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
 	}
-	else {
-		if (res.wccstat3_u.wcc.after.present) {
-			memcpy(&(hi->attr), &res.wccstat3_u.wcc.
-					after.post_op_attr_u.attributes, 
-					sizeof(fattr3));
-		}
+	if (res.wccstat3_u.wcc.after.present) {
+		memcpy(&(hi->attr), &res.wccstat3_u.wcc.
+				after.post_op_attr_u.attributes,
+				sizeof(fattr3));
 	}
 out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
-	DEBUG_OUT(" %s", name);
+	DEBUG_OUT(" %s errno:%d", name, err);
 	return err;
 }
 

@@ -71,21 +71,19 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out;
 	}
-	else {
-		if(res.rename3res_u.res.fromdir_wcc.after.present) {
-			memcpy(&(hi->attr), &res.rename3res_u.res.fromdir_wcc.
-					after.post_op_attr_u.attributes, 
-					sizeof(fattr3));
-		}
-		if(res.rename3res_u.res.todir_wcc.after.present) {
-			memcpy(&(newhi->attr), &res.rename3res_u.res.todir_wcc.
-					after.post_op_attr_u.attributes, 
-					sizeof(fattr3));
-		}
+	if(res.rename3res_u.res.fromdir_wcc.after.present) {
+		memcpy(&(hi->attr), &res.rename3res_u.res.fromdir_wcc.
+				after.post_op_attr_u.attributes,
+				sizeof(fattr3));
+	}
+	if(res.rename3res_u.res.todir_wcc.after.present) {
+		memcpy(&(newhi->attr), &res.rename3res_u.res.todir_wcc.
+				after.post_op_attr_u.attributes,
+				sizeof(fattr3));
 	}
 out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_rename3res, (char *)&res);
-	DEBUG_OUT(" %s to %s", name, newname);
+	DEBUG_OUT(" %s to %s errno:%d", name, newname, err);
 	return err;
 }
 

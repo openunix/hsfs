@@ -69,8 +69,7 @@ extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 		goto out;
 	}
 out:
-	/* update ino <=> fh? */
 	fuse_reply_err(req, err);
-	DEBUG_OUT(" %s to %s", name, newname);
+	DEBUG_OUT(" %s to %s errno:%d", name, newname, err);
 }
 

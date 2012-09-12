@@ -48,8 +48,7 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 		goto out;
 	}
 out:
-	/* remove ino <=> fh? */
 	fuse_reply_err(req, err);
-	DEBUG_OUT(" %s", name);
+	DEBUG_OUT(" %s errno:%d", name, err);
 }
 
