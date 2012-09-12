@@ -13,10 +13,10 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	struct read3res res;
 	struct read3resok * resok = NULL;
 	struct timeval to = {0, 0};
-	struct rpc_err rerr;
 	int err = 0;
 
-	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)rinfo->rw_off, (unsigned int)rinfo->rw_size);
+	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)rinfo->rw_off,
+		(unsigned int)rinfo->rw_size);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.file.data.data_len = rinfo->inode->fh.data.data_len;
@@ -24,15 +24,14 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	args.offset = rinfo->rw_off;
 	args.count = rinfo->rw_size;
 	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100;
+	to.tv_usec = (sb->timeo % 10) * 100000;
 
 	err = clnt_call(clnt, NFSPROC3_READ,
 				(xdrproc_t)xdr_read3args, (char *)&args,
 				(xdrproc_t)xdr_read3res, (char *)&res, to);
 	if (err){
 		ERR("Call RPC Server failure:%s", clnt_sperrno(err));
-		clnt_geterr(clnt, &rerr);
-		err = rerr.re_errno == 0 ? EIO : rerr.re_errno;
+		err = hsi_rpc_stat_to_errno(clnt);
 		goto out;
 	}
 
@@ -41,18 +40,29 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 #else
 	err = hsi_nfs3_stat_to_errno(res.status);
 #endif
-	if(err){
+	if(!err){
+		resok = &res.read3res_u.resok;
+		DEBUG("hsi_nfs3_read 0x%x done eof:%x",
+				resok->count, resok->eof);
+		memcpy(rinfo->data.data_val, resok->data.data_val,
+			resok->data.data_len);
+		rinfo->data.data_len = resok->data.data_len;
+		rinfo->ret_count = resok->count;
+		rinfo->eof = resok->eof;
+		DEBUG("resok->file_attributes.present: %x",
+			resok->file_attributes.present);
+		if(resok->file_attributes.present)
+			memcpy(&rinfo->inode->attr,
+				&resok->file_attributes.post_op_attr_u.attributes,
+				sizeof(fattr3));
+	}else{
 		ERR("hsi_nfs3_read failure: %x", err);
-		goto out;
-	}	
-
-	resok = &res.read3res_u.resok;
-	DEBUG("hsi_nfs3_read 0x%x done eof:%x",
-			resok->count, resok->eof);
-	memcpy(rinfo->data.data_val, resok->data.data_val, resok->data.data_len);
-	rinfo->data.data_len = resok->data.data_len;
-	rinfo->ret_count = resok->count;
-	rinfo->eof = resok->eof;
+		if(res.read3res_u.resfail.present)
+			memcpy(&rinfo->inode->attr,
+				&res.read3res_u.resfail.post_op_attr_u.attributes,
+				sizeof(fattr3));
+	}
+	
 	clnt_freeres(clnt, (xdrproc_t)xdr_read3res, (char *)&res);
 
 out:

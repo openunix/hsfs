@@ -33,8 +33,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		rinfo.data.data_len = tmp_size;
 		err = hsi_nfs3_read(&rinfo);
 		
-		if(err)
-		{
+		if(err){
 			fuse_reply_err(req, err);
 			goto out;
 		}

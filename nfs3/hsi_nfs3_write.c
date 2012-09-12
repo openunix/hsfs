@@ -13,10 +13,10 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	struct write3res res;
 	struct write3resok * resok = NULL;
 	struct timeval to = {0, 0};
-	struct rpc_err rerr;
 	int err = 0;
 
-	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)winfo->rw_off, (unsigned int)winfo->rw_size);
+	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)winfo->rw_off,
+		(unsigned int)winfo->rw_size);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.file.data.data_len = winfo->inode->fh.data.data_len;
@@ -27,15 +27,14 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	args.count = winfo->rw_size;
 	args.stable = winfo->stable;
 	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100;
+	to.tv_usec = (sb->timeo % 10) * 100000;
 
 	err = clnt_call(clnt, NFSPROC3_WRITE,
 		       (xdrproc_t)xdr_write3args, (char *)&args, 
 		(xdrproc_t)xdr_write3res, (char *)&res, to);
 	if(err){
 		ERR("Call RPC Server failure: %s", clnt_sperrno(err));
-		clnt_geterr(clnt, &rerr);
-		err = rerr.re_errno == 0 ? EIO : rerr.re_errno ;
+		err = hsi_rpc_stat_to_errno(clnt);
 		goto out;
 	}
 
@@ -44,14 +43,26 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 #else
 	err = hsi_nfs3_stat_to_errno(res.status);
 #endif
-	if(err){
+	if(!err){
+		resok = &res.write3res_u.resok;
+		winfo->ret_count = resok->count;
+		DEBUG("hsi_nfs3_write 0x%x done", resok->count);
+		DEBUG("resok->file_wcc.after.present: %x", 
+			resok->file_wcc.after.present);
+		if(resok->file_wcc.after.present)
+			memcpy(&winfo->inode->attr,
+				&resok->file_wcc.after.post_op_attr_u.attributes,
+				sizeof(fattr3));
+	}else{
 		ERR("hsi_nfs3_write failure: 0x%x", err);
-		goto out;
-	}	
+		DEBUG("res.write3res_u.resfail.after.present: %x", 
+			res.write3res_u.resfail.after.present);
+		if(res.write3res_u.resfail.after.present)
+			memcpy(&winfo->inode->attr,
+				&res.write3res_u.resfail.after.post_op_attr_u.attributes,
+				sizeof(fattr3));
+	}
 
-	resok = &res.write3res_u.resok;
-	DEBUG("hsi_nfs3_write 0x%x done", resok->count);
-	winfo->ret_count = resok->count;
 	clnt_freeres(clnt, (xdrproc_t)xdr_write3res, (char *)&res);
 
 out:
@@ -79,7 +90,7 @@ int main(int argc, char *argv[])
 	size_t i = 0;
 	
 	if(argc != 6){
-		printf("USEAGE: hsi_nfs3_write  SERVER_IP   FILEPATH   IOSIZE  FILESIZE"
+		printf("USEAGE: hsi_nfs3_write  SERVER_IP   FILEPATH  IOSIZE FILESIZE"
 			"MOUNTPOINT\n");
 		printf("EXAMPLE: ./hsi_nfs3_write    10.10.99.120    "
 			"/nfsXport/file   512   1000000  /mnt/hsfs\n");

@@ -28,8 +28,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 	else
 		winfo.stable = HSFS_UNSTABLE;
 	winfo.inode = hsx_fuse_iget(sb, ino);
-	while(cnt < size)
-	{
+	while(cnt < size){
 		size_t tmp_size = min(size - cnt, sb->wsize);
 		
 		winfo.rw_size = tmp_size;
@@ -39,8 +38,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 		winfo.data.data_val = buffer;
 		err = hsi_nfs3_write(&winfo);
 		
-		if(err)
-		{
+		if(err){
 			fuse_reply_err(req, err);
 			goto out;
 		}
