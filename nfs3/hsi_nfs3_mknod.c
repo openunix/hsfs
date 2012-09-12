@@ -158,14 +158,14 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
 	// get the fh
 	args.where.dir.data=parent->fh.data;
 	// alloc memory for name
-	args.where.name=(char *)malloc(PATH_MAX * sizeof(char));
+	args.where.name=(char *)malloc(NAME_MAX * sizeof(char));
 
 	if(!args.where.name){
 		err=ENOMEM;
 		goto out2;
 	}
 
-	memset(args.where.name, 0 ,PATH_MAX );
+	memset(args.where.name, 0 ,NAME_MAX );
 	strcpy(args.where.name,name);
 
 	// determin the type of the file
