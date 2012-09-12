@@ -1,7 +1,7 @@
 /*
  *hsx_fuse_readdir.c
  */
-#include <sys/errno.h>
+
 #include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 #define NFS3_COOKIEVERFSIZE 8
@@ -27,12 +27,16 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 
 	buf = (char *) malloc(size);
 	if( NULL == buf){
-		err = ENOMEM;
-		fuse_reply_err(req, err);
+		ERR("Buf memory leak.");
 		goto out;
 	}
 
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
+	if( NULL == hrc){
+                ERR("hrc memory leak.");
+                goto out;
+        }
+
 	hs = fuse_req_userdata(req);
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = RPCCOUNT*size;
@@ -72,9 +76,12 @@ out:
 		free(buf);
 	while(temp_ctx->next != NULL){
 		hrc = temp_ctx->next;
+		free(temp_ctx->name);
 		free(temp_ctx);
 		temp_ctx = hrc;
-	}	
+	}
+
+	free(temp_ctx->name);	
 	free(temp_ctx);
 		
 	return;
