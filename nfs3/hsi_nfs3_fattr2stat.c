@@ -25,10 +25,10 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
 		case NF3CHR :
 			st->st_mode |= S_IFCHR;
 			break;
-       		case NF3LNK :
+		case NF3LNK :
 			st->st_mode |= S_IFLNK;
 			break;
-       		case NF3SOCK :
+		case NF3SOCK :
 			st->st_mode |= S_IFSOCK;
 			break;
 		case NF3FIFO :
@@ -49,9 +49,9 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
 	st->st_mtime = (time_t) (attr->mtime.seconds);
 	st->st_ctime = (time_t) (attr->ctime.seconds);
 	#if defined __USE_MISC || defined __USE_XOPEN2K8
-		st->st_atim.tv_nsec = attr->atime.nseconds;           
-		st->st_mtim.tv_nsec = attr->mtime.nseconds;           
-		st->st_ctim.tv_nsec = attr->ctime.nseconds;           
+		st->st_atim.tv_nsec = attr->atime.nseconds; 
+		st->st_mtim.tv_nsec = attr->mtime.nseconds;  
+		st->st_ctim.tv_nsec = attr->ctime.nseconds;  
 	#else
 		st->st_atimensec = attr->atime.nseconds;  
 		st->st_mtimensec = attr->mtime.nseconds;  
