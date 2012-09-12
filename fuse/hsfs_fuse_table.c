@@ -157,7 +157,9 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
 			return NULL;
 		hsfs_node->ino = ino;
 		hsfs_node->generation = 1;
-		hsfs_node->fh = *pfh;
+		hsfs_node->fh.data.data_len = pfh->data.data_len;
+		hsfs_node->fh.data.data_val =(char *)calloc(1,hsfs_node->fh.data.data_len);
+		memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val, hsfs_node->fh.data.data_len);
 		hsfs_node->sb = sb;
 		hsfs_node->attr = *pattr;
 		hsfs_node->attr.fileid &= ~(1UL<<63);
@@ -196,6 +198,7 @@ int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
 		if (*hs_nodep == hs_node) {
 			*hs_nodep = hs_node->next;
 			sb->hsfs_fuse_ht.use--;
+			free(hs_node->fh.data.data_val);
 			free(hs_node);
 			DEBUG("Exit hsx_fuse_idel : delete success ");
 			return  0;
@@ -229,6 +232,7 @@ int  hsx_fuse_itable_del(struct hsfs_super *sb)
                 while (hsfs_node)
                 {
                         hsfs_inext = hsfs_node->next;
+			free(hsfs_node->fh.data.data_val);
                         free(hsfs_node);
                         hsfs_node = hsfs_inext;
                 }

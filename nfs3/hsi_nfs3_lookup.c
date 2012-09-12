@@ -61,7 +61,7 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, con
         name_fh = res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,&name_fh,pattr);
-	//clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
+	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
 out:
 	DEBUG_OUT("%s with errno %d","()",err);
         return(err);
