@@ -38,14 +38,14 @@
 extern int __INIT_DEBUG;
 #define DEBUG_IN(fmt, args...)						\
 	do {								\
-		DEBUG("Enter[%d] %s"fmt, __INIT_DEBUG, __func__, args); \
+		DEBUG("Enter[%d] %s: "fmt, __INIT_DEBUG, __func__, args); \
 		__INIT_DEBUG++;						\
 	}while(0)
 
 #define DEBUG_OUT(fmt, args...)						\
 	do {								\
 		__INIT_DEBUG--;						\
-		DEBUG("Leave[%d] %s"fmt, __INIT_DEBUG, __func__, args); \
+		DEBUG("Leave[%d] %s: "fmt, __INIT_DEBUG, __func__, args); \
 	}while(0)
 
 #endif	/* _LOG_H_ */
