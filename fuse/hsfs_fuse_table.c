@@ -164,6 +164,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3
 			return NULL;
 		hsfs_node->ino = ino;
 		hsfs_node->generation = 1;
+		hsfs_node->nlookup = 1;
 		hsfs_node->fh.data.data_len = pfh->data.data_len;
 		hsfs_node->fh.data.data_val =(char *)calloc(1,
 						hsfs_node->fh.data.data_len);
@@ -175,7 +176,11 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3
 		DEBUG("This is a new node ,and now to add to hash table.");
 		hsx_fuse_iadd(sb,hsfs_node);
 	}
-	hsfs_node->nlookup++;
+	else
+	{
+		hsfs_node->attr = *pattr;
+		hsfs_node->nlookup++;
+	}
 	DEBUG("ino : %lu, nlookup : %lu ",hsfs_node->ino,hsfs_node->nlookup);
 	return hsfs_node;
 }
