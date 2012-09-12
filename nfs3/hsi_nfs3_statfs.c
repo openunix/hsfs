@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <rpc/rpc.h>
-#include <libgen.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
@@ -17,10 +16,9 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	struct fsstat3res res;	
 	struct fsstat3resok resok;       
 	enum clnt_stat st;
-//	int err;
-//	int i;
 	struct timeval to = {120, 0};
 	struct nfs_fh3 fh ;
+
 DEBUG_IN ("%s","...");
 	memset (&res, 0, sizeof(res));
 	memset (&fh, 0, sizeof(fh));
@@ -58,8 +56,9 @@ DEBUG_OUT ("%s","...");
 
 int hsi_super2statvfs(struct hsfs_super *sp, struct statvfs *stbuf)
 {
-	unsigned long block_res;
-	unsigned char block_bits;
+	unsigned long block_res = 0;
+	unsigned char block_bits = 0;
+
 	if (sp->bsize_bits == 0){
 		ERR ("hsfs_super->bsize_bits is null!");
 		goto pout;
@@ -73,7 +72,6 @@ int hsi_super2statvfs(struct hsfs_super *sp, struct statvfs *stbuf)
 	stbuf->f_bsize = sp-> bsize;
 	stbuf->f_frsize = sp->bsize;
 	stbuf->f_blocks = (sp->tbytes+block_res)>>block_bits;
-	
 	stbuf->f_bfree = (sp->fbytes+block_res)>>block_bits;
 	stbuf->f_bavail = (sp->abytes+block_res)>>block_bits;
 	stbuf->f_files = sp->tfiles;
