@@ -5,6 +5,8 @@
  */
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
+
+#ifdef HSFS_NFS3_TEST
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,37 +16,51 @@
 #include <sys/stat.h>
 #include <sys/vfs.h>
 #include <libgen.h>
+#endif
 
 int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 {
-		int err = 0;
-		diropargs3 *argp = NULL;
-		wccstat3 clnt_res;
-		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo%10)*100 };
+	DEBUG_IN(" in, %s\n","hsi_nfs3_rmdir");
+	int err = 0;
+	diropargs3 *argp = NULL;
+	wccstat3 clnt_res;
+	struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo%10)*100 };
 
-		argp = (diropargs3 *) malloc(sizeof(diropargs3));
-		memset (argp, 0, sizeof(diropargs3));
-		memset (&clnt_res, 0, sizeof(wccstat3));
+	argp = (diropargs3 *) malloc(sizeof(diropargs3));
+	memset (argp, 0, sizeof(diropargs3));
+	memset (&clnt_res, 0, sizeof(wccstat3));
 		
-		argp->dir.data.data_len = hi_parent->fh.data.data_len;
-		argp->dir.data.data_val = hi_parent->fh.data.data_val;
-		argp->name = (char *) name;
+	argp->dir.data.data_len = hi_parent->fh.data.data_len;
+	argp->dir.data.data_val = hi_parent->fh.data.data_val;
+	argp->name = (char *) name;
 		
-		err = clnt_call (hi_parent->sb->clntp, NFSPROC3_RMDIR,
-			       	(xdrproc_t) xdr_diropargs3, (caddr_t) argp,
-			       	(xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res,
+	err = clnt_call (hi_parent->sb->clntp, NFSPROC3_RMDIR, 
+			(xdrproc_t) xdr_diropargs3, (caddr_t) argp,
+			 (xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res,
 			       	TIMEOUT);
 		
 		if (0 != err) {					/*err is a RPC clnt error. So use hsi_rpc_stat_to_errno().*/
-			free(argp);
-			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3, (char *)&clnt_res);
-			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
+			ERR("%s: Call RPC Server (%u, %u) failure: ""(%s).\n",
+				progname, NFS_PROGRAM, NFS_V3, clnt_sperrno(err));
+			err = hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
+			goto out;
 		}
-		else {
-			free(argp);
-			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3, (char *)&clnt_res);
-			return hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
+		err = clnt_res.status;
+		if (NFS3_OK != err) {
+			ERR("%s: Path (%s) on Server is not accessible: (%d)."
+					"\n", progname, name, err);
+			err = hsi_nfs3_stat_to_errno(clnt_res.status); 	
+			goto out;
 		}
+		else{
+			err = hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
+			goto out;
+		}
+out:
+	free(argp);
+	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3, (char *)&clnt_res);
+	DEBUG_OUT(" out, errno is(%d) %s\n", err, "his_nfs3_rmdir");
+	return err;
 };
 #ifdef 	HSFS_NFS3_TEST
 char *cliname = NULL;
