@@ -2,12 +2,10 @@
  * hsx_fuse_statfs
  * liuyoujin
  */
-//#include <stdio.h>
-//#include <unistd.h>
+
 #include <sys/errno.h>
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
-//#include "log.h"
 extern void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino)
 {
 	struct statvfs stbuf;
