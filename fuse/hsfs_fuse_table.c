@@ -19,7 +19,8 @@
 int  hsx_fuse_itable_init(struct hsfs_super *sb)
 {
 	sb->hsfs_fuse_ht.size =  HSFS_TABLE_SIZE ;
-	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, sizeof(struct hsfs_inode *) * sb->hsfs_fuse_ht.size);
+	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, sizeof(struct 
+				hsfs_inode *) * sb->hsfs_fuse_ht.size);
 	if (sb->hsfs_fuse_ht.array == NULL) {
 		ERR("hsfs: memory allocation failed.");
 		return ENOMEM ;
@@ -56,10 +57,10 @@ uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
  * @return:		a pointer to the object if successfull,else NULL
  *
  * */
-struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint64_t ino, fattr3 *pattr)
+struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, 
+					uint64_t ino, fattr3 *pattr)
 {
         struct hsfs_inode *hsfs_node;
-
         hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode));
         if(hsfs_node == NULL)
         {
@@ -73,7 +74,11 @@ struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, uint
 
         hsfs_node->ino = ino;
         hsfs_node->generation = 1;
-        hsfs_node->fh = *pfh;
+	hsfs_node->fh.data.data_len = pfh->data.data_len;
+	hsfs_node->fh.data.data_val =(char *)calloc(1,
+					hsfs_node->fh.data.data_len);
+	memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val,
+					hsfs_node->fh.data.data_len);
         hsfs_node->nlookup = 0;
         hsfs_node->sb = sb;
         if(pattr != NULL)
@@ -139,7 +144,8 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
  * @return:	A pointer to the node information
  *
  * */
-struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *pattr)
+struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 
+				*pattr)
 {
 	struct hsfs_inode *hsfs_node = NULL;
 	if(sb == NULL || pfh == NULL || pattr == NULL)
@@ -152,14 +158,17 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 *p
 	hsfs_node = hsx_fuse_iget(sb,ino);
 	if (hsfs_node == NULL)
 	{
-		hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode ));
+		hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct 
+				hsfs_inode ));
 		if (hsfs_node == NULL)
 			return NULL;
 		hsfs_node->ino = ino;
 		hsfs_node->generation = 1;
 		hsfs_node->fh.data.data_len = pfh->data.data_len;
-		hsfs_node->fh.data.data_val =(char *)calloc(1,hsfs_node->fh.data.data_len);
-		memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val, hsfs_node->fh.data.data_len);
+		hsfs_node->fh.data.data_val =(char *)calloc(1,
+						hsfs_node->fh.data.data_len);
+		memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val, 
+						hsfs_node->fh.data.data_len);
 		hsfs_node->sb = sb;
 		hsfs_node->attr = *pattr;
 		hsfs_node->attr.fileid &= ~(1UL<<63);
