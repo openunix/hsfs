@@ -25,13 +25,14 @@ int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 	attr->size = st->st_size;
 	attr->atime.tv_sec = st->st_atime;
 	attr->mtime.tv_sec = st->st_mtime;
-	#if defined __USE_MISC || defined __USE_XOPEN2K8
-		attr->atime.tv_nsec = st->st_atim.tv_nsec;
-		attr->mtime.tv_nsec = st->st_mtim.tv_nsec;
-	#else
-		attr->atime.tv_nsec = st->st_atimensec;
-		attr->mtime.tv_nsec = st->st_mtimensec;
-	#endif
+#if defined __USE_MISC || defined __USE_XOPEN2K8
+	attr->atime.tv_nsec = st->st_atim.tv_nsec;
+	attr->mtime.tv_nsec = st->st_mtim.tv_nsec;
+#else
+	attr->atime.tv_nsec = st->st_atimensec;
+	attr->mtime.tv_nsec = st->st_mtimensec;
+#endif
+
  out:
 	DEBUG_OUT("Leave hsi_nfs3_stat2sattr() with errno : %d.\n", err);
 	return err;
