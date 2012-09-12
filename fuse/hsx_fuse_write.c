@@ -14,10 +14,13 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 	int err = 0;
 	char * buffer = NULL;
 	
-	DEBUG_IN("%s", "...");
+	DEBUG_IN("offset 0x%x size 0x%x", off, size);
 	buffer = (char *) malloc(sb->wsize);
-	if( NULL == buffer)
-		fuse_reply_err(req, ENOMEM);
+	if( NULL == buffer){
+		err = ENOMEM;
+		fuse_reply_err(req, err);
+		goto out;
+	}
 	
 	memset(&winfo, 0, sizeof(struct hsfs_rw_info));
 	if(fi->direct_io)
@@ -50,7 +53,7 @@ out:
 	if(NULL != buffer)
 		free(buffer);
 	
-	DEBUG_OUT("%s", "...");		
+	DEBUG_OUT("err 0x%x", err);		
 	return;
 
 }

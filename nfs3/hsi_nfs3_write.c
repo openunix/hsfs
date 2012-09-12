@@ -16,7 +16,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	struct rpc_err rerr;
 	int err = 0;
 
-	DEBUG_IN("%s", "...");
+	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)winfo->rw_off, (unsigned int)winfo->rw_size);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.file.data.data_len = winfo->inode->fh.data.data_len;
@@ -45,7 +45,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	err = hsi_nfs3_stat_to_errno(res.status);
 #endif
 	if(err){
-		ERR("hsi_nfs3_write failure: %x", err);
+		ERR("hsi_nfs3_write failure: 0x%x", err);
 		goto out;
 	}	
 
@@ -55,7 +55,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	clnt_freeres(clnt, (xdrproc_t)xdr_write3res, (char *)&res);
 
 out:
-	DEBUG_OUT("%s", "...");
+	DEBUG_OUT("err 0x%x", err);
 	return err;
 }
 

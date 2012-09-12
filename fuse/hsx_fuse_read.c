@@ -14,19 +14,23 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	int err = 0;
 	char * buf = NULL;
 	
-	DEBUG_IN("%s", "...");
+	DEBUG_IN("offset 0x%x size 0x%x", off, size);
 	buf = (char *) malloc(size);
-	if( NULL == buf)
-		fuse_reply_err(req, ENOMEM);
+	if( NULL == buf){
+		err = ENOMEM;
+		fuse_reply_err(req, err);
+		goto out;
+	}
 	
 	memset(&rinfo, 0, sizeof(struct hsfs_rw_info));
 	rinfo.inode = hsx_fuse_iget(sb, ino);
-	while(cnt < size)
-	{
+	while(cnt < size){
 		size_t tmp_size = min(size - cnt, sb->rsize);
 		
 		rinfo.rw_size = tmp_size;
 		rinfo.rw_off  = off + cnt;
+		rinfo.data.data_val = buf + cnt;
+		rinfo.data.data_len = tmp_size;
 		err = hsi_nfs3_read(&rinfo);
 		
 		if(err)
@@ -35,7 +39,6 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 			goto out;
 		}
 			
-		memcpy(buf + cnt, rinfo.data.data_val, rinfo.ret_count);
 		cnt += rinfo.ret_count;
 
 		if(rinfo.eof)
@@ -47,6 +50,6 @@ out:
 	if(NULL != buf)
 		free(buf);
 		
-	DEBUG_OUT("%s", "...");
+	DEBUG_OUT("err 0x%x", err);
 	return;
 }

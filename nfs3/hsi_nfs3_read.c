@@ -16,7 +16,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	struct rpc_err rerr;
 	int err = 0;
 
-	DEBUG_IN("%s", "...");
+	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)rinfo->rw_off, (unsigned int)rinfo->rw_size);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.file.data.data_len = rinfo->inode->fh.data.data_len;
@@ -49,14 +49,14 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	resok = &res.read3res_u.resok;
 	DEBUG("hsi_nfs3_read 0x%x done eof:%x",
 			resok->count, resok->eof);
-	rinfo->data.data_val = resok->data.data_val;
+	memcpy(rinfo->data.data_val, resok->data.data_val, resok->data.data_len);
 	rinfo->data.data_len = resok->data.data_len;
 	rinfo->ret_count = resok->count;
 	rinfo->eof = resok->eof;
 	clnt_freeres(clnt, (xdrproc_t)xdr_read3res, (char *)&res);
 
 out:
-	DEBUG_OUT("%s", "...");
+	DEBUG_OUT("err 0x%x", err);
 	return err;
 }
 
