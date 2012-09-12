@@ -15,6 +15,7 @@ extern struct hsfs_super g_super;
 void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
                          struct fuse_file_info *fi)
 {
+	DEBUG_IN("%s.","hsx_fuse_readdir");
 	struct hsfs_readdir_ctx *hrc = NULL;
 	struct hsfs_readdir_ctx *temp_ctx = NULL;
 	struct hsfs_inode *hi = NULL;
@@ -83,6 +84,7 @@ out:
 
 	free(temp_ctx->name);	
 	free(temp_ctx);
+	DEBUG_OUT("%s.","hsx_fuse_readdir");
 		
 	return;
 }
