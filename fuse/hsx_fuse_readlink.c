@@ -19,14 +19,14 @@ void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino)
 
 	hi_sb = fuse_req_userdata(req);
 	if(!hi_sb){
-		ERR("%s gets inode->sb fails \n",progname);
-		err=ENOENT;
+		ERR("%s gets inode->sb fails \n", progname);
+		err = ENOENT;
 		goto out;
 	}
 	hi = hsx_fuse_iget(hi_sb, ino);
 	if(!hi){
-		ERR("%s gets inode fails \n",progname);
-		err=ENOENT;
+		ERR("%s gets inode fails \n", progname);
+		err = ENOENT;
 		goto out;
 	}
 	st = hsi_nfs3_readlink(hi,&link);
@@ -37,7 +37,9 @@ void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino)
 	fuse_reply_readlink(req, link);
 
 out:
-	free(link);
+	if(link != NULL){
+		free(link);
+	}
 	if(st != 0){
 		fuse_reply_err(req, err);
 	}
