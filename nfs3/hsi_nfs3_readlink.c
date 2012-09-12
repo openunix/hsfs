@@ -117,7 +117,7 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
 	if(NFS3_OK != st){
 		ERR("the proc of readlink  is failed %d\n", st);
 		err = hsi_nfs3_stat_to_errno(st);
-	        goto out1;
+		goto out1;
 	}
 	len = strlen(res.readlink3res_u.resok.data);
 	*nfs_link = (char *)malloc(len+1);
