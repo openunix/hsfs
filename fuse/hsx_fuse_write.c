@@ -1,9 +1,7 @@
 /*hsx_fuse_write.c*/
 
 #include <errno.h>
-#include <fuse_lowlevel.h>
 #include "hsi_nfs3.h"
-
 
 void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
                           size_t size, off_t off, struct fuse_file_info *fi)
