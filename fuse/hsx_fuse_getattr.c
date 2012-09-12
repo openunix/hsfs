@@ -19,7 +19,7 @@ void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 	}
 	inode = hsx_fuse_iget(sb, ino);
 	if (NULL == inode) {
-		err = EINVAL;
+		err = ENOENT;
 		ERR("ino :%lu is invalid.\n", ino);
 		goto out;
 	}
