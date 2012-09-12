@@ -18,14 +18,14 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	to.tv_usec = (inode->sb->timeo % 10) * 100000;
 	memset(&args, 0, sizeof(args));
 	args.object.data.data_len = inode->fh.data.data_len;
-      	args.object.data.data_val = inode->fh.data.data_val;
+	args.object.data.data_val = inode->fh.data.data_val;
 	if (S_ISSETMODE(attr->valid)) {
 		args.new_attributes.mode.set = TRUE;
 		args.new_attributes.mode.set_uint32_u.val = attr->mode;
 	}
 	else
 		args.new_attributes.mode.set = FALSE;	
-	       
+ 
 	if (S_ISSETUID(attr->valid)) {
 		args.new_attributes.uid.set = TRUE;
 		args.new_attributes.uid.set_uint32_u.val = attr->uid;
@@ -36,31 +36,31 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	if (S_ISSETGID(attr->valid)) {
 		args.new_attributes.gid.set = TRUE;
 		args.new_attributes.gid.set_uint32_u.val = attr->gid;
-        }
-        else
+	}
+	else
 		args.new_attributes.gid.set = FALSE;
 
 	if (S_ISSETSIZE(attr->valid)) {
 		args.new_attributes.size.set = TRUE;
 		args.new_attributes.size.set_uint64_u.val = attr->size;
-        }
-        else
+	}
+	else
 		args.new_attributes.size.set = FALSE;
 
 	if (S_ISSETATIME(attr->valid)) {
 		args.new_attributes.atime.set = SET_TO_CLIENT_TIME;
 		args.new_attributes.atime.set_time_u.time.seconds = attr->atime.tv_sec;
 		args.new_attributes.atime.set_time_u.time.nseconds = attr->atime.tv_nsec;
-        }
+	}
 	else
 		args.new_attributes.atime.set = DONT_CHANGE;
 	
 	if (S_ISSETMTIME(attr->valid)) {
-        	args.new_attributes.mtime.set = SET_TO_CLIENT_TIME;
+		args.new_attributes.mtime.set = SET_TO_CLIENT_TIME;
 		args.new_attributes.mtime.set_time_u.time.seconds = attr->mtime.tv_sec;
 		args.new_attributes.mtime.set_time_u.time.nseconds = attr->mtime.tv_nsec;
-        }
-        else
+	}
+	else
 		args.new_attributes.mtime.set = DONT_CHANGE;
 
 	if (S_ISSETATIMENOW(attr->valid)) 
