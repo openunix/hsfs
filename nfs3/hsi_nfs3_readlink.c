@@ -123,7 +123,8 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link){
 	strcpy(*nfs_link, res.readlink3res_u.resok.data);
 out:
         DEBUG_OUT("hsi_nfs3_readlink failed.%d\n", err);
-	return st;
+	clnt_freeres(clntp, (xdrproc_t)xdr_readlink3res, (char *)&res);
+	return err;
 
 }
 
