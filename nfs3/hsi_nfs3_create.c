@@ -66,7 +66,16 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			obj_attributes.post_op_attr_u.attributes);
 		(*newhi)->attr = res.diropres3_u.resok.
 				obj_attributes.post_op_attr_u.attributes;
-		
+		if (EXCLUSIVE == args.how.mode) {
+			struct hsfs_sattr sattr = {};
+			sattr.valid |= FUSE_SET_ATTR_MODE;
+			sattr.mode = fmode;
+			st = hsi_nfs3_setattr(*newhi, &sattr);
+			if (st) {
+				hsi_rpc_stat_to_errno(hi->sb->clntp);
+				WARNING("Setattr failed after create: %d", status);
+			}
+		}
 	} else {
 		status = hsi_nfs3_stat_to_errno(res.status);
 	}
