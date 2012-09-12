@@ -7,6 +7,7 @@
 
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
+	DEBUG_IN("%s.","hsx_fuse_opendir");
 	struct hsfs_readdir_ctx *hrc = NULL;
 	int err = 0;
 
@@ -23,7 +24,7 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 	free(hrc);
 
 out:	
-	
+	DEBUG_OUT("%s.","hsx_fuse_opendir");
 	return;
 }
 
