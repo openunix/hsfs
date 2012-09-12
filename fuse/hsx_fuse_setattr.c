@@ -2,7 +2,7 @@
 #include "hsi_nfs3.h"
 
 void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr, 
-		      int to_set, struct fuse_file_info *fi)
+		int to_set, struct fuse_file_info *fi)
 {
   	int err = 0;
 	double to = 0;
@@ -40,6 +40,5 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	else {
 		to = inode->attr.type == NF3DIR ? sb->acdirmin : sb->acregmin;
 		fuse_reply_attr(req, &st, to);
-
 	}
 }
