@@ -14,7 +14,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 	int err = 0;
 	char * buffer = NULL;
 	
-	DEBUG_IN("offset 0x%x size 0x%x", off, size);
+	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)off, (unsigned int)size);
 	buffer = (char *) malloc(sb->wsize);
 	if( NULL == buffer){
 		err = ENOMEM;
