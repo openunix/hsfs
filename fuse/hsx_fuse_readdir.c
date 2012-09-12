@@ -56,7 +56,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	while(temp_ctx!=NULL){
 	  	size_t tmplen = newlen;
 	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, 
-				hrc->name, &hrc->stbuf, hrc->off);
+				temp_ctx->name, &temp_ctx->stbuf, temp_ctx->off);
 	  	if(newlen>size)
 	    		break;
 		  
