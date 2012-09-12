@@ -28,8 +28,6 @@ void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 		goto out;
 	memset(&st, 0, sizeof(st));
 	err = hsi_nfs3_fattr2stat(&inode->attr, &st);
-	if(err)
-		goto out;
  out:
 	DEBUG_OUT("Leave hsx_fuse_getattr() with errno : %d.\n", err);
 	if (err)
