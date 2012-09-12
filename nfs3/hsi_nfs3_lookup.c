@@ -1,46 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
-#include <rpc/rpc.h>
-#include <libgen.h>
-
-//#define HSFS_NFS3_TEST
-
-#ifndef HSFS_NFS3_TEST
-#include "hsfs.h"
-#include "log.h"
 #include "hsi_nfs3.h"
-#else
-#include "../include/hsfs.h"
-#include "../include/log.h"
-#include "../include/hsi_nfs3.h"
+
+#ifdef HSFS_NFS3_TEST
 #include "apis.h"
 struct hsfs_super s;
 struct hsfs_super *sb=&s;
 #endif /* HSFS_NFS3_TEST */
 
-int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, const  char *name)
+int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, 
+		const char *name)
 {
-	DEBUG_IN("%s","()");
 	struct diropargs3	args;
 	struct lookup3res	res;
 	struct fattr3	*pattr = NULL;
-	nfs_fh3	name_fh;
+	nfs_fh3	*name_fh;
 	enum clnt_stat	st;
 	int err = 0;
-	struct timeval to={120,0};
+	struct timeval to;
+	to.tv_sec = parent->sb->timeo / 10;
+	to.tv_usec = (parent->sb->timeo % 10) * 100000;
 
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
+	DEBUG_IN("%s","");
 	args.dir = parent->fh;
 	args.name = (char *)name;
-	st=clnt_call(parent->sb->clntp,3,(xdrproc_t)xdr_diropargs3,(caddr_t)&args,
+	st=clnt_call(parent->sb->clntp,NFSPROC3_LOOKUP,(xdrproc_t)xdr_diropargs3,(caddr_t)&args,
 			(xdrproc_t)xdr_lookup3res, (caddr_t)&res, to);
 
 	if (st) {
@@ -58,12 +47,14 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, con
         }
 		
         pattr = &res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
-        name_fh = res.lookup3res_u.resok.object;
+        name_fh = &res.lookup3res_u.resok.object;
         
-	*newinode = hsi_nfs3_ifind(parent->sb,&name_fh,pattr);
-	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
+	*newinode = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
+
 out:
-	DEBUG_OUT("%s with errno %d","()",err);
+	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
+			(char *)&res);
+	DEBUG_OUT(" with errno %d",err);
         return(err);
 
 }

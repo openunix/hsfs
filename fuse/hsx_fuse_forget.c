@@ -3,7 +3,7 @@
 
 void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 {
-	DEBUG_IN("%s","()");
+	DEBUG_IN("%s","");
 	struct hsfs_inode  *hsfs_node;
 	struct hsfs_super  *sb;
 	
@@ -24,7 +24,7 @@ void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 		hsx_fuse_idel(sb, hsfs_node);
 	}
 out:
-	DEBUG_OUT("%s","()");
+	DEBUG_OUT("%s","");
 	fuse_reply_none(req);
 
 }
