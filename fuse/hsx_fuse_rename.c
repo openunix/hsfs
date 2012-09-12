@@ -54,12 +54,12 @@ extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 	}
 	if (!(hi = hsx_fuse_iget(sb, parent))) {
 		ERR("%s get hsfs inode failed\n", progname);
-		err = EIO;
+		err = ENOENT;
 		goto out;
 	}
 	if (!(newhi = hsx_fuse_iget(sb, newparent))) {
 		ERR("%s get hsfs inode failed\n", progname);
-		err = EIO;
+		err = ENOENT;
 		goto out;
 	}
 
