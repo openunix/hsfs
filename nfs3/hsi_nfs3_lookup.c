@@ -44,10 +44,10 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 			"accessible: (%d).\n",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
 		goto out;
-        }
+	}
 		
-        pattr = &res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
-        name_fh = &res.lookup3res_u.resok.object;
+	pattr = &res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
+	name_fh = &res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
 
@@ -55,7 +55,7 @@ out:
 	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
 			(char *)&res);
 	DEBUG_OUT(" with errno %d",err);
-        return(err);
+	return(err);
 
 }
 

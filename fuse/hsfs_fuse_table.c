@@ -60,31 +60,31 @@ uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
 struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, 
 					uint64_t ino, fattr3 *pattr)
 {
-        struct hsfs_inode *hsfs_node;
-        hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode));
-        if(hsfs_node == NULL)
-        {
-                return  NULL;
-        }
-        if(sb == NULL || pfh == NULL)
-        {
-                free(hsfs_node);
-                return NULL;
-        }
+	struct hsfs_inode *hsfs_node;
+	hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode));
+	if(hsfs_node == NULL)
+	{
+		return  NULL;
+	}
+	if(sb == NULL || pfh == NULL)
+	{
+		free(hsfs_node);
+		return NULL;
+	}
 
-        hsfs_node->ino = ino;
-        hsfs_node->generation = 1;
+	hsfs_node->ino = ino;
+	hsfs_node->generation = 1;
 	hsfs_node->fh.data.data_len = pfh->data.data_len;
 	hsfs_node->fh.data.data_val =(char *)calloc(1,
 					hsfs_node->fh.data.data_len);
 	memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val,
 					hsfs_node->fh.data.data_len);
-        hsfs_node->nlookup = 0;
-        hsfs_node->sb = sb;
-        if(pattr != NULL)
-                hsfs_node->attr = *pattr;
+	hsfs_node->nlookup = 0;
+	hsfs_node->sb = sb;
+	if(pattr != NULL)
+		hsfs_node->attr = *pattr;
 
-        return hsfs_node;
+	return hsfs_node;
 }
 
 /**
@@ -246,10 +246,10 @@ int  hsx_fuse_itable_del(struct hsfs_super *sb)
                         hsfs_node = hsfs_inext;
                 }
 
-        }
+	}
 	free(sb->hsfs_fuse_ht.array);
 	sb->hsfs_fuse_ht.array = NULL;
-        return 0;
+	return 0;
 }
 
 
