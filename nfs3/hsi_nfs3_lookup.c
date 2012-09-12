@@ -10,14 +10,14 @@ struct hsfs_super s;
 struct hsfs_super *sb=&s;
 #endif /* HSFS_NFS3_TEST */
 
-int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, 
+int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, 
 		const char *name)
 {
-	struct diropargs3	args;
-	struct lookup3res	res;
-	struct fattr3	*pattr = NULL;
+	struct diropargs3 args;
+	struct lookup3res res;
+	struct fattr3 *pattr = NULL;
 	nfs_fh3	*name_fh;
-	enum clnt_stat	st;
+	enum clnt_stat st;
 	int err = 0;
 	struct timeval to;
 	to.tv_sec = parent->sb->timeo / 10;
@@ -67,7 +67,7 @@ out:
 
 }
 
-#ifdef	 HSFS_NFS3_TEST
+#ifdef HSFS_NFS3_TEST
 
 int main(int argc ,char *argv[])
 {
@@ -120,8 +120,8 @@ int main(int argc ,char *argv[])
 
 	if((err = hsi_nfs3_lookup(&parent,&child,argv[3])))
 	{
-		fprintf(stderr,"Call hsi_nfs3_lookup function fails , Error
-			code : %d\n",err);	
+		fprintf(stderr,"Call hsi_nfs3_lookup function fails,Error"
+			"code : %d\n",err);	
 		goto out;
 	}
 
