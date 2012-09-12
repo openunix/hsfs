@@ -230,25 +230,24 @@ int  hsx_fuse_idel(struct hsfs_super *sb,struct hsfs_inode *hs_node)
  * */
 int  hsx_fuse_itable_del(struct hsfs_super *sb)
 {
-        struct hsfs_inode *hsfs_node;
-        struct hsfs_inode *hsfs_inext;
-        int hashval;
+	struct hsfs_inode *hsfs_node;
+	struct hsfs_inode *hsfs_inext;
+	int hashval;
 
-        if(sb == NULL)
-                return EINVAL;
+	if(sb == NULL)
+		return EINVAL;
 	if(sb->hsfs_fuse_ht.array == NULL)
 		return 0;
-        for(hashval = 0; hashval < sb->hsfs_fuse_ht.size; hashval++)
-        {
-                hsfs_node = sb->hsfs_fuse_ht.array[hashval];
-                while (hsfs_node)
-                {
-                        hsfs_inext = hsfs_node->next;
+	for(hashval = 0; hashval < sb->hsfs_fuse_ht.size; hashval++)
+	{
+		hsfs_node = sb->hsfs_fuse_ht.array[hashval];
+		while (hsfs_node)
+		{
+			hsfs_inext = hsfs_node->next;
 			free(hsfs_node->fh.data.data_val);
-                        free(hsfs_node);
-                        hsfs_node = hsfs_inext;
-                }
-
+			free(hsfs_node);
+			hsfs_node = hsfs_inext;
+		}
 	}
 	free(sb->hsfs_fuse_ht.array);
 	sb->hsfs_fuse_ht.array = NULL;
