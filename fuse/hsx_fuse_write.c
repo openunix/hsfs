@@ -1,6 +1,6 @@
 /*hsx_fuse_write.c*/
 
-#include <sys/errno.h>
+#include <errno.h>
 #include <fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 

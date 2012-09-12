@@ -1,7 +1,7 @@
 /*hsx_fuse_read.c*/
 
-#include <sys/errno.h>
-#include <fuse/fuse_lowlevel.h>
+#include <errno.h>
+#include <fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 
 
