@@ -163,7 +163,7 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
 
 	if(!args.where.name){
 		err=ENOMEM;
-		goto out;
+		goto out2;
 	}
 
 	memset(args.where.name, 0 , MNTNAMLEN);
@@ -203,21 +203,38 @@ pipe_sattrs:
 	memset(&res,0,sizeof(res));
 	err=clnt_call(nfs_client,NFSPROC3_MKNOD,(xdrproc_t)xdr_mknod3args,&args,(xdrproc_t)xdr_diropres3,&res,to);
 	if(err){
+		ERR("Call RPC Server Failure:(%d).\n",err);
 		err=hsi_rpc_stat_to_errno(parent->sb->clntp);	
-		goto out;
+		goto out2;
 	}	
 	else if(res.status){
+		ERR("Call NFS3 Server Failure:(%d).\n",res.status);
+		if(res.diropres3_u.resfail.after.present){
+			memcpy(&(parent->attr), &res.diropres3_u.      
+                                                resfail.after.
+                                                post_op_attr_u.
+                                                attributes,
+                                                sizeof(fattr3));
+		}
 		err=hsi_nfs3_stat_to_errno(res.status);
-		goto out;
+		goto out1;
 	}
+	if(res.diropres3_u.resok.dir_wcc.after.present){
+		memcpy(&(parent->attr), &res.diropres3_u.resok.dir_wcc.after.
+                                        post_op_attr_u.attributes,
+                                        sizeof(fattr3));
+	}
+
 	*newinode=hsi_nfs3_ifind(parent->sb,&res.diropres3_u.resok.obj.
 				post_op_fh3_u.handle,&res.diropres3_u.
-			 	resok.obj_attributes.post_op_attr_u.attributes);
+			 	resok.obj_attributes.post_op_attr_u.
+                                attributes);
 
-out:
+out1:
 	if(args.where.name)
 		free(args.where.name);
 	clnt_freeres(nfs_client,(xdrproc_t)xdr_diropres3,(char *)&res);
+out2:
 	DEBUG_OUT(" err:%d",err);
 	return err;	
 }

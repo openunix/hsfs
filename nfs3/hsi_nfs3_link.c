@@ -131,7 +131,7 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 
 	if(!args.link.name){
 		err=ENOMEM;
-		goto out;
+		goto out2;
 	}
 	strcpy(args.link.name, name);
 	memset(&res, 0, sizeof(res));
@@ -140,19 +140,30 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 	err=clnt_call(clntp, NFSPROC3_LINK, (xdrproc_t)xdr_link3args,
                        &args, (xdrproc_t)xdr_link3res, &res, to);
 	if(err){
-		err=hsi_rpc_stat_to_errno(newparent->sb->clntp);	
-		goto out;
+		ERR("Call RPC Server Failure (%d) \n",err);
+		err=hsi_rpc_stat_to_errno(newparent->sb->clntp);
+		goto out2;
 	}	
-	else if(res.status){
+	if(res.link3res_u.res.linkdir_wcc.after.present){
+			memcpy(&(newparent->attr), &res.link3res_u.
+                                                   res.linkdir_wcc.
+                                                   after.post_op_attr_u
+                                                   .attributes,
+                                                   sizeof(fattr3));
+	}
+
+	if(res.status){
+		ERR("Call NFS3 Server Failure (%d) \n", res.status);
 		err=hsi_nfs3_stat_to_errno(res.status);
-		goto out;
+		goto out1;
 	}
 
 	*newinode=ino;
-out:
+out1:
 	if(args.link.name)
 		free(args.link.name);	
 	clnt_freeres(clntp,(xdrproc_t)xdr_link3res,(char *)&res);
+out2:
 	DEBUG_OUT("  err:%d",err);
 	return err;
 }
