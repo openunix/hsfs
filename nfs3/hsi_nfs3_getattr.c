@@ -24,12 +24,12 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode)
 	if (st) {
 		err = hsi_rpc_stat_to_errno(clntp);
 		ERR("Call RPC Server failure: %d.\n", err);
-		goto out;
+		goto out_2;
 	}
 	if (NFS3_OK != res.status) {
 		err = hsi_nfs3_stat_to_errno(res.status);
 		ERR("RPC Server returns failed status : %d.\n", err);
-		goto out;
+		goto out_1;
 	}
 	/* fill return value to fattr3 attr in struct hsfs_inode */
 	attr = &res.getattr3res_u.attributes;
@@ -50,9 +50,9 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode)
 	inode->attr.mtime.nseconds = attr->mtime.nseconds;
 	inode->attr.ctime.seconds = attr->ctime.seconds;
 	inode->attr.ctime.nseconds = attr->ctime.nseconds;
-	
+ out_1:
 	clnt_freeres(clntp, (xdrproc_t)xdr_getattr3res, (char *)&res);
- out:
+ out_2:
 	DEBUG_OUT("Leave hsi_nfs3_getattr() with errno %d.\n", err);
 	return err;
 }
