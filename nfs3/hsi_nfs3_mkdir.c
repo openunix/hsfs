@@ -52,20 +52,16 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		err = hsi_nfs3_stat_to_errno(clnt_res.status);
 		goto out;
 	}
-	else {
-		*hi_new = hsi_nfs3_ifind (hi_parent->sb,
-		&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
+	*hi_new = hsi_nfs3_ifind (hi_parent->sb,
+			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
-		if(NULL == *hi_new) {
-			ERR("Error in create inode.\n");
-			goto out;
-		}
-		else
-			clnt_freeres(hi_parent->sb->clntp,
-				       	(xdrproc_t)xdr_diropres3, 
-					(char *)&clnt_res);
-
+	if(NULL == *hi_new) {
+		ERR("Error in create inode.\n");
+		goto out;
 	}
+	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3,
+		       	(char *)&clnt_res);
+
 out:
 	DEBUG_OUT(" out, errno:%d\n", err);
 	return err;
