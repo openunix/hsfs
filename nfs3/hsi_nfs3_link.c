@@ -125,6 +125,11 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 
 	memset(&args, 0, sizeof(args));
 
+	if(strlen(name) > NAME_MAX){
+		ERR("%s is too long \n",name);
+		err=ENAMETOOLONG;
+		goto out2;
+	}
 	args.file.data=ino->fh.data;
 	args.link.dir.data=newparent->fh.data;
 	args.link.name=(char *)malloc(NAME_MAX * sizeof(char));

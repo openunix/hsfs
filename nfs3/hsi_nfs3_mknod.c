@@ -155,6 +155,11 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
 	memset(&args, 0 , sizeof(struct mknod3args));
 	memset(&res, 0 , sizeof(struct diropres3));	
 
+	if(strlen(name) > NAME_MAX){
+		ERR("%s  is too long \n",name);
+		err=ENAMETOOLONG;
+		goto out2;
+	}
 	// get the fh
 	args.where.dir.data=parent->fh.data;
 	// alloc memory for name
