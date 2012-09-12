@@ -10,6 +10,7 @@
 int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
 					size_t *dircount, size_t maxcount)
 {
+	DEBUG_IN("%s.","hsx_fuse_readdir");
 	CLIENT *clntp = NULL;
 	struct hsfs_readdir_ctx *temp = NULL; 
 	struct hsfs_readdir_ctx *temp1 = NULL;
@@ -116,6 +117,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	hrc = temp1;
 	
 out:
+	DEBUG_OUT("%s.","hsx_fuse_readdir");
 	return err;
 }
 
