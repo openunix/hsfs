@@ -35,25 +35,21 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	maxcount = RPCCOUNT*size;
 	hrc->off = off;
 	hi = hsx_fuse_iget(hs,ino);
-	
-	
 
 	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
 	
-
 	if(err)
 	{
 		fuse_reply_err(req, err);
 		goto out;
 	}
 
-	fi->fh = (size_t)hrc;
 	temp_ctx = hrc;
 	hrc = hrc->next;
 	while(hrc!=NULL){
 	  	size_t tmplen = newlen;
-		
-	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, hrc->name, &hrc->stbuf, hrc->off);
+	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, 
+				hrc->name, &hrc->stbuf, hrc->off);
 	  	if(newlen>size)
 	    		break;
 		  
@@ -75,7 +71,7 @@ out:
 		hrc = temp_ctx->next;
 		free(temp_ctx);
 		temp_ctx = hrc;
-}	
+	}	
 	free(temp_ctx);
 		
 	return;
