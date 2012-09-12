@@ -17,8 +17,8 @@ void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 	
 	if(hsfs_node->nlookup >= nlookup)
 	{
-		DEBUG("Now ,the node lookup count : %lu , the number of\
-			lookups to forget : %lu", hsfs_node->nlookup,nlookup);
+		DEBUG("Now ,the node lookup count : %lu, the number of "\ 
+			"lookups to forget : %lu", hsfs_node->nlookup,nlookup);
 		hsfs_node->nlookup -= nlookup;
 	}
 	else
