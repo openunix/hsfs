@@ -29,5 +29,5 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 	return ;
 out:
 	fuse_reply_err(req,err);
-	DEBUG_OUT(" with errno %d","",err);
+	DEBUG_OUT(" with errno %d",err);
 }
