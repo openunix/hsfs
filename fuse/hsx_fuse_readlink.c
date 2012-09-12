@@ -31,6 +31,7 @@ void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino){
 	}
 
 out:
+	free(link);
 	if(st != 0){
 		fuse_reply_err(req, err);
 	}
