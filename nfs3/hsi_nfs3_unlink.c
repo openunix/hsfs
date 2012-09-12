@@ -78,7 +78,7 @@ static const struct {
 	{ -1,                   EIO           	}
 };
 
-extern int hsi_nfs3_stat_to_errno(int stat)
+int hsi_nfs3_stat_to_errno(int stat)
 {
 	int i;
 	for (i = 0; nfs_errtbl[i].nfs_err != -1; i++) {
@@ -88,7 +88,7 @@ extern int hsi_nfs3_stat_to_errno(int stat)
 	return nfs_errtbl[i].sys_err;
 }
 
-extern int hsi_rpc_stat_to_errno(CLIENT *clntp)
+int hsi_rpc_stat_to_errno(CLIENT *clntp)
 {
 	struct rpc_err err;
 	memset(&err, 0, sizeof(err));
@@ -96,9 +96,8 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp)
 	return err.re_errno == 0 ? EIO : err.re_errno;
 }
 
-extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
+int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 {
-	DEBUG_IN(" %s", name);
 	int ret = 0;
 	int err = 0;
 	struct hsfs_super *sb = hi->sb;
@@ -106,37 +105,38 @@ extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	diropargs3 args;
 	wccstat3 res;
 	struct timeval to;
-	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100000;
+
+	DEBUG_IN(" %s", name);
+
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.dir = hi->fh;
 	args.name = (char *)name;
+	to.tv_sec = sb->timeo / 10;
+	to.tv_usec = (sb->timeo % 10) * 100000;
 
-	ret = clnt_call(clntp, NFSPROC3_REMOVE,	(xdrproc_t)xdr_diropargs3,
+	ret = clnt_call(clntp, NFSPROC3_REMOVE, (xdrproc_t)xdr_diropargs3,
 			(caddr_t)&args, (xdrproc_t)xdr_wccstat3,
 			(caddr_t)&res, to);
 	if (ret) {
-		ERR("%s: Call RPC Server (%u, %u) failure: "
-				"(%s).\n", progname, NFS_PROGRAM,
-				NFS_V3, clnt_sperrno(ret));
+		ERR("Call RPC Server failure:(%s).\n", clnt_sperrno(ret));
 		err = hsi_rpc_stat_to_errno(clntp);
-		goto out;
+		goto out1;
 	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
-		ERR("%s: Path (%s) on Server is not "
-				"accessible: (%d).\n", progname, name, ret);
+		ERR("Call NFS3 Server failure:(%d).\n", ret);
 		err = hsi_nfs3_stat_to_errno(ret);
-		goto out;
+		goto out2;
 	}
 	if (res.wccstat3_u.wcc.after.present) {
 		memcpy(&(hi->attr), &res.wccstat3_u.wcc.
 				after.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}
-out:
+out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
+out1:
 	DEBUG_OUT(" %s errno:%d", name, err);
 	return err;
 }

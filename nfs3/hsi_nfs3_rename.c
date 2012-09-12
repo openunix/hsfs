@@ -34,10 +34,9 @@ struct hsfs_inode
 # include "hsi_nfs3.h"
 #endif
 
-extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
+int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		struct hsfs_inode *newhi, const char *newname)
 {
-	DEBUG_IN(" %s to %s", name, newname);
 	int ret = 0;
 	int err = 0;
 	struct hsfs_super *sb = hi->sb;
@@ -45,31 +44,31 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 	rename3args args;
 	rename3res res;
 	struct timeval to;
-	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100000;
+
+	DEBUG_IN(" %s to %s", name, newname);
+
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.from.dir = hi->fh;
 	args.from.name = (char *)name;
 	args.to.dir = newhi->fh;
 	args.to.name = (char *)newname;
+	to.tv_sec = sb->timeo / 10;
+	to.tv_usec = (sb->timeo % 10) * 100000;
 
 	ret = clnt_call(clntp, NFSPROC3_RENAME, (xdrproc_t)xdr_rename3args,
 			(caddr_t)&args, (xdrproc_t)xdr_rename3res,
 			(caddr_t)&res, to);
 	if (ret) {
-		ERR("%s: Call RPC Server (%u, %u) failure: "
-				"(%s).\n", progname, NFS_PROGRAM,
-				NFS_V3, clnt_sperrno(ret));
+		ERR("Call RPC Server failure:(%s).\n", clnt_sperrno(ret));
 		err = hsi_rpc_stat_to_errno(clntp);
-		goto out;
+		goto out1;
 	}
 	ret = res.status;
 	if (NFS3_OK != ret) {
-		ERR("%s: Path (%s) on Server is not "
-				"accessible: (%d).\n", progname, name, ret);
+		ERR("Call NFS3 Server failure:(%d).\n", ret);
 		err = hsi_nfs3_stat_to_errno(ret);
-		goto out;
+		goto out2;
 	}
 	if(res.rename3res_u.res.fromdir_wcc.after.present) {
 		memcpy(&(hi->attr), &res.rename3res_u.res.fromdir_wcc.
@@ -81,8 +80,9 @@ extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 				after.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}
-out:
+out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_rename3res, (char *)&res);
+out1:
 	DEBUG_OUT(" %s to %s errno:%d", name, newname, err);
 	return err;
 }
