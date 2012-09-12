@@ -9,35 +9,37 @@
 #include "hsx_fuse.h"
 #include <errno.h>
 
-extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
+void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
-	DEBUG_IN(" %s", name);
 	int err = 0;
+	struct hsfs_super *sb = NULL;
+	struct hsfs_inode *hi = NULL;
+
+	DEBUG_IN(" %s", name);
+
 	if (name == NULL) {
-		ERR("%s name to remove is NULL\n", progname);
-		err = ENOENT;
+		ERR("Name to remove is NULL\n");
+		err = EINVAL;
 		goto out;
 	}
 	else if (!(strcmp(name, ""))) {
-		ERR("%s name to remove is empty\n", progname);
-		err = ENOENT;
+		ERR("Name to remove is empty\n");
+		err = EINVAL;
 		goto out;
 	}
 	else if (strlen(name) > NAME_MAX) {
-		ERR("%s name to remove is too long\n", progname);
+		ERR("Name to remove is too long\n");
 		err = ENAMETOOLONG;
 		goto out;
 	}
 
-	struct hsfs_super *sb = NULL;
-	struct hsfs_inode *hi = NULL;
 	if (!(sb = fuse_req_userdata(req))) {
-		ERR("%s get user data failed\n", progname);
+		ERR("Get user data failed\n");
 		err = EIO;
 		goto out;
 	}
 	if (!(hi = hsx_fuse_iget(sb, parent))) {
-		ERR("%s get hsfs inode failed\n", progname);
+		ERR("get hsfs inode failed\n");
 		err = ENOENT;
 		goto out;
 	}
