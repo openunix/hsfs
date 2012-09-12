@@ -59,10 +59,10 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		ERR("Error in create inode.\n");
 		goto out;
 	}
-	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3,
-		       	(char *)&clnt_res);
 
 out:
+	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3,
+		       	(char *)&clnt_res);
 	DEBUG_OUT(" out, errno:%d\n", err);
 	return err;
 };

@@ -51,9 +51,9 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 		goto out;
 	}
 	err = hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
+out:
 	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3,
 		       	(char *)&clnt_res);
-out:
 	DEBUG_OUT(" out, errno is(%d)\n", err);
 	return err;
 };
