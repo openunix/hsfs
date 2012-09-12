@@ -15,6 +15,7 @@
 #include "log.h"
 
 #define HSFS_TYPE "hsfs"
+
 #define S_ISSETMODE(to_set)       ((to_set) & FUSE_SET_ATTR_MODE)
 #define S_ISSETUID(to_set)        ((to_set) & FUSE_SET_ATTR_UID)
 #define S_ISSETGID(to_set)        ((to_set) & FUSE_SET_ATTR_GID)
@@ -23,6 +24,16 @@
 #define S_ISSETMTIME(to_set)      ((to_set) & FUSE_SET_ATTR_MTIME)
 #define S_ISSETATIMENOW(to_set)   ((to_set) & FUSE_SET_ATTR_ATIME_NOW)
 #define S_ISSETMTIMENOW(to_set)   ((to_set) & FUSE_SET_ATTR_MTIME_NOW)
+
+#define S_SETMODE(sattr)          ((sattr)->valid |= FUSE_SET_ATTR_MODE)
+#define S_SETUID(sattr)           ((sattr)->valid |= FUSE_SET_ATTR_UID)
+#define S_SETGID(sattr)           ((sattr)->valid |= FUSE_SET_ATTR_GID)
+#define S_SETSIZE(sattr)          ((sattr)->valid |= FUSE_SET_ATTR_SIZE)
+#define S_SETATIME(sattr)         ((sattr)->valid |= FUSE_SET_ATTR_ATIME)
+#define S_SETATIMENOW(sattr)      ((sattr)->valid |= FUSE_SET_ATTR_ATIME_NOW)
+#define S_SETMTIME(sattr)         ((sattr)->valid |= FUSE_SET_ATTR_MTIME)
+#define S_SETMTIMENOW(sattr)      ((sattr)->valid |= FUSE_SET_ATTR_MTIME_NOW)
+
 
 extern char *progname;
 extern int nomtab;
@@ -127,13 +138,13 @@ struct hsfs_rw_info {
 };
 
 struct hsfs_sattr{
-  int    valid;
-  mode_t mode;
-  uid_t	 uid;
-  gid_t	 gid;
-  off_t	 size;
-  struct timespec atime;
-  struct timespec mtime;
+	int              valid;
+	mode_t           mode;
+	uid_t	         uid;
+	gid_t	         gid;
+	off_t	         size;
+	struct timespec  atime;
+	struct timespec  mtime;
 }hsfs_sattr_t;
 
 struct hsfs_readdir_ctx{
