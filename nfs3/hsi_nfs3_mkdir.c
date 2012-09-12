@@ -25,7 +25,8 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	int err = 0;
 	mkdir3args argp;
 	diropres3 clnt_res;
-	struct timeval timeout = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
+	struct timeval timeout = { hi_parent->sb->timeo/10,
+	       	(hi_parent->sb->timeo/10)*100};	
 	
 	DEBUG_IN(" in\n","hsi_nfs3_mkdir");
 	memset(&argp, 0, sizeof(mkdir3args));
@@ -60,7 +61,8 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			goto out;
 		}
 		else
-			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, 
+			clnt_freeres(hi_parent->sb->clntp,
+				       	(xdrproc_t)xdr_diropres3, 
 					(char *)&clnt_res);
 
 	}
