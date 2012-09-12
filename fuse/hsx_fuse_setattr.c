@@ -38,7 +38,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	if (err)
 		fuse_reply_err(req, err);	
 	else {
-		hsi_fuse_ifind(sb, &inode->fh, &inode->attr); /* update table */
+		hsi_nfs3_ifind(sb, &inode->fh, &inode->attr); /* update table */
 		to = inode->attr.type == NF3DIR ? sb->acdirmin : sb->acregmin;
 		fuse_reply_attr(req, &st, to);
 	}
