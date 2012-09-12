@@ -6,11 +6,13 @@
 
 extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
 
-extern void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name, mode_t mode);
+extern void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
+	       	mode_t mode);
 
 extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
 
-extern void hsx_fuse_fill_reply(struct hsfs_inode *inode, struct fuse_entry_param *e);
+extern void hsx_fuse_fill_reply(struct hsfs_inode *inode,
+	       	struct fuse_entry_param *e);
 
 extern void hsx_fuse_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi);
 
