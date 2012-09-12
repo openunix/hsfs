@@ -25,7 +25,7 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 	wccstat3 clnt_res;
 	struct timeval timeout = { hi_parent->sb->timeo/10,
 	       	(hi_parent->sb->timeo%10)*100000 };
-	DEBUG_IN(" in\n","hsi_nfs3_rmdir");
+	DEBUG_IN(" in %s.\n","hsi_nfs3_rmdir");
 
 	memset (&argp, 0, sizeof(diropargs3));
 	memset (&clnt_res, 0, sizeof(wccstat3));
