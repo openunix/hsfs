@@ -27,7 +27,11 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 		winfo.stable = HSFS_FILE_SYNC;
 	else
 		winfo.stable = HSFS_UNSTABLE;
-	winfo.inode = hsx_fuse_iget(sb, ino);
+	if(NULL == (winfo.inode = hsx_fuse_iget(sb, ino))){
+		err = ENOENT;
+		fuse_reply_err(req, err);
+		goto out;
+	}
 	while(cnt < size){
 		size_t tmp_size = min(size - cnt, sb->wsize);
 		
