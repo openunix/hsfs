@@ -127,6 +127,9 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 				mntarg_t *mntarg, mntres_t *mntres)
 {
 	struct pmap *msp = &mnt_server->pmap;
+	mntres_t tres = {};
+	char *tmp = NULL;
+	fhandle3 *fh = NULL; 
 	CLIENT *clnt = NULL;
 	int ret = 0;
 
@@ -142,11 +145,25 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 
 	ret = clnt_call(clnt, MOUNTPROC3_MNT,
 			 (xdrproc_t) xdr_dirpath, (caddr_t) mntarg,
-			 (xdrproc_t) xdr_mountres3, (caddr_t) mntres,
+			 (xdrproc_t) xdr_mountres3, (caddr_t) &tres,
 			 TIMEOUT);
 	if (ret != RPC_SUCCESS) {
 		ERR("Get root fh failed: %d.", ret);
 	}
+
+	/* copy filehandle to mntrest */
+	fh = &(tres.mountres3_u.mountinfo.fhandle);
+	tmp = malloc(fh->fhandle3_len);
+
+	if (tmp == NULL) {
+		ret = ENOMEM;
+	} else {
+		memcpy(tmp , fh->fhandle3_val, fh->fhandle3_len);
+		*mntres = tres;
+		mntres->mountres3_u.mountinfo.fhandle.fhandle3_val = tmp;
+	}
+
+	clnt_freeres(clnt, (xdrproc_t) xdr_mountres3, (caddr_t) &tres);
 
 	hsi_mnt_closeclnt(clnt);
 
@@ -699,6 +716,8 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 		fhandle = &mntres.mountres3_u.mountinfo.fhandle;
 		if (hsi_fill_super(super, (nfs_fh3 *)fhandle))
 			goto umnt_fail;
+
+		free(mntres.mountres3_u.mountinfo.fhandle.fhandle3_val);
 	}
 
 	ch = fuse_mount(point, args);
@@ -710,6 +729,7 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 clnt_des:
 	clnt_destroy(super->clntp);
 umnt_fail:
+	free(mntres.mountres3_u.mountinfo.fhandle.fhandle3_val);
 	hsi_nfs3_unmount(&mnt_server, &dirname);
 fail:
 	return NULL;
