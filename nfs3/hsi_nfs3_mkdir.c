@@ -49,7 +49,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	if (0 != clnt_res.status) {	/*RPC is OK, nfs error*/
 		*hi_new = NULL;
 		err = hsi_nfs3_stat_to_errno(clnt_res.status);
-		goto out;
+		goto outfree;
 	}
 	*hi_new = hsi_nfs3_ifind (hi_parent->sb,
 			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
@@ -59,9 +59,10 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 		goto out;
 	}
 
-out:
+outfree:
 	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3,
 		       	(char *)&clnt_res);
+out:
 	DEBUG_OUT(" out, errno:%d\n", err);
 	return err;
 };
