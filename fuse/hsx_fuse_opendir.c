@@ -1,9 +1,11 @@
 /*
  *hsx_fuse_readdir.c
  */
-#include <error.h>
+
+#include <errno.h>
 #include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
+
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
 	struct hsfs_readdir_ctx *hrc = NULL;
