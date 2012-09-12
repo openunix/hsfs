@@ -81,12 +81,12 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	if (NFS3_OK != res.status) {
 		err = hsi_nfs3_stat_to_errno(res.status);
 		ERR("RPC Server returns failed status : %d.\n", err);
-		goto out_1;
+		goto out_no_free;
 	}
 	if (!res.wccstat3_u.wcc.after.present) {
 		err = EAGAIN;
 		ERR("Try again to set file attributes.\n");
-		goto out_1;
+		goto out;
 	}
 	fattr = &res.wccstat3_u.wcc.after.post_op_attr_u.attributes;
 	inode->attr.type = fattr->type;
@@ -107,9 +107,9 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	inode->attr.mtime.nseconds = fattr->mtime.nseconds;
 	inode->attr.ctime.seconds = fattr->ctime.seconds;
 	inode->attr.ctime.nseconds = fattr->ctime.nseconds;
- out_1:
+ out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
- out_2:
+ out_no_free:
 	DEBUG_OUT("Leave hsi_nfs3_setattr() with errno : %d.\n", err);
 	return err;
 }
