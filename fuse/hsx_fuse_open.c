@@ -3,16 +3,14 @@
  * liuyoujin
  */
 #include <sys/errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <rpc/rpc.h>
+#include "hsi_nfs3.h"
 #include "log.h"
-#include <fuse/fuse_lowlevel.h>
+
 #define FI_FH_LEN    10
+
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-DEBUG_IN ("%s","Enter hsx_fuse_open");
+	DEBUG_IN (" fi->flags:%d",fi->flags);
 	int err=0;
 	uint64_t fh =(uint64_t) malloc (FI_FH_LEN);
 	if (!fh){
@@ -25,6 +23,6 @@ DEBUG_IN ("%s","Enter hsx_fuse_open");
 		fi->fh = fh;
 		fuse_reply_open(req, fi);
 	}
-DEBUG_OUT("%s","Exit hsx_fuse_open");	
+	DEBUG_OUT(" fh:%lu",fh);	
 }
 
