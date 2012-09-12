@@ -4,7 +4,6 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
-
 int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 {
 	struct hsfs_super *sb = winfo->inode->sb;
