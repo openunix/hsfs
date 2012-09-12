@@ -8,7 +8,7 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 	CLIENT *clnt = sb->clntp;
 	pathconf3res res = {};
 	post_op_attr *pattr = NULL;
-	struct timeval to = {sb->timeo / 10, sb->timeo % 10 * 100};
+	struct timeval to = {sb->timeo / 10, sb->timeo % 10 * 100000};
 	enum clnt_stat st;
 	int ret = 0;
 

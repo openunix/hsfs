@@ -49,7 +49,7 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 	CLIENT *clnt = sb->clntp;
 	fsinfo3res res = {};
 	post_op_attr *pattr = NULL;
-	struct timeval to = {sb->timeo / 10, sb->timeo % 10 * 100};
+	struct timeval to = {sb->timeo / 10, sb->timeo % 10 * 100000};
 	enum clnt_stat st;
 	int ret = 0;
 
