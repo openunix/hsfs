@@ -39,7 +39,7 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, con
 	memset(&res, 0, sizeof(res));
 
 	args.dir = parent->fh;
-	args.name = name;
+	args.name = (char *)name;
 	st=clnt_call(parent->sb->clntp,3,(xdrproc_t)xdr_diropargs3,(caddr_t)&args,
 			(xdrproc_t)xdr_lookup3res, (caddr_t)&res, to);
 
