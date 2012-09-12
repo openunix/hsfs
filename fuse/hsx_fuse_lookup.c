@@ -4,17 +4,17 @@
 
 void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 {
-	DEBUG_IN(" lookup %s", name);
-	struct  hsfs_super	*sb;
-	struct  hsfs_inode	*parent;
-	struct  hsfs_inode	*child;
-	struct  fuse_entry_param	e;
-	int	err = 0;
+	struct  hsfs_super *sb;
+	struct  hsfs_inode *parent;
+	struct  hsfs_inode *child;
+	struct  fuse_entry_param e;
+	int err = 0;
 
+	DEBUG_IN(" lookup %s", name);
 	sb = fuse_req_userdata(req);
 	if((parent=hsx_fuse_iget(sb,ino)) == NULL)
 	{
-		err = ENOTDIR;
+		err = ENOENT;
 		goto out;
 	}
 
@@ -25,7 +25,7 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 	hsx_fuse_fill_reply(child,&e);
 
 	fuse_reply_entry(req, &e);
-	DEBUG_OUT("%s"," success");
+	DEBUG_OUT(" %s","success");
 	return ;
 out:
 	fuse_reply_err(req,err);

@@ -29,8 +29,8 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	DEBUG_IN("%s","");
 	args.dir = parent->fh;
 	args.name = (char *)name;
-	st=clnt_call(parent->sb->clntp,NFSPROC3_LOOKUP,(xdrproc_t)xdr_diropargs3,(caddr_t)&args,
-			(xdrproc_t)xdr_lookup3res, (caddr_t)&res, to);
+	st=clnt_call(parent->sb->clntp,NFSPROC3_LOOKUP,(xdrproc_t)xdr_diropargs3
+		,(caddr_t)&args,(xdrproc_t)xdr_lookup3res, (caddr_t)&res, to);
 
 	if (st) {
 		ERR("Call RPC Server (%u, %u) failure: "
@@ -41,12 +41,18 @@ int  hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
         st = res.status;
         if (NFS3_OK != st) {
 		ERR("Path (%s) on Server is not "
-			"accessible: (%d).\n",name,st);
+			"accessible: (%d).",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
 		goto out;
 	}
-		
-	pattr = &res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
+	if( ! res.lookup3res_u.resok.obj_attributes.present)
+	{
+		ERR("Acquired property is invalid !");
+		err = EINVAL;
+		goto out;
+	}
+	
+	pattr=&res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
 	name_fh = &res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,name_fh,pattr);

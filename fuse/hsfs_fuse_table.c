@@ -19,8 +19,8 @@
 int  hsx_fuse_itable_init(struct hsfs_super *sb)
 {
 	sb->hsfs_fuse_ht.size =  HSFS_TABLE_SIZE ;
-	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, sizeof(struct 
-				hsfs_inode *) * sb->hsfs_fuse_ht.size);
+	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, 
+				sizeof(struct hsfs_inode *) * HSFS_TABLE_SIZE);
 	if (sb->hsfs_fuse_ht.array == NULL) {
 		ERR("hsfs: memory allocation failed.");
 		return ENOMEM ;
@@ -41,19 +41,19 @@ int  hsx_fuse_itable_init(struct hsfs_super *sb)
  * @return:	the hash value
  *
  * */
-uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
+static uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
 {
 	uint64_t hash = ino % sb->hsfs_fuse_ht.size;
 	return hash;
 }
 
 /**
- * hsi_nfs3_alloc_node: allocate memory for a node 
+ * hsi_nfs3_alloc_node:	allocate memory for a node 
  *
- * @param sb[IN]:       the information of the superblock
- * @param pfh[IN]:      a pointer to the filehandle of node 
- * @param ino[IN]:      the inode number
- * @param pattr[IN]:    a pointer to the attributes of node 
+ * @param sb[IN]:	the information of the superblock
+ * @param pfh[IN]:	a pointer to the filehandle of node 
+ * @param ino[IN]:	the inode number
+ * @param pattr[IN]:	a pointer to the attributes of node 
  * @return:		a pointer to the object if successfull,else NULL
  *
  * */
@@ -61,15 +61,15 @@ struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh,
 					uint64_t ino, fattr3 *pattr)
 {
 	struct hsfs_inode *hsfs_node;
+	if(sb == NULL || pfh == NULL)
+	{
+		return NULL;
+	}
+
 	hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct hsfs_inode));
 	if(hsfs_node == NULL)
 	{
 		return  NULL;
-	}
-	if(sb == NULL || pfh == NULL)
-	{
-		free(hsfs_node);
-		return NULL;
 	}
 
 	hsfs_node->ino = ino;
@@ -77,9 +77,13 @@ struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh,
 	hsfs_node->fh.data.data_len = pfh->data.data_len;
 	hsfs_node->fh.data.data_val =(char *)calloc(1,
 					hsfs_node->fh.data.data_len);
+	if(hsfs_node->fh.data.data_val == NULL)
+	{
+		return NULL;
+	}
 	memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val,
 					hsfs_node->fh.data.data_len);
-	hsfs_node->nlookup = 0;
+	hsfs_node->nlookup = 1;
 	hsfs_node->sb = sb;
 	if(pattr != NULL)
 		hsfs_node->attr = *pattr;
@@ -98,7 +102,7 @@ struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh,
  * @return:	void
  *
  * */
-void   hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
+void  hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
 {
 	uint64_t  hash =  hsfs_ino_hash(sb,hsfs_node->ino);
 	hsfs_node->next = sb->hsfs_fuse_ht.array[hash];
@@ -120,13 +124,15 @@ void   hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
 struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
 {
 	struct hsfs_inode  *hsfs_node = NULL;
+	uint64_t hash = 0;
+
 	if(sb == NULL)
 		return NULL;
-	uint64_t hash =  hsfs_ino_hash(sb,ino);
+	hash =  hsfs_ino_hash(sb,ino);
 
 	for(hsfs_node=sb->hsfs_fuse_ht.array[hash];hsfs_node != NULL;
 	    hsfs_node=hsfs_node->next)
-		if(hsfs_node->ino  ==  ino)
+		if(hsfs_node->ino == ino)
 		{
 			hsfs_node->sb = sb;
 			return hsfs_node;
@@ -148,31 +154,21 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3
 				*pattr)
 {
 	struct hsfs_inode *hsfs_node = NULL;
+	uint64_t ino ;
 	if(sb == NULL || pfh == NULL || pattr == NULL)
 	{
 		return  NULL;
 	}
 	pattr->fileid |= (1UL<<63);
-	uint64_t ino = pattr->fileid;
+	ino = pattr->fileid;
+	pattr->fileid &= ~(1UL<<63);
 
 	hsfs_node = hsx_fuse_iget(sb,ino);
 	if (hsfs_node == NULL)
 	{
-		hsfs_node = (struct hsfs_inode *) calloc(1, sizeof(struct 
-				hsfs_inode ));
+		hsfs_node = hsi_nfs3_alloc_node(sb, pfh, ino, pattr);
 		if (hsfs_node == NULL)
 			return NULL;
-		hsfs_node->ino = ino;
-		hsfs_node->generation = 1;
-		hsfs_node->nlookup = 1;
-		hsfs_node->fh.data.data_len = pfh->data.data_len;
-		hsfs_node->fh.data.data_val =(char *)calloc(1,
-						hsfs_node->fh.data.data_len);
-		memcpy(hsfs_node->fh.data.data_val,pfh->data.data_val, 
-						hsfs_node->fh.data.data_len);
-		hsfs_node->sb = sb;
-		hsfs_node->attr = *pattr;
-		hsfs_node->attr.fileid &= ~(1UL<<63);
 		DEBUG("This is a new node ,and now to add to hash table.");
 		hsx_fuse_iadd(sb,hsfs_node);
 	}
