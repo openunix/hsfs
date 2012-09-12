@@ -9,8 +9,6 @@
 #include "hsx_fuse.h"
 #include <errno.h>
 
-#define MAXNAMELEN 255
-
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
 	DEBUG_IN(" %s", name);
@@ -25,7 +23,7 @@ extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 		err = ENOENT;
 		goto out;
 	}
-	else if (strlen(name) > MAXNAMELEN) {
+	else if (strlen(name) > NAME_MAX) {
 		ERR("%s name to remove is too long\n", progname);
 		err = ENAMETOOLONG;
 		goto out;

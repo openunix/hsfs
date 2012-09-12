@@ -9,8 +9,6 @@
 #include "hsx_fuse.h"
 #include <errno.h>
 
-#define MAXNAMELEN 255
-
 extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 				fuse_ino_t newparent, const char *newname)
 {
@@ -36,12 +34,12 @@ extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 		err = ENOENT;
 		goto out;
 	}
-	else if (strlen(name) > MAXNAMELEN) {
+	else if (strlen(name) > NAME_MAX) {
 		fprintf(stderr, "%s source name is too long\n", progname);
 		err = ENAMETOOLONG;
 		goto out;
 	}
-	else if (strlen(newname) > MAXNAMELEN) {
+	else if (strlen(newname) > NAME_MAX) {
 		fprintf(stderr, "%s target name is too long\n", progname);
 		err = ENAMETOOLONG;
 		goto out;
