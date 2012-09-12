@@ -2,29 +2,24 @@
  * hsi_nfs3_statfs
  * liuyoujin
  */
-#include <sys/errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <rpc/rpc.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/statvfs.h>
-#include "log.h"
+
 #include "hsi_nfs3.h"
+
 int hsi_nfs3_statfs (struct hsfs_inode *inode)
 { 
 	struct fsstat3res res;	
 	struct fsstat3resok resok;       
-	enum clnt_stat st;
+	int st = 0;
 	struct timeval to = {120, 0};
 	struct nfs_fh3 fh ;
 
-DEBUG_IN ("%s","...");
 	memset (&res, 0, sizeof(res));
 	memset (&fh, 0, sizeof(fh));
 	memset (&resok, 0, sizeof(resok));
 	fh.data.data_len=inode->fh.data.data_len;
 	fh.data.data_val=inode->fh.data.data_val;
+
+	DEBUG_IN (" fh:%s",fh.data.data_val);
 	st = clnt_call (inode->sb->clntp, NFSPROC3_FSSTAT, (xdrproc_t)xdr_nfs_fh3, (char *)&fh,
 			(xdrproc_t)xdr_fsstat3res, (char *)&res, to);
 	if (st){
@@ -48,8 +43,8 @@ DEBUG_IN ("%s","...");
 	inode->sb->ffiles = resok.ffiles;
 	inode->sb->afiles = resok.afiles;
 out:	
-DEBUG_OUT ("%s","...");
 	clnt_freeres (inode->sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
+	DEBUG_OUT (" err:%d",st);
 	return st;
 
 }
@@ -90,6 +85,7 @@ pout:
 }
 
 #ifdef HSFS_NFS3_TEST
+#include <sys/errno.h>
 int main (int argc, char *argv[])
 {
 	int err;
