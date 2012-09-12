@@ -141,7 +141,8 @@ extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
  *  @param   mode	file type and access mode of the file
  *  @param   rdev	device number of the file: only used for CHR and BLK
  *  * */
-extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode, const char *name,mode_t mode, dev_t rdev);
+extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode 
+		  	**newinode, const char *name,mode_t mode, dev_t rdev);
 
 /**
  * hsi_nfs3_link
@@ -153,7 +154,8 @@ extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinod
  * @param   newinode	the inode of the linked file
  * @param   name	the name to of the link to create
  * */
-extern 	int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, struct hsfs_inode **newinode ,  const char *name);
+extern 	int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, 
+			struct hsfs_inode **newinode ,  const char *name);
 
 /**
  * hsi_nfs3_lookup:		Look up a directory entry by name
