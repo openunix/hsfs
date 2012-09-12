@@ -135,7 +135,6 @@ out:
 #include <linux/kdev_t.h>
 #include <errno.h>
 #include "hsi_nfs3.h"
-#define MNTNAMLEN 255
 #endif /*#ifdef HSFS_NFS3_TEST*/
 
 int
@@ -159,14 +158,14 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
 	// get the fh
 	args.where.dir.data=parent->fh.data;
 	// alloc memory for name
-	args.where.name=(char *)malloc(MNTNAMLEN * sizeof(char));
+	args.where.name=(char *)malloc(PATH_MAX * sizeof(char));
 
 	if(!args.where.name){
 		err=ENOMEM;
 		goto out2;
 	}
 
-	memset(args.where.name, 0 , MNTNAMLEN);
+	memset(args.where.name, 0 ,PATH_MAX );
 	strcpy(args.where.name,name);
 
 	// determin the type of the file

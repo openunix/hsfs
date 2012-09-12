@@ -127,7 +127,7 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 
 	args.file.data=ino->fh.data;
 	args.link.dir.data=newparent->fh.data;
-	args.link.name=(char *)malloc(MNTNAMLEN * sizeof(char));
+	args.link.name=(char *)malloc(PATH_MAX * sizeof(char));
 
 	if(!args.link.name){
 		err=ENOMEM;
