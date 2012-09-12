@@ -138,7 +138,7 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 out:
 
 	DEBUG_OUT("hsi_nfs3_symlink failed. %d\n", err);
-
+	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char*)&res);
         return err;
 }
 
