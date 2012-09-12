@@ -13,7 +13,7 @@
  */
 void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
-	DEBUG_IN(" in \n","hsx_fuse_rmdir");
+	DEBUG_IN(" in %s.\n","hsx_fuse_rmdir");
 	int err = 0;
 	struct hsfs_inode *hi_parent = NULL;
 	struct hsfs_super *sb = NULL;
@@ -24,6 +24,6 @@ void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 	
 	err = hsi_nfs3_rmdir(hi_parent, dirname);
 	fuse_reply_err(req, err);
-	DEBUG_OUT(" out, errno: %d\n", err, "hsx_fuse_rmdir");
+	DEBUG_OUT(" out, errno: %d, %s\n", err, "hsx_fuse_rmdir");
 	return;
 };
