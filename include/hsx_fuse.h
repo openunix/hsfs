@@ -129,7 +129,8 @@ extern void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
  * @param  mode		file type and access mode of the file
  * @param  rdev		device number of the special file: only used for CHR and BLK
  * **/
-extern	void hsx_fuse_mknod(fuse_req_t	req, fuse_ino_t	parent,	const char *name, mode_t mode, dev_t rdev);
+extern	void hsx_fuse_mknod(fuse_req_t	req, fuse_ino_t	parent,const char *name,
+			 			mode_t mode, dev_t rdev);
 
 
 /**
@@ -146,7 +147,8 @@ extern	void hsx_fuse_mknod(fuse_req_t	req, fuse_ino_t	parent,	const char *name, 
  * @param  newparent	inode number of the new parent directory
  * @param  newname	new name to create
  * */
-extern	void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent, const char *newname);
+extern	void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
+				 const char *newname);
 
 /*hsx_fuse_lookup  and  hsx_fuse_forget declaration */
 
