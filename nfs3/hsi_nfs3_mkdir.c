@@ -3,8 +3,10 @@
  * Hu yuwei
  * 2012/09/06
  */
-#include "hsi_nfs3.h"
 
+#include "hsi_nfs3.h"
+#ifdef HSFS_NFS3_TEST
+#include "hsi_nfs3.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,54 +17,58 @@
 #include <sys/vfs.h>
 #include <libgen.h>
 #include <string.h>
+#endif
 
 int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	       		const char *name, mode_t mode)
 {
-		int err = 0;
-		mkdir3args *argp = NULL;
-		diropres3 clnt_res;
-		struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
+	DEBUG_IN(" in %s:\n","hsi_nfs3_mkdir");
+	int err = 0;
+	mkdir3args *argp = NULL;
+	diropres3 clnt_res;
+	struct timeval TIMEOUT = { hi_parent->sb->timeo/10, (hi_parent->sb->timeo/10)*100};	
 		
-		argp = (mkdir3args *) malloc(sizeof(mkdir3args));
-		memset(argp, 0, sizeof(mkdir3args));
-		memset(&clnt_res, 0, sizeof(diropres3));
+	argp = (mkdir3args *) malloc(sizeof(mkdir3args));
+	memset(argp, 0, sizeof(mkdir3args));
+	memset(&clnt_res, 0, sizeof(diropres3));
 
-		argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
-		argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
-		argp->where.name = (char *)name;
-		argp->attributes.mode.set = 1;
-		argp->attributes.mode.set_uint32_u.val = mode&0xfff;
+	argp->where.dir.data.data_len = hi_parent->fh.data.data_len;
+	argp->where.dir.data.data_val = hi_parent->fh.data.data_val;
+	argp->where.name = (char *)name;
+	argp->attributes.mode.set = 1;
+	argp->attributes.mode.set_uint32_u.val = mode&0xfff;
 		
-		err = clnt_call (hi_parent->sb->clntp, NFSPROC3_MKDIR,
-			       	(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
-			       	(xdrproc_t) xdr_diropres3, (caddr_t) &clnt_res,
+	err = clnt_call (hi_parent->sb->clntp, NFSPROC3_MKDIR, 
+			(xdrproc_t) xdr_mkdir3args, (caddr_t) argp,
+		       	(xdrproc_t) xdr_diropres3, (caddr_t) &clnt_res,
 			       	TIMEOUT);
-		if ( 0 != err) {	/*RPC error*/
-			free (argp);
-			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
-			return hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
-		}
-		else if (0 != clnt_res.status)	{	/*RPC is OK, nfs error*/
-			int err = clnt_res.status;
-			*hi_new = NULL;
-			
-			free (argp);
-			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
-			return hsi_nfs3_stat_to_errno(err);
-		}
-		else {
-			*hi_new = hsi_nfs3_ifind (hi_parent->sb,
-			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
+	if (err) {	/*RPC error*/
+		ERR("%s: Call RPC Server (%u, %u) failure: (%s).\n", progname,
+			       	NFS_PROGRAM, NFS_V3, clnt_sperrno(err));
+		err = hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
+		goto out;
+	}
+	if (0 != clnt_res.status) {	/*RPC is OK, nfs error*/
+		*hi_new = NULL;
+		ERR("%s: Path (%s) on Server is not accessible: (%d).\n", progname, 
+				name, clnt_res.status );
+		err = hsi_nfs3_stat_to_errno(clnt_res.status);
+		goto out;
+	}
+	else {
+		*hi_new = hsi_nfs3_ifind (hi_parent->sb,
+		&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
-			if(NULL == *hi_new)
-			{
-				ERR("Error in create inode.\n");
-			}
-			free (argp);
-			clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
-			return err;			
+		if(NULL == *hi_new) {
+			ERR("Error in create inode.\n");
 		}
+	}
+out:
+	free (argp);
+	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3, 
+			(char *)&clnt_res);
+	DEBUG_OUT(" out, errno:%d %s\n", err, "hsi_nfs3_mkdir");
+	return err;
 };
 #ifdef HSFS_NFS3_TEST
 char *cliname = NULL;
