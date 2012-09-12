@@ -1,7 +1,7 @@
 /*
  *hsx_fuse_readdir.c
  */
-
+#include <sys/errno.h>
 #include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 #define NFS3_COOKIEVERFSIZE 8
@@ -26,9 +26,12 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	int err=0;
 
 	buf = (char *) malloc(size);
-	if( NULL == buf)
+	if( NULL == buf){
+		err = ENOMEM;
 		fuse_reply_err(req, err);
-	
+		goto out;
+	}
+
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	hs = fuse_req_userdata(req);
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
