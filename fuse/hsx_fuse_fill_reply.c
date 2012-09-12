@@ -1,5 +1,4 @@
-#include <fuse/fuse_lowlevel.h>
-
+#include "hsi_nfs3.h"
 #include "hsfs.h"
 /**
  *  hsx_fuse_fill_reply
@@ -8,16 +7,23 @@
  *  Edit:2012/09/03 Hu yuwei
  *  
  */
+#define S_ISREG 1
+#define S_ISDIR 2
 int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st);
 void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 {	
+	DEBUG_IN(" in %s\n", "hsx_fuse_fill_reply");
+	if(NULL == inode){
+		ERR("NULL POINTER in hsx_fuse_fill_reply");
+		return;
+	}
 	if (0 == hsi_nfs3_fattr2stat(&(inode->attr), &(e->attr))) {
 		e->ino = inode->ino;
-		if (1 == inode->attr.type) {
+		if (S_ISREG == inode->attr.type) {
 			e->attr_timeout = inode->sb->acregmin;
 			e->entry_timeout = inode->sb->acregmax;
 		}
-		else if (2 == inode->attr.type) {
+		else if (S_ISDIR == inode->attr.type) {
 			e->attr_timeout = inode->sb->acdirmin;
 			e->entry_timeout = inode->sb->acdirmax;
 		}
@@ -27,8 +33,9 @@ void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 	}
 		
 	else
-		printf ("Error in fattr2stat\n");
+		ERR ("Error in fattr2stat\n");
+	DEBUG_OUT("OUT %s\n", "hsx_fuse_fill_reply");
 	return;
-};
+}
 
 

@@ -1,4 +1,3 @@
-#include <fuse/fuse_lowlevel.h>
 
 #include "hsfs.h"
 #include "hsx_fuse.h"
@@ -13,14 +12,20 @@
  */
 void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
-	DEBUG_IN(" in %s.\n","hsx_fuse_rmdir");
 	int err = 0;
 	struct hsfs_inode *hi_parent = NULL;
 	struct hsfs_super *sb = NULL;
 	const char *dirname =name;
+	DEBUG_IN(" in %s.\n","hsx_fuse_rmdir");
 
-	sb = fuse_req_userdata(req);
-	hi_parent = hsx_fuse_iget(sb, parent);
+	if((sb = fuse_req_userdata(req)) == NULL) {
+		ERR("ERR in fuse_req_userdata pointer sb is null");
+		return;
+	}
+	if((hi_parent = hsx_fuse_iget(sb, parent)) == NULL) {
+		ERR("ERR in hsx_fuse_iget pointer hi_parent is null");
+		return;
+	}
 	
 	err = hsi_nfs3_rmdir(hi_parent, dirname);
 	fuse_reply_err(req, err);
