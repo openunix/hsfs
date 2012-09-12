@@ -66,7 +66,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		
 	}
 
-	fuse_reply_buf(req, buf, temp_size);
+	fuse_reply_buf(req, buf, min(newlen, size));
 	
 
 out:	
