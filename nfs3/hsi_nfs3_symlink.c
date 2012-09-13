@@ -25,61 +25,61 @@ char *cliname = NULL;
 int main(int argc, char *argv[])
 {
 	char *svraddr = "10.10.19.124";
-        char *fpath = "/home/xue/";
-        size_t fh_len;
-        unsigned char *fh_val = NULL;
-        CLIENT *clntp = NULL;
-        int result = 0;
-        int err = 0;
-        int symlink_stat = 0;
+	char *fpath = "/home/xue/";
+	size_t fh_len;
+	unsigned char *fh_val = NULL;
+	CLIENT *clntp = NULL;
+	int result = 0;
+	int err = 0;
+	int symlink_stat = 0;
 	const char *nfs_link = NULL;
 	const char *nfs_name = NULL;
 	struct hsfs_super sb_parent;
 	struct hsfs_super *sb_new;
 	struct hsfs_inode parent;
-        struct hsfs_inode *new = NULL;
+	struct hsfs_inode *new = NULL;
 	
 	cliname = basename(argv[0]);
 
-        if (argc < 3) {
-                err = EINVAL;
-                fprintf(stderr, "%s $nfs_link $nfs_name.\n", cliname);
-                goto out;
-        }
-        nfs_link = argv[1];
-        nfs_name = argv[2];
+	if (argc < 3) {
+		err = EINVAL;
+		fprintf(stderr, "%s $nfs_link $nfs_name.\n", cliname);
+		goto out;
+	}
+	nfs_link = argv[1];
+	nfs_name = argv[2];
 
-        result = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh_val);
-        if(result != 0){
-                fprintf(stderr, "The transfer is failed!err is %d.\n ",result);
+	result = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh_val);
+	if(result != 0){
+		fprintf(stderr, "The transfer is failed!err is %d.\n ",result);
 		err = result;
-                goto out;
-        
+		goto out;
+  
 	}
-       
+
 	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
-        if (clntp == NULL){
+	if (clntp == NULL){
 		err = ENXIO;
-                goto out;
+		goto out;
 	}
-        new = (struct hsfs_inode*)malloc(sizeof(struct hsfs_inode));
+	new = (struct hsfs_inode*)malloc(sizeof(struct hsfs_inode));
 	sb_new = (struct hsfs_super*)malloc(sizeof(struct hsfs_super));
-       	memset(&sb_parent, 0, sizeof(struct hsfs_super));
-        new->sb = sb_new;
+	memset(&sb_parent, 0, sizeof(struct hsfs_super));
+	new->sb = sb_new;
 	parent.sb = &sb_parent;
 	parent.sb->clntp = clntp;
-        parent.fh.data.data_len = fh_len;
-        parent.fh.data.data_val = fh_val;
+	parent.fh.data.data_len = fh_len;
+	parent.fh.data.data_val = fh_val;
 
 	symlink_stat = hsi_nfs3_symlink(&parent, &new, nfs_link, nfs_name);
 
 	if(symlink_stat){
-                err = EACCES;
-                fprintf(stderr, "read_stat = %d\n", symlink_stat);
-                goto out;
-        }
+		err = EACCES;
+		fprintf(stderr, "read_stat = %d\n", symlink_stat);
+		goto out;
+	}
 out:
-        free(new);
+	free(new);
 	free(sb_new);
 	return err;
 }
@@ -91,7 +91,7 @@ out:
 #include "hsi_nfs3.h"
 
 int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
-                     const char *nfs_link, const char *nfs_name)
+			const char *nfs_link, const char *nfs_name)
 {
 	struct symlink3args args;
 	struct diropres3 res;
