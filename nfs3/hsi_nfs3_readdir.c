@@ -9,7 +9,7 @@
 #include "log.h"
 
 int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
-					size_t *dircount, size_t maxcount)
+					size_t maxcount)
 {
 	CLIENT *clntp = NULL;
 	struct hsfs_readdir_ctx *temp_hrc = NULL; 
@@ -19,6 +19,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	struct readdirplus3args args;
 	struct readdirplus3res res;
 	struct timeval to;
+	size_t *dircount = NULL;
 	size_t dir_size = 0;
 	int err = 0;
 
@@ -73,6 +74,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			if (temp_hrc->name == NULL) {
 				err = ENOMEM;
 				ERR("Temp_hrc->name memory leak: (0x%x).", err);
+				free(temp_hrc);
 				goto out;
 			}
 
