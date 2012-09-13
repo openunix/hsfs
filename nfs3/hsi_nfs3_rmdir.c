@@ -44,12 +44,6 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 		goto out;
 	}
 	
-	err = clnt_res.status;
-	
-	if (NFS3_OK != err) {
-		err = hsi_nfs3_stat_to_errno(clnt_res.status); 	
-		goto outfree;
-	}
 	err = hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
 outfree:
 	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3,
