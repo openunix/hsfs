@@ -9,7 +9,6 @@
  */
 #define S_ISREG 1
 #define S_ISDIR 2
-int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st);
 void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 {	
 	DEBUG_IN(" in %s\n", "hsx_fuse_fill_reply");
@@ -34,5 +33,3 @@ void hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 	DEBUG_OUT("OUT %s\n", "hsx_fuse_fill_reply");
 	return;
 }
-
-
