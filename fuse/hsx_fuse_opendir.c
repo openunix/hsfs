@@ -1,27 +1,32 @@
 /*
- *hsx_fuse_readdir.c
+ *hsx_fuse_opendir.c
  */
 
-#include <errno.h>
 #include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
 
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-	struct hsfs_readdir_ctx *hrc = NULL;
-	int err = 0;
+	struct hsfs_super *hs = NULL;
+	struct hsfs_inode *hi = NULL;
 
 	DEBUG_IN("%s.","hsx_fuse_opendir");
-	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
-	if (hrc == NULL)
-	{	err = ENOMEM;
-		ERR("opendir_hrc menory leak.");
+	hs = fuse_req_userdata(req);
+	if(!hs){
+		ERR("%s gets hsfs_super fails \n", progname);
+		err = ENOENT;
 		fuse_reply_err(req, err);
 		goto out;
 	}
 
-	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	fi->fh = (uint64_t)hrc;
+	hi = hsx_fuse_iget(hs, ino);
+	if(!hi){
+		ERR("%s gets file handle fails \n", progname);
+		err = ENOENT;
+		fuse_reply_err(req, err);
+		goto out;
+	}
+
 	fuse_reply_open(req, fi);
 
 out:	
