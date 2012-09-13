@@ -22,7 +22,10 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	size_t dir_size = 0;
 	int err = 0;
 
-	DEBUG_IN("%s.","hsx_fuse_readdir");
+	DEBUG_IN("maxcount: 0x%x, hrc->off: 0x%x, hrc->cookieverf: 0x%llx,
+	hi->fh.data.data_val: 0x%llx", (unsigned int)maxcount, 
+	(unsigned int)hrc->off,	*(long long *)hrc->cookieverf, 
+	*(long long *)hi->fh.data.data-val);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.cookie = hrc->off;
@@ -62,7 +65,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 						(struct hsfs_readdir_ctx));
 			if(temp_hrc == NULL){
 				err = ENOMEM;
-				ERR("Temp_hrc memory leak.");
+				ERR("Temp_hrc memory leak: (0x%x).", err);
 				goto out;
 			}
 
@@ -71,7 +74,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 						(temp_entry->name) + 1);
 			if (temp_hrc->name == NULL) {
 				err = ENOMEM;
-				ERR("Temp_hrc->name memory leak.");
+				ERR("Temp_hrc->name memory leak: (0x%x).", err);
 				goto out;
 			}
 
@@ -98,7 +101,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 						&temp_hrc->stbuf);
 			
 			if(err != 0){
-				ERR("Set fattr3 to stat failure.");
+				ERR("Set fattr3 to stat failure: (0x%x).", err);
 				goto out;
 	
 			}
@@ -117,7 +120,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	err = 0;
 
 out:
-	DEBUG_OUT("%s.","hsx_fuse_readdir");
+	DEBUG_OUT("err is 0x%x.", err);
 	return err;
 }
 
