@@ -15,7 +15,6 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	struct hsfs_readdir_ctx *temp_ctx = NULL;
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_super *hs = NULL;
-	size_t *dircount = NULL;
 	size_t maxcount = 0;
 	size_t newlen = 0;
 	char * buf = NULL;
@@ -54,7 +53,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		goto out;
 	}
 
-	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
+	err = hsi_nfs3_readdir(hi, hrc, maxcount);
 	if(err)
 	{
 		ERR("Call hsi_nfs3_readdir failed 0x%x", err);
