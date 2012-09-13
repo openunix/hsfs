@@ -1,10 +1,12 @@
-bin_PROGRAMS = hsfs
-hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
-		`pkg-config fuse --cflags` 
-hsfs_LDFLAGS = `pkg-config fuse --libs`
-hsfs_LDADD = $(top_builddir)/fuse/libhsx_fuse.a \
-	     $(top_builddir)/nfs3/libhsi_nfs3.a
-hsfs_SOURCES = xcommon.c hsfs_main.c
+sbindir = /sbin
+
+sbin_PROGRAMS = mount.hsfs
+mount_hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
+			`pkg-config fuse --cflags` 
+mount_hsfs_LDFLAGS = `pkg-config fuse --libs`
+mount_hsfs_LDADD = $(top_builddir)/fuse/libhsx_fuse.a \
+		     $(top_builddir)/nfs3/libhsi_nfs3.a
+mount_hsfs_SOURCES = xcommon.c hsfs_main.c
 
 noinst_LIBRARIES = libhsx_fuse.a
 libhsx_fuse_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
