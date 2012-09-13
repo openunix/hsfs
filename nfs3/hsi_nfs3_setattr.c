@@ -76,12 +76,12 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	if (st) {
 		err = hsi_rpc_stat_to_errno(clntp);
 		ERR("Call RPC Server failure: %d.\n", err);
-		goto out_2;
+		goto out_no_free;
 	}
 	if (NFS3_OK != res.status) {
 		err = hsi_nfs3_stat_to_errno(res.status);
 		ERR("RPC Server returns failed status : %d.\n", err);
-		goto out_no_free;
+		goto out;
 	}
 	if (!res.wccstat3_u.wcc.after.present) {
 		err = EAGAIN;
