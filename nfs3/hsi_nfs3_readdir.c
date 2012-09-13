@@ -94,7 +94,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			}
 	    		
 			err = hsi_nfs3_fattr2stat(&temp_entry->
-						name_attributes.post_op_attr_u.attributes,
+				name_attributes.post_op_attr_u.attributes,
 						&temp_hrc->stbuf);
 			
 			if(err != 0){
