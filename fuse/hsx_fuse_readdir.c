@@ -21,17 +21,17 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	char * buf = NULL;
 	int err=0;
 
-	DEBUG_IN("%s.","hsx_fuse_readdir");
+	DEBUG_IN("The size is 0x%x, the off is 0x%x.", size, off);
 	buf = (char *) malloc(size);
 	if( NULL == buf){
 		err = ENOMEM;
-		ERR("Buf memory leak.");
+		ERR("Buf memory leak is 0x%x.", err);
 		goto out;
 	}
 
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	if( NULL == hrc){
-		ERR("hrc memory leak.");
+		ERR("hrc memory leak is 0x%x", err);
 		err = ENOMEM;
 		goto out;
 	}
@@ -56,7 +56,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
 	if(err)
 	{
-		ERR("Call hsi_nfs3_readdir failed.");
+		ERR("Call hsi_nfs3_readdir failed 0x%x", err);
 		goto out;
 	}
 
@@ -90,7 +90,7 @@ out:
 		fuse_reply_err(req, err);
 	}
 	
-	DEBUG_OUT("%s.","hsx_fuse_readdir");
+	DEBUG_OUT("err is 0x%x.", err);
 		
 	return;
 }
