@@ -3,9 +3,7 @@
  */
 
 #include <errno.h>
-#include <fuse/fuse_lowlevel.h>
 #include "hsi_nfs3.h"
-#define NFS3_COOKIEVERFSIZE 8
 #define RPCCOUNT 8
 
 void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
