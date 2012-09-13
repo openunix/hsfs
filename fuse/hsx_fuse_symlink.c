@@ -1,6 +1,6 @@
 /*
  *void hsx_fuse_symlink(fuse_req_t req, const char *link,
- *                      fuse_ino_t parent, const char *name)
+ * 			fuse_ino_t parent, const char *name)
  *xuehaitao
  *2012.9.6
  */
@@ -11,7 +11,7 @@
 #include <errno.h>
 
 void hsx_fuse_symlink(fuse_req_t req, const char *link,
-                      fuse_ino_t parent, const char *name)
+			fuse_ino_t parent, const char *name)
 {
 	int st = 0;
 	int err = 0;
@@ -24,17 +24,17 @@ void hsx_fuse_symlink(fuse_req_t req, const char *link,
 
 	sb_parent = fuse_req_userdata(req);
 	if(!sb_parent){
-                ERR("%s gets inode->sb fails \n",progname);
-                err=ENOENT;
-                goto out;
-        }
+		ERR("%s gets inode->sb fails \n", progname);
+		err = ENOENT;
+		goto out;
+	}
 
 	nfs_parent = hsx_fuse_iget(sb_parent, parent);
 	if(!nfs_parent){
-                ERR("%s gets inode fails \n",progname);
-                err=ENOENT;
-                goto out;
-        }
+		ERR("%s gets inode fails \n", progname);
+		err = ENOENT;
+		goto out;
+	}
 
 	st = hsi_nfs3_symlink(nfs_parent, &new, link, name);
 	if(st != 0){
