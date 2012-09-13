@@ -51,7 +51,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			ERR("Call NFS3 Server failure:(%d).\n", err);
 			err = hsi_nfs3_stat_to_errno(res.status);
 			clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,
-                                                                (char *)&res);
+								(char *)&res);
 			goto out;
 		}
  
@@ -106,13 +106,10 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			temp_hrc1 = temp_hrc;
 			temp_entry = temp_entry->nextentry;
 		}
-	  
+		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,(char*)&res);
 		dir_size += *dircount;
 		if (dir_size > maxcount)
 			break;
-
-		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res, 
-								(char *)&res);
 
 		err = resok->reply.eof;
 	}while(err == 0);
@@ -124,7 +121,7 @@ out:
 	return err;
 }
 
-#ifdef HSFS_NFS3_TEXT
+#ifdef HSFS_NFS3_TEST
 int main(int argc, char *argv[])
 {
 	char *svraddr = NULL;
@@ -188,4 +185,4 @@ out:
 		clnt_destroy(clntp);
 	exit(err);
 }
-#endif /* HSFS_NFS3_TEXT */
+#endif /* HSFS_NFS3_TEST */
