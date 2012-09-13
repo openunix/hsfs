@@ -17,7 +17,6 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 	if(!hs){
 		ERR("%s gets hsfs_super fails \n", progname);
 		err = ENOENT;
-		fuse_reply_err(req, err);
 		goto out;
 	}
 
@@ -25,13 +24,17 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 	if(!hi){
 		ERR("%s gets file handle fails \n", progname);
 		err = ENOENT;
-		fuse_reply_err(req, err);
 		goto out;
 	}
 
 	fuse_reply_open(req, fi);
 
 out:	
+	if(err != 0)
+	{
+		fuse_reply_err(req, err);
+	}
+
 	DEBUG_OUT("%s.","hsx_fuse_opendir");
 	return;
 }
