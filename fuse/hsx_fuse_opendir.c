@@ -21,7 +21,7 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 	}
 
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	fi->fh = (size_t)hrc;
+	fi->fh = (uint64_t)hrc;
 	fuse_reply_open(req, fi);
 
 out:	
