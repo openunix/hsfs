@@ -6,7 +6,7 @@ int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 {
   	int err = 0;
   	
-	DEBUG_IN("%s", "Enter hsi_nfs3_stat2sattr().\n");
+	DEBUG_IN("%s", "\n");
 
 	if (!st) {
 		err = EINVAL; 
@@ -34,6 +34,6 @@ int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 #endif
 
  out:
-	DEBUG_OUT("Leave hsi_nfs3_stat2sattr() with errno : %d.\n", err);
+	DEBUG_OUT("with errno : %d.\n", err);
 	return err;
 }

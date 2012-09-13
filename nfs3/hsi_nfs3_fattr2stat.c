@@ -6,7 +6,7 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
 	int err = 0;
 	unsigned int type = 0;
 
-	DEBUG_IN("%s", "Enter hsi_nfs3_fattr2stat().\n");
+	DEBUG_IN("%s", "\n");
 
 	st->st_dev = makedev(0, 0); /* ignored now */
 	st->st_ino = (ino_t) (attr->fileid);/*depend on 'use_ino' mount option*/
@@ -58,6 +58,6 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
 	st->st_ctimensec = attr->ctime.nseconds;  
 #endif
  out:
-	DEBUG_OUT("Leave hsi_nfs3_fattr2stat() with errno %d.\n", err);
+	DEBUG_OUT("with errno %d.\n", err);
 	return err;
 }

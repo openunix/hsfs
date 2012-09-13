@@ -11,7 +11,7 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	enum clnt_stat st;
 	struct fattr3 *fattr = NULL;
 	
-	DEBUG_IN("%s", "Enter hsi_nfs3_setattr().\n");
+	DEBUG_IN("%s", "\n");
 
 	clntp= inode->sb->clntp;
 	to.tv_sec = inode->sb->timeo / 10;
@@ -110,6 +110,6 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
  out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
  out_no_free:
-	DEBUG_OUT("Leave hsi_nfs3_setattr() with errno : %d.\n", err);
+	DEBUG_OUT("with errno : %d.\n", err);
 	return err;
 }
