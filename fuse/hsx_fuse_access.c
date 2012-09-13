@@ -1,29 +1,30 @@
 #include <stdio.h>
 #include <linux/fs.h>
 #include <errno.h>
+
 #include "log.h"
 #include "hsfs.h"
 #include "hsx_fuse.h"
 #include "hsi_nfs3.h"
+
 void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 {
-	DEBUG_IN("%s", "We now come into hsx_fuse_access()\n");
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_super *hs = NULL;
 	int mode = 0;
-	int err = 0xFFFFFFFF;
-
+	int err = 0;
+	
+	DEBUG_IN("%s%d", "In hsx_fuse_access(), with MASK = ", mask);
+	
 	hs = fuse_req_userdata(req);
 	if (NULL == hs) {
-		ERR("ERROR occur while getting <struct hsfs_super>" 
-			"in <hsx_fuse_access>!\n");
+		ERR("%s", "Getting hsfs_super fail!");
 		err = EIO;
 		goto out;
 	}
 	hi = hsx_fuse_iget(hs, ino);
 	if (NULL == hi) {
-		ERR("ERROR occur while getting <struct hsfs_inode>"
-			"in <hsx_fuse_access>!\n");
+		ERR("%s", "Getting hsfs_inode fail!");
 		err = EIO;
 		goto out;
 	}
@@ -50,15 +51,10 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 
 	err = hsi_nfs3_access(hi, mode);
 	
-out:
-	if (NULL != hs) {
-		hs = NULL;
-	}
-	if (NULL != hi) {
-		hi = NULL;
-	}
-	
 	fuse_reply_err(req, err);
-DEBUG_OUT("%s", "Out of hsx_fuse_access()\n");
+	
+out:
+	DEBUG_OUT("%s%d", "Out of hsx_fuse_access(), with ERRNO = ", err);
+	return;
 }
 
