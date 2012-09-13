@@ -11,7 +11,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	struct hsfs_inode *inode = NULL;
 	struct hsfs_super *sb = NULL;
 	
-	DEBUG_IN("%s", "Enter hsx_fuse_setattr().\n");
+	DEBUG_IN("%s", "\n");
 
 	sb = (struct hsfs_super *) fuse_req_userdata(req);
 	if (NULL == sb) {
@@ -34,7 +34,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	memset(&st, 0, sizeof(st));
 	err = hsi_nfs3_fattr2stat(&inode->attr, &st);
  out:
-	DEBUG_OUT("Leave hsx_fuse_setattr() with errno : %d.\n", err);
+	DEBUG_OUT("with errno : %d.\n", err);
 	if (err)
 		fuse_reply_err(req, err);	
 	else {
