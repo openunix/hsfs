@@ -5,7 +5,7 @@
 #include "log.h"
 
 void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
-			mode_t mode, struct fuse_file_info *fi)
+		     mode_t mode, struct fuse_file_info *fi)
 {
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_inode *newhi = NULL;
@@ -29,7 +29,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 		err = EIO;
 		goto out;
 	}
-	fc = fuse_req_ctx(req);
+	fc = (struct fuse_ctx *) fuse_req_ctx(req);
 	if (NULL == fc) {
 		WARNING("%s", "Getting fuse_ctx fail!");
 	}
