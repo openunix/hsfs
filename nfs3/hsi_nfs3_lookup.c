@@ -45,12 +45,16 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
+		clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
+			(char *)&res);
 		goto out;
 	}
 	if (! res.lookup3res_u.resok.obj_attributes.present)
 	{
 		ERR("Acquired property is invalid !");
 		err = EINVAL;
+		clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
+			(char *)&res);
 		goto out;
 	}
 	
@@ -58,10 +62,10 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	name_fh = &res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
-
-out:
 	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
 			(char *)&res);
+
+out:
 	DEBUG_OUT(" with errno %d",err);
 	return(err);
 
