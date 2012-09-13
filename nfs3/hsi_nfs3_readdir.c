@@ -3,6 +3,7 @@
  *hsi_nfs3_readdir.c
  */
 
+#include <errno.h>
 #include "hsfs.h"
 #include "hsi_nfs3.h"
 #include "log.h"
@@ -66,6 +67,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			temp_hrc = (struct hsfs_readdir_ctx *)malloc(sizeof
 						(struct hsfs_readdir_ctx));
 			if(temp_hrc == NULL){
+				err = ENOMEM;
 				ERR("Temp_hrc memory leak.");
 				goto out;
 			}
@@ -74,6 +76,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			temp_hrc->name = (char *)malloc(strlen
 						(temp_entry->name) + 1);
 			if (temp_hrc->name == NULL) {
+				err = ENOMEM;
 				ERR("Temp_hrc->name memory leak.");
 				goto out;
 			}
