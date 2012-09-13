@@ -25,59 +25,55 @@ char *cliname = NULL;
 
 int main(int argc, char *argv[])
 {
-      
-        char *svraddr = "10.10.19.124";
-        char *fpath = NULL;
-        size_t fh_len;
-        unsigned char *fh_val = NULL;
+	char *svraddr = "10.10.19.124";
+	char *fpath = NULL;
+	size_t fh_len;
+	unsigned char *fh_val = NULL;
 	CLIENT *clntp = NULL;
-        int result = 0;
-        int err = 0;
-        int read_stat = 0;
-        int reply_stat = 0;
-        const  char * nfs_link;
-        char contents[10];
-        nfs_link = contents;
-       
+	int result = 0;
+	int err = 0;
+	int read_stat = 0;
+	int reply_stat = 0;
+	const  char * nfs_link = NULL;
+	char contents[10];
+	nfs_link = contents;
 	struct hsfs_inode symlink ;
-        struct hsfs_super sb;
-        cliname = basename(argv[0]);
+	struct hsfs_super sb;
+	cliname = basename(argv[0]);
 
-        if (argc < 2) {
-                err = EINVAL;
-                fprintf(stderr, "%s $svraddr $fpath.\n", cliname);
-                goto out;
-        }    	
+	if (argc < 2) {
+		err = EINVAL;
+		fprintf(stderr, "%s $svraddr $fpath.\n", cliname);
+		goto out;
+	} 	
 	fpath = argv[1];
-        
-        result = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh_val);
-        if(result != 0){
-                fprintf(stderr, "The transfer is failed!err is %d.\n ",result);
+	result = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh_val);
+	if(result != 0){
+		fprintf(stderr, "The transfer is failed!err is %d.\n ",result);
 		err = result;
-                goto out;
-        }
+		goto out;
+	}
 
-        clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
-        if (clntp == NULL){
-                err = ENXIO;
+	clntp = clnt_create(svraddr, NFS_PROGRAM, NFS_V3, "TCP");
+	if (clntp == NULL){
+		err = ENXIO;
 		goto out;	
-        }
+	}
 
-        memset(&symlink, 0, sizeof(symlink));
-        memset(&sb, 0, sizeof(sb));
-        symlink.sb = &sb;
-        symlink.sb->clntp = clntp;
-        symlink.fh.data.data_len = fh_len;
-        symlink.fh.data.data_val = fh_val;
+	memset(&symlink, 0, sizeof(symlink));
+	memset(&sb, 0, sizeof(sb));
+	symlink.sb = &sb;
+	symlink.sb->clntp = clntp;
+	symlink.fh.data.data_len = fh_len;
+	symlink.fh.data.data_val = fh_val;
 
-        read_stat= hsi_nfs3_readlink(&symlink, nfs_link);
-       
-        if(read_stat){
-                fprintf(stderr, "read_stat = %d\n", read_stat);
-                goto out;
+	read_stat= hsi_nfs3_readlink(&symlink, &nfs_link);
+	if(read_stat){
+		fprintf(stderr, "read_stat = %d\n", read_stat);
+		goto out;
 	}
 out:
-       return err;
+	return err;
 }
 #endif
 
