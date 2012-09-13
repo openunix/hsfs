@@ -21,7 +21,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	struct timeval to;
 	size_t dir_size = 0;
 	int err = 0;
-	int flag = 0;
 
 	DEBUG_IN("%s.","hsx_fuse_readdir");
 	memset(&args, 0, sizeof(args));
@@ -59,11 +58,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 		resok = &res.readdirplus3res_u.resok;
 		temp_entry = resok->reply.entries;
 		while(temp_entry != NULL){
-			if (flag == 1){
-				temp_hrc->off = temp_entry->cookie;
-				flag = 0; 
-			}
-
 			temp_hrc = (struct hsfs_readdir_ctx *)malloc(sizeof
 						(struct hsfs_readdir_ctx));
 			if(temp_hrc == NULL){
@@ -84,21 +78,13 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 			memcpy(temp_hrc->cookieverf, resok->cookieverf,
 						 NFS3_COOKIEVERFSIZE);
 			strcpy(temp_hrc->name, temp_entry->name);
-			if (temp_entry->nextentry != NULL)
-				temp_hrc->off = temp_entry->nextentry->cookie;
-			else{
-				err = resok->reply.eof;
-				if (err == 0){
-					flag = 1;
-					args.cookie = temp_entry->cookie;
-					memcpy(args.cookieverf, 
-							resok->cookieverf, 
-							NFS3_COOKIEVERFSIZE);
-				}
-				else{
-					temp_hrc->off =  temp_entry->cookie;
-				}					
-			}		
+			temp_hrc->off = temp_entry->cookie;
+			err = resok->reply.eof;
+			if (err == 0 && temp_entry->nextentry == NULL){
+				args.cookie = temp_entry->cookie;
+				memcpy(args.cookieverf, resok->cookieverf, 
+						NFS3_COOKIEVERFSIZE);
+			}
 	 
 			err = temp_entry->name_attributes.present;
 			if (1 != err) {
@@ -107,7 +93,9 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 				goto out;
 			}
 	    		
-			err = hsi_nfs3_fattr2stat(&temp_entry->							name_attributes.post_op_attr_u.attributes, 								&temp_hrc->stbuf);
+			err = hsi_nfs3_fattr2stat(&temp_entry->
+						name_attributes.post_op_attr_u.attributes,
+						&temp_hrc->stbuf);
 			
 			if(err != 0){
 				ERR("Set fattr3 to stat failure.");
