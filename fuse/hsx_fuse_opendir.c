@@ -35,7 +35,7 @@ out:
 		fuse_reply_err(req, err);
 	}
 
-	DEBUG_OUT("%s.","hsx_fuse_opendir");
+	DEBUG_OUT("Open dir fails: %d.", err);
 	return;
 }
 
