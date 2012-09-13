@@ -21,7 +21,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	char * buf = NULL;
 	int err=0;
 
-	DEBUG_IN("The size is 0x%x, the off is 0x%x.", size, off);
+	DEBUG_IN("The size is 0x%x, the off is 0x%x.", (unsigned int)size, 
+		 (unsigned int)off);
 	buf = (char *) malloc(size);
 	if( NULL == buf){
 		err = ENOMEM;
