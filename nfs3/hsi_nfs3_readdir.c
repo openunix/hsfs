@@ -22,10 +22,8 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	size_t dir_size = 0;
 	int err = 0;
 
-	DEBUG_IN("maxcount: 0x%x, hrc->off: 0x%x, hrc->cookieverf: 0x%llx,
-	hi->fh.data.data_val: 0x%llx", (unsigned int)maxcount, 
-	(unsigned int)hrc->off,	*(long long *)hrc->cookieverf, 
-	*(long long *)hi->fh.data.data-val);
+	DEBUG_IN("hrc->off: 0x%x, maxcount: 0x%x.", 
+	(unsigned int)hrc->off, (unsigned int)maxcount);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 	args.cookie = hrc->off;
@@ -51,7 +49,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 		}
 
 		if (NFS3_OK != res.status) {
-			ERR("Call NFS3 Server failure:(%d).\n", err);
+			ERR("Call NFS3 Server failure:(%d).\n", res.status);
 			err = hsi_nfs3_stat_to_errno(res.status);
 			clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,
 								(char *)&res);
