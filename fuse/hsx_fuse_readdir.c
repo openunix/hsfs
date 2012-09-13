@@ -26,7 +26,6 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	if( NULL == buf){
 		err = ENOMEM;
 		ERR("Buf memory leak.");
-		fuse_reply_err(req, err);
 		goto out;
 	}
 
@@ -34,21 +33,30 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	if( NULL == hrc){
 		ERR("hrc memory leak.");
 		err = ENOMEM;
-		fuse_reply_err(req, err);
 		goto out;
 	}
 
 	hs = fuse_req_userdata(req);
+	if(!hs){
+		err = ENOENT;
+		ERR("%s gets hsfs_super fails \n", progname);
+		goto out;
+	}
+
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = RPCCOUNT*size;
 	hrc->off = off;
 	hi = hsx_fuse_iget(hs,ino);
+	if(!hi){
+		err = ENOENT;
+		ERR("%s gets file handle fails \n", progname);
+		goto out;
+	}
 
 	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
 	if(err)
 	{
 		ERR("Call hsi_nfs3_readdir failed.");
-		fuse_reply_err(req, err);
 		goto out;
 	}
 
@@ -57,7 +65,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	while(temp_ctx!=NULL){
 	  	size_t tmplen = newlen;
 	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, 
-				temp_ctx->name, &temp_ctx->stbuf, 
+					temp_ctx->name, &temp_ctx->stbuf, 
 							temp_ctx->off);
 	  	if(newlen>size)
 	    		break;
@@ -78,7 +86,10 @@ out:
 		free(temp_ctx->name);
 		free(temp_ctx);
 	}
-
+	if(err != 0){
+		fuse_reply_err(req, err);
+	}
+	
 	DEBUG_OUT("%s.","hsx_fuse_readdir");
 		
 	return;
