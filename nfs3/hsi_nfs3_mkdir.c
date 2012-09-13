@@ -56,7 +56,6 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
 	if(NULL == *hi_new) {
 		ERR("Error in create inode.\n");
-		goto out;
 	}
 
 outfree:
