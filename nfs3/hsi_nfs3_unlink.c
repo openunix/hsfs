@@ -35,7 +35,6 @@ struct hsfs_inode
 #include "hsi_nfs3.h"
 #endif
 
-#define errno_NFSERR_IO         EIO
 static const struct {
 	int nfs_err;
 	int sys_err;
@@ -43,7 +42,7 @@ static const struct {
 	{ NFS3_OK,              0               },
 	{ NFS3ERR_PERM,         EPERM		},
 	{ NFS3ERR_NOENT,	ENOENT		},
-	{ NFS3ERR_IO,		errno_NFSERR_IO	},
+	{ NFS3ERR_IO,		EIO		},
 	{ NFS3ERR_NXIO,		ENXIO          	},
 	/*      { NFS3ERR_EAGAIN,       -EAGAIN         }, */
 	{ NFS3ERR_ACCES,        EACCES		},
