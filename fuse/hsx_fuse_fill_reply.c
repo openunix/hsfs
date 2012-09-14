@@ -35,6 +35,6 @@ int hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 	}
 
 out:
-	DEBUG_OUT("OUT ino %d.\n", inode->ino);
+	DEBUG_OUT("OUT ino %lu.\n", inode->ino);
 	return 0;
 }
