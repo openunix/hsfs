@@ -41,21 +41,21 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 #endif
 	if(!err){
 		resok = &res.read3res_u.resok;
-		DEBUG("hsi_nfs3_read 0x%x done eof:%x",
+		DEBUG("hsi_nfs3_read 0x%x done eof: %d",
 				resok->count, resok->eof);
 		memcpy(rinfo->data.data_val, resok->data.data_val,
 			resok->data.data_len);
 		rinfo->data.data_len = resok->data.data_len;
 		rinfo->ret_count = resok->count;
 		rinfo->eof = resok->eof;
-		DEBUG("resok->file_attributes.present: %x",
+		DEBUG("resok->file_attributes.present: %d",
 			resok->file_attributes.present);
 		if(resok->file_attributes.present)
 			memcpy(&rinfo->inode->attr,
 				&resok->file_attributes.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}else{
-		ERR("hsi_nfs3_read failure: %x", err);
+		ERR("hsi_nfs3_read failure: %d", err);
 		if(res.read3res_u.resfail.present)
 			memcpy(&rinfo->inode->attr,
 				&res.read3res_u.resfail.post_op_attr_u.attributes,

@@ -46,15 +46,15 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 		resok = &res.write3res_u.resok;
 		winfo->ret_count = resok->count;
 		DEBUG("hsi_nfs3_write 0x%x done", resok->count);
-		DEBUG("resok->file_wcc.after.present: %x", 
+		DEBUG("resok->file_wcc.after.present: %d", 
 			resok->file_wcc.after.present);
 		if(resok->file_wcc.after.present)
 			memcpy(&winfo->inode->attr,
 				&resok->file_wcc.after.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}else{
-		ERR("hsi_nfs3_write failure: 0x%x", err);
-		DEBUG("res.write3res_u.resfail.after.present: %x", 
+		ERR("hsi_nfs3_write failure: %d", err);
+		DEBUG("res.write3res_u.resfail.after.present: %d", 
 			res.write3res_u.resfail.after.present);
 		if(res.write3res_u.resfail.after.present)
 			memcpy(&winfo->inode->attr,
