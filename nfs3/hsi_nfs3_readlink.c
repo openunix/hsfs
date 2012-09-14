@@ -124,7 +124,7 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
 out1:
 	clnt_freeres(clntp, (xdrproc_t)xdr_readlink3res, (char *)&res);
 out2:
-	DEBUG_OUT("the hsi_nfs3_readlink return with errno.%d\n", err);
+	DEBUG_OUT("with errno.%d\n", err);
 	return err;
 }
 
