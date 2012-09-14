@@ -28,7 +28,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	struct timeval timeout = { hi_parent->sb->timeo/10,
 	       	(hi_parent->sb->timeo/10)*100000};	
 	
-	DEBUG_IN(" in %s.\n","hsi_nfs3_mkdir");
+	DEBUG_IN(" ino: %lu.\n", hi_parent->ino);
 	memset(&argp, 0, sizeof(mkdir3args));
 	memset(&clnt_res, 0, sizeof(diropres3));
 	argp.where.dir.data.data_len = hi_parent->fh.data.data_len;
