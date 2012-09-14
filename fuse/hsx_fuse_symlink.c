@@ -47,6 +47,6 @@ out:
 	if(err != 0){
 		fuse_reply_err(req, err);
 	}
-	DEBUG("hsx_fuse_symlink return with errno %d\n", err);
+	DEBUG("with errno %d\n", err);
 	return;
 }
