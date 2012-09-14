@@ -22,7 +22,10 @@ void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 		hsfs_node->nlookup -= nlookup;
 	}
 	else
+	{
+		ERR("Count errno !");
 		goto out;
+	}
 	if(! hsfs_node->nlookup)
 	{
 		hsx_fuse_idel(sb, hsfs_node);
