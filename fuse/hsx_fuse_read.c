@@ -26,7 +26,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		fuse_reply_err(req, err);
 		goto out;
 	}
-	DEBUG("ino %lu", rinfo.inode.ino);
+	DEBUG("ino %lu", rinfo.inode->ino);
 	while(cnt < size){
 		size_t tmp_size = min(size - cnt, sb->rsize);
 		

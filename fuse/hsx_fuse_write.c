@@ -30,7 +30,7 @@ void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
 		fuse_reply_err(req, err);
 		goto out;
 	}
-	DEBUG("ino %lu", winfo.inode.ino);	
+	DEBUG("ino %lu", winfo.inode->ino);	
 	while(cnt < size){
 		size_t tmp_size = min(size - cnt, sb->wsize);
 		
