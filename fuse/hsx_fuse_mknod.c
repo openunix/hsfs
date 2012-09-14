@@ -13,7 +13,7 @@ void
 hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
                  mode_t mode, dev_t rdev)
 {
-	DEBUG_IN("%s","()");
+	DEBUG_IN("name to mknod: %s",name);
 	int err=0;
 	struct fuse_entry_param *e=NULL;
 	// get the super block of hsfs
@@ -45,6 +45,6 @@ hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
 	else
 	fuse_reply_err(req,err);
 out:
-	DEBUG_OUT(" err%d",err);
+	DEBUG_OUT(" err %d",err);
 	return;
 }
