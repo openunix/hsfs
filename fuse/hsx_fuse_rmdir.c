@@ -16,7 +16,7 @@ void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 	struct hsfs_inode *hi_parent = NULL;
 	struct hsfs_super *sb = NULL;
 	const char *dirname =name;
-	DEBUG_IN(" ino: %d.\n",parent);
+	DEBUG_IN(" name is %lu.\n", parent);
 
 	if((sb = fuse_req_userdata(req)) == NULL) {
 		ERR("ERR in fuse_req_userdata pointer sb is null");

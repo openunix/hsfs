@@ -10,7 +10,7 @@
  */
 int hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 {	
-	DEBUG_IN(" ino %d.\n", inode->ino);
+	DEBUG_IN(" ino %lu.\n", inode->ino);
 	if(NULL == inode) {
 		ERR("NULL POINTER in hsx_fuse_fill_reply");
 		goto out;

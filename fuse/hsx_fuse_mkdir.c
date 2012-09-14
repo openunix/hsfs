@@ -18,7 +18,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct fuse_entry_param e;
 	struct hsfs_super *sb = NULL;
 	const char *dirname = name;
-	DEBUG_IN("ino:%d.\n", parent);
+	DEBUG_IN("ino:%lu.\n", parent);
 
 	memset(&e, 0, sizeof(struct fuse_entry_param));
 
