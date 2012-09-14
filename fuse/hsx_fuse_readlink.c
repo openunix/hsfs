@@ -43,6 +43,6 @@ out:
 	if(st != 0){
 		fuse_reply_err(req, err);
 	}
-	DEBUG_OUT("THE HSX_FUSE_READLINK RETURN WITH ERRNO %d\n", err);
+	DEBUG_OUT(" WITH ERRNO %d\n", err);
 	return;
 }
