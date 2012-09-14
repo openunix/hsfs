@@ -12,7 +12,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	int err = 0;
 	char * buf = NULL;
 	
-	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)off, (unsigned int)size);
+	DEBUG_IN("ino %d offset 0x%x size 0x%x",(unsigned int)ino,  (unsigned int)off, (unsigned int)size);
 	buf = (char *) malloc(size);
 	if( NULL == buf){
 		err = ENOMEM;
@@ -51,6 +51,6 @@ out:
 	if(NULL != buf)
 		free(buf);
 		
-	DEBUG_OUT("err 0x%x", err);
+	DEBUG_OUT("err %d", err);
 	return;
 }

@@ -65,7 +65,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	clnt_freeres(clnt, (xdrproc_t)xdr_read3res, (char *)&res);
 
 out:
-	DEBUG_OUT("err 0x%x", err);
+	DEBUG_OUT("err %d", err);
 	return err;
 }
 
