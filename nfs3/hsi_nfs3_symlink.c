@@ -129,7 +129,7 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 out1:
 	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char*)&res);
 out2:
-	DEBUG_OUT("the hsi_nfs3_symlink return with errno %d\n", err);
+	DEBUG_OUT("with errno %d\n", err);
 	return err;
 }
 
