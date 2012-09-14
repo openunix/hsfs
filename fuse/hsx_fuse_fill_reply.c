@@ -13,7 +13,7 @@ int hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 	DEBUG_IN(" in %s\n", "hsx_fuse_fill_reply");
 	if(NULL == inode) {
 		ERR("NULL POINTER in hsx_fuse_fill_reply");
-		return 0;
+		goto out;
 	}
 	if (0 == hsi_nfs3_fattr2stat(&(inode->attr), &(e->attr))) {
 		e->ino = inode->ino;
@@ -26,12 +26,15 @@ int hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 			e->entry_timeout = inode->sb->acdirmax;
 		}else {
 			ERR("Error in get file type!\n");
-			return 0;
+			goto out;
 		}
+		DEBUG_OUT("OUT %s\n", "hsx_fuse_fill_reply");
 		return 1;
 	}else {
 		ERR ("Error in fattr2stat\n");
 	}
+
+out:
 	DEBUG_OUT("OUT %s\n", "hsx_fuse_fill_reply");
 	return 0;
 }
