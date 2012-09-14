@@ -12,7 +12,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	int err = 0;
 	char * buf = NULL;
 	
-	DEBUG_IN("ino %d offset 0x%x size 0x%x",(unsigned int)ino,  (unsigned int)off, (unsigned int)size);
+	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)off, (unsigned int)size);
 	buf = (char *) malloc(size);
 	if( NULL == buf){
 		err = ENOMEM;
@@ -25,7 +25,8 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		err = ENOENT;
 		fuse_reply_err(req, err);
 		goto out;
-	}	
+	}
+	DEBUG("ino %lu", rinfo.inode.ino);
 	while(cnt < size){
 		size_t tmp_size = min(size - cnt, sb->rsize);
 		
