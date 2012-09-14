@@ -29,7 +29,7 @@ void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 	memset(&st, 0, sizeof(st));
 	err = hsi_nfs3_fattr2stat(&inode->attr, &st);
  out:
-	DEBUG_OUT("with errno : %d.\n", err);
+	DEBUG_OUT("ino : %lu ,with errno : %d.\n", inode->ino,  err);
 	if (err)
 		fuse_reply_err(req, err);
 	else {
