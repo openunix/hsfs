@@ -18,7 +18,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct fuse_entry_param e;
 	struct hsfs_super *sb = NULL;
 	const char *dirname = name;
-	DEBUG_IN(" in %s.\n","hsx_fuse_mkdir");
+	DEBUG_IN("ino:%d.\n", parent);
 
 	memset(&e, 0, sizeof(struct fuse_entry_param));
 
@@ -45,7 +45,7 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 		goto out;
 	}
 out:
-	DEBUG_OUT(" out errno is: %d, %s\n", err, "hsx_fuse_mkdir");
+	DEBUG_OUT(" out errno is: %d\n", err);
 	return;
 };
 
