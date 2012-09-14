@@ -29,8 +29,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	if( NULL == hrc){
-		ERR("hrc memory leak is 0x%x", err);
 		err = ENOMEM;
+		ERR("hrc memory leak is 0x%x", err);
 		goto out;
 	}
 
