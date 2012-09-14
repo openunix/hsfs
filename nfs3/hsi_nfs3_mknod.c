@@ -150,7 +150,8 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
 	to.tv_sec = parent->sb->timeo /10;
 	to.tv_usec = (parent->sb->timeo % 10) * 100000;
 
-	DEBUG_IN("%s","()");
+	DEBUG_IN("the parent ino (%lu),the nlookup is (%lu)",parent->ino,
+                                                        parent->nlookup);
 
 	memset(&args, 0 , sizeof(struct mknod3args));
 	memset(&res, 0 , sizeof(struct diropres3));	
@@ -233,12 +234,15 @@ pipe_sattrs:
 				post_op_fh3_u.handle,&res.diropres3_u.
 			 	resok.obj_attributes.post_op_attr_u.
                                 attributes);
+	ERR("the new made node ino (%lu),the nlookup (%lu)",(*newinode)->ino,
+                                                      (*newinode)->nlookup);
 
 out1:
-	if(args.where.name)
-		free(args.where.name);
 	clnt_freeres(nfs_client,(xdrproc_t)xdr_diropres3,(char *)&res);
 out2:
-	DEBUG_OUT(" err:%d",err);
+	if(args.where.name)
+		free(args.where.name);
+
+	DEBUG_OUT(" err: %d",err);
 	return err;	
 }
