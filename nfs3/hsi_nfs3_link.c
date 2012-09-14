@@ -168,7 +168,8 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 	if(res.link3res_u.res.file_attributes.present)
 		memcpy(&(ino->attr),&res.link3res_u.res.file_attributes.
                                     post_op_attr_u.attributes,sizeof(fattr3));
-	*newinode=ino;
+	*newinode=hsi_nfs3_ifind(ino->sb,&(ino->fh),&(ino->attr));
+//	*newinode=ino;
 out1:
 	clnt_freeres(clntp,(xdrproc_t)xdr_link3res,(char *)&res);
 out2:
