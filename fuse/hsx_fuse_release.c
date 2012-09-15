@@ -9,7 +9,7 @@
 
 void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-	DEBUG_IN (" fi->flags:%d",fi->flags);
+	DEBUG_IN ("ino (%lu) , fi->flags:%d",ino, fi->flags);
 	if (fi->fh != 0){
 		free ((void *)fi->fh);
 	}

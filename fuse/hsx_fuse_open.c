@@ -12,7 +12,7 @@ void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
 	int err=0;
 	uint64_t fh =(uint64_t) malloc (FI_FH_LEN);
-	DEBUG_IN (" fi->flags:%d",fi->flags);
+	DEBUG_IN ("ino : (%lu)  fi->flags:%d",ino, fi->flags);
 	if (!fh){
 		err = ENOMEM;
 		ERR ("malloc failed:%d\n",err);
