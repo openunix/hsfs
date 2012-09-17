@@ -4,19 +4,26 @@
 #include "hsfs.h"
 
 /**
- * Make/Remove dir
+ * @brief make a directory
  *
- * @param hsfs_inode
- * @param name to create
- * @param mode
+ * @param parent[in] the information of the source parent directory
+ * @param name[in] directory name
+ * @param new[in] the information of the target directory
+ * @param mode[in] the mode of the target directory
  *
  * @return error number
- *
- * */
+ **/
 extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new,
 	       		const char *name, mode_t mode);
-
-extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, const char *name);
+/**
+ * @brief remove a directory
+ *
+ * @param parent[in] the information of the source parent directory
+ * @param name[in] directory name
+ *
+ * @return error number
+ **/
+extern int hsi_nfs3_rmdir(struct hsfs_inode *parent, const char *name);
 
 /**
  * @brief Remove a file
@@ -237,4 +244,10 @@ extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
 extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 
+/**
+ * hsi_nfs3_setxattr
+ * set the extended attribute
+*/
+extern int hsi_nfs3_setxattr(struct hsfs_inode *hi, const char *value, int type,
+				size_t size);
 #endif
