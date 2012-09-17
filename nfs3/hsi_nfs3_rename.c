@@ -34,12 +34,12 @@ struct hsfs_inode
 # include "hsi_nfs3.h"
 #endif
 
-int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
-		struct hsfs_inode *newhi, const char *newname)
+int hsi_nfs3_rename(struct hsfs_inode *parent, const char *name,
+		struct hsfs_inode *newparent, const char *newname)
 {
 	int ret = 0;
 	int err = 0;
-	struct hsfs_super *sb = hi->sb;
+	struct hsfs_super *sb = parent->sb;
 	CLIENT *clntp = sb->clntp;
 	rename3args args;
 	rename3res res;
@@ -48,9 +48,9 @@ int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.from.dir = hi->fh;
+	args.from.dir = parent->fh;
 	args.from.name = (char *)name;
-	args.to.dir = newhi->fh;
+	args.to.dir = newparent->fh;
 	args.to.name = (char *)newname;
 
 	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_RENAME,
@@ -66,12 +66,12 @@ int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 		goto out2;
 	}
 	if(res.rename3res_u.res.fromdir_wcc.after.present) {
-		memcpy(&(hi->attr), &res.rename3res_u.res.fromdir_wcc.
+		memcpy(&(parent->attr), &res.rename3res_u.res.fromdir_wcc.
 				after.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}
 	if(res.rename3res_u.res.todir_wcc.after.present) {
-		memcpy(&(newhi->attr), &res.rename3res_u.res.todir_wcc.
+		memcpy(&(newparent->attr), &res.rename3res_u.res.todir_wcc.
 				after.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}

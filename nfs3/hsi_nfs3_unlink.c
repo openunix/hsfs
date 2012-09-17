@@ -95,20 +95,20 @@ int hsi_rpc_stat_to_errno(CLIENT *clntp)
 	return err.re_errno == 0 ? EIO : err.re_errno;
 }
 
-int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
+int hsi_nfs3_unlink(struct hsfs_inode *parent, const char *name)
 {
 	int ret = 0;
 	int err = 0;
-	struct hsfs_super *sb = hi->sb;
+	struct hsfs_super *sb = parent->sb;
 	CLIENT *clntp = sb->clntp;
 	diropargs3 args;
 	wccstat3 res;
 
-	DEBUG_IN(" %s", name);
+	DEBUG_IN(" %s %lu", name, parent->ino);
 
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.dir = hi->fh;
+	args.dir = parent->fh;
 	args.name = (char *)name;
 
 	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_REMOVE,
@@ -124,14 +124,14 @@ int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 		goto out2;
 	}
 	if (res.wccstat3_u.wcc.after.present) {
-		memcpy(&(hi->attr), &res.wccstat3_u.wcc.
+		memcpy(&(parent->attr), &res.wccstat3_u.wcc.
 				after.post_op_attr_u.attributes,
 				sizeof(fattr3));
 	}
 out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
 out1:
-	DEBUG_OUT(" %s errno:%d", name, err);
+	DEBUG_OUT(" %s %lu errno:%d", name, parent->ino, err);
 	return err;
 }
 
