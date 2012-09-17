@@ -8,20 +8,20 @@
 
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 {
-	struct hsfs_super *hs = NULL;
-	struct hsfs_inode *hi = NULL;
+	struct hsfs_super *sb = NULL;
+	struct hsfs_inode *parent = NULL;
 	int err = 0;
 
 	DEBUG_IN("%s.","hsx_fuse_opendir");
-	hs = fuse_req_userdata(req);
-	if(!hs){
+	sb = fuse_req_userdata(req);
+	if(!sb){
 		ERR("%s gets hsfs_super fails \n", progname);
 		err = ENOENT;
 		goto out;
 	}
 
-	hi = hsx_fuse_iget(hs, ino);
-	if(!hi){
+	parent = hsx_fuse_iget(sb, ino);
+	if(!parent){
 		ERR("%s gets file handle fails \n", progname);
 		err = ENOENT;
 		goto out;
