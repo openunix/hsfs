@@ -258,16 +258,16 @@ extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
 extern int hsi_super2statvfs (struct hsfs_super *sp, struct statvfs *stbuf);
 
 /**
- * Read dir
+ * @brief Read dir
  *
- * @param hrc       the content of the fuse_add_direntry and fi->fh
- * @param dircount  the maximum number of bytes of directory information returned
- * @param maxcount  the maximum size of the READDIRPLUS3resok structure in bytes
+ * @param parent[in] get the file handle
+ * @param hrc[in,out] the content of the fuse_add_direntry and fi->fh
+ * @param maxcount[out] the maximum size of the server return in bytes
  *
  * @return error number
  * */
-extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
-						size_t maxcount);
+extern int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx 
+						*hrc, size_t maxcount);
 
 /* Get NFS filesystem info */
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
