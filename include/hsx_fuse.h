@@ -258,28 +258,30 @@ extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 extern void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino);
 
 /**
- * read the content of the directory
+ * @brief Read the content of the directory
+ *
  * Valid replies:
  *   fuse_reply_buf
  *   fuse_reply_err
  *
- * @param req         request handle
- * @param ino         the inode number
- * @param size        the maximum number of bytes to send
- * @param off         the offset to continue reading the directory
- * @param fi          the file information
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ * @param size[in] the maximum number of bytes to send
+ * @param off[in] the offset to continue reading the directory
+ * @param fi[in] the file information
  **/
 extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off_t off,  struct fuse_file_info  *fi);
 
 /**
- * open a directory
+ * @brief Open a directory
+ * 
  * Valid replies:
  *   fuse_reply_open
  *   fuse_reply_err
  *
- * @param req         request handle
- * @param ino         the inode number
- * @param fi          the file information
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ * @param fi[in,out] the file information
  **/
 extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_info  *fi);
 
