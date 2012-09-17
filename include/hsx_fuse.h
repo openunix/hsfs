@@ -214,17 +214,28 @@ extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info
 extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 
 /**
- * The two functions used to get and set file attributions are defined below, 
- * which use the fues_reply_err or fues_reply_attr to return values, showed 
- * as follows.
- *
- * return functions:
- * int fuse_reply_err(fuse_req_t req, int err);
- * int fuse_reply_attr(fuse_req_t req, const struct stat *attr, 
- * double attr_timeout);
+ * @brief Get file attributes
+ * 
+ * Valid replies:
+       fuse_reply_err, fuse_reply_attr
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ * @param fi[in] for future use, currently always NULL
  */
 extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, 
 			     struct fuse_file_info *fi);
+/**
+ * @breif Set file attributes
+ *
+ * Valid replies:
+ *     fuse_reply_err, fuse_reply_attr
+ * 
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ * @param attr[in] the attributes
+ * @param to_set[in] bit mask of attributes which should be set
+ * @param fi[in] file information, or NULL
+ */
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 			     int to_set, struct fuse_file_info *fi);
 /**
