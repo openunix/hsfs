@@ -782,8 +782,11 @@ static CLIENT *hsi_nfs3_clnt_reconnect(struct hsfs_super *sb, CLIENT *clnt)
 {
 	if (clnt == sb->clntp) {
 		hsi_mnt_closeclnt(clnt);
-		return hsi_nfs3_clnt_create(&nfs_server_bak,
-						ssize_bak, ssize_bak);
+		clnt = hsi_nfs3_clnt_create(&nfs_server_bak,
+					ssize_bak, ssize_bak);
+		if (clnt) {
+			sb->clntp = clnt;
+		}
 	}
 	return NULL;
 }
