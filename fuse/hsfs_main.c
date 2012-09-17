@@ -293,6 +293,9 @@ static void hsi_parse_opt(const char *opt, int *flags, struct fuse_args *args,
 				WARNING("Not supported opt: %s.", opt);
 			}
 			return;
+		} else if (fuse_lowlevel_is_lib_option(opt)) {
+			hsi_fuse_add_opt(args, opt);
+			return;
 		}
 	}
 
