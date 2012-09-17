@@ -14,7 +14,7 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 	int mode = 0;
 	int err = 0;
 	
-	DEBUG_IN("%s%d", "In hsx_fuse_access(), with MASK = ", mask);
+	DEBUG_IN("INO = %d, MASK = %d", ino, mask);
 	
 	hs = fuse_req_userdata(req);
 	if (NULL == hs) {
@@ -54,7 +54,7 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 	fuse_reply_err(req, err);
 	
 out:
-	DEBUG_OUT("%s%d", "Out of hsx_fuse_access(), with ERRNO = ", err);
+	DEBUG_OUT("Out of hsx_fuse_access, with ERRNO = %d", err);
 	return;
 }
 

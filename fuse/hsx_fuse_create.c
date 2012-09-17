@@ -15,7 +15,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	int mymode = 0;
 	int err =0;
 	
-	DEBUG_IN("%s%d", "In hsx_fuse_create(), with MODE = ", mode);
+	DEBUG_IN("INO = %d, MODE = %d", parent, mode);
 	
 	hs = fuse_req_userdata(req);
 	if (NULL == hs) {
@@ -55,5 +55,5 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 		fuse_reply_err(req, err);
 	}
 out:
-	DEBUG_OUT("%s", "Out of hsx_fuse_create()\n");
+	DEBUG_OUT("Out of hsx_fuse_create, With ERRNO = %d", err);
 }

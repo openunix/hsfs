@@ -25,7 +25,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	CLIENT *clntp = NULL;
 	int status = 0;
 
-	DEBUG_IN("%s%d", "In hsi_fuse_create(), with MODE = ", mode);
+	DEBUG_IN("MODE = %d", mode);
 	
 	memset(&args, 0, sizeof(struct create3args));
 	memset(&res, 0, sizeof(struct diropres3));
@@ -81,7 +81,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 
 out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_diropres3, (caddr_t)&res);
-	DEBUG_OUT("%s%d", "Out of hsi_nfs3_create(), with STATUS = ", status);
+	DEBUG_OUT("Out of hsi_nfs3_create, with STATUS = %d", status);
 	return status;
 	
 }

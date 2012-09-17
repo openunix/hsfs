@@ -25,7 +25,7 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 	CLIENT *clntp = NULL;
 	int status = 0;
 
-	DEBUG_IN("%s%d", "In hsi_nfs3_access(), with MASK =  ", mask);
+	DEBUG_IN("MASK = %d", mask);
 
 	memset(&args, 0, sizeof(struct access3args));
 	memset(&res, 0, sizeof(struct access3res));
@@ -43,7 +43,7 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 	status = hsi_nfs3_stat_to_errno(res.status);
 out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_access3res, (caddr_t)&res);
-	DEBUG_OUT("%s%d", "Out of hsi_nfs3_access(), with STATUS = ", status);
+	DEBUG_OUT("Out of hsi_nfs3_access, with STATUS = %d", status);
 	return res.status;
 }
 
