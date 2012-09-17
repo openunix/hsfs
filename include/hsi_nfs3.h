@@ -196,7 +196,6 @@ extern struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3
  * @param sb[IN]:		The information of the superblock
  * @param fh[IN]:		Filehandle of the parent directory
  * @param attr[IN]:		Node attributes
-
  *
  * @return:			A pointer to the node information
  *
@@ -205,15 +204,43 @@ extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh,
 					 fattr3 *attr);
 
 /**
- * The four internal functions used to convert fattr3 to struct stat, 
- * struct stat to hsfs_sattr by to_set and call nfs procedures are defined 
- * below, which use the standard errno as return valules defined in errno.h.
+ * @brief Get file attributes
+ *
+ * @param inode[in,out] the info of file containing the attributes as return 
+ * 
+ * @return error number
  */
-
 extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
-extern int hsi_nfs3_fattr2stat(fattr3 *fattr, struct stat *st);
+
+/**
+ * @brief Convert struct fattr3 to struct stat
+ *                                                                                                                                         
+ * @param fattr[in] the attributes 
+ * @param st[out] the result of the convertion
+ * 
+ * @return error number
+ */
+extern int hsi_nfs3_fattr2stat(struct fattr3 *fattr, struct stat *st);
+
+/**
+ * @brief Convert struct stat to struct hsfs_sattr
+ *
+ * @param st[in] the struct stat of file attributes
+ * @param to_set[in] bit mask of attributes which should be set
+ * @param attr[out] the result of the convertion
+ *
+ * @return error number
+ */
 extern int hsi_nfs3_stat2sattr(struct stat *st, int to_set, 
 			       struct hsfs_sattr *attr);
+/**
+ * @brief Set file attributes
+ * 
+ * @param inode[in,out] the info of file containing the attributes as return
+ * @param attr[in] the attributes
+ *
+ * @return error number
+ */
 extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 
 /**
