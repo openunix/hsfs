@@ -15,7 +15,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	int mymode = 0;
 	int err =0;
 	
-	DEBUG_IN("INO = %d, MODE = %d", parent, mode);
+	DEBUG_IN("INO = %lu, MODE = %d", parent, mode);
 	
 	hs = fuse_req_userdata(req);
 	if (NULL == hs) {
