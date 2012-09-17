@@ -247,7 +247,6 @@ extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 /**
  * hsi_nfs3_setxattr
  * set the extended attribute
-*/
 extern int hsi_nfs3_setxattr(struct hsfs_inode *hi, const char *value, int type,
-				size_t size);
+				size_t size);*/
 #endif
