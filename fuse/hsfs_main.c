@@ -439,7 +439,9 @@ int main(int argc, char **argv)
 	if (ch == NULL)
 		goto out;
 
-	hsi_add_mtab(mountspec, mountpoint, HSFS_TYPE, super.flags, udata);
+	if (getuid() == 0)
+		hsi_add_mtab(mountspec, mountpoint, HSFS_TYPE, super.flags,
+			 udata);
 
 	se = fuse_lowlevel_new(&args, &hsfs_oper, sizeof(hsfs_oper), &super);
 	if (se != NULL) {
