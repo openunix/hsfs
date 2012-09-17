@@ -161,7 +161,7 @@ extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode
  * 
  * @return error number
  */
-extern 	int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, 
+extern 	int hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent, 
 			struct hsfs_inode **newinode ,  const char *name);
 
 /**

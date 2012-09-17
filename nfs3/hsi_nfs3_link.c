@@ -109,7 +109,7 @@ out:
 #endif
 
 int
-hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
+hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
                     struct hsfs_inode **newinode, const char *name)
 {
 	CLIENT *clntp=NULL;
@@ -120,8 +120,8 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 
 	DEBUG_IN("the ino of newparent (%lu), the nlookup of newparent (%lu)",
                                           newparent->ino, newparent->nlookup);
-	ERR("the ino to link (%lu),the nlookup of ino (%lu)",ino->ino,
-                                                           ino->nlookup);
+	ERR("the ino to link (%lu),the nlookup of ino (%lu)",inode->ino,
+                                                           inode->nlookup);
 	*newinode=NULL;
 	to.tv_sec =newparent->sb->timeo /10;
 	to.tv_usec = (newparent->sb->timeo % 10) * 100000;
@@ -133,7 +133,7 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 		err=ENAMETOOLONG;
 		goto out2;
 	}
-	args.file.data=ino->fh.data;
+	args.file.data=inode->fh.data;
 	args.link.dir.data=newparent->fh.data;
 	args.link.name=(char *)malloc(NAME_MAX * sizeof(char));
 
@@ -166,9 +166,9 @@ hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 		goto out1;
 	}
 	if(res.link3res_u.res.file_attributes.present)
-		memcpy(&(ino->attr),&res.link3res_u.res.file_attributes.
+		memcpy(&(inode->attr),&res.link3res_u.res.file_attributes.
                                     post_op_attr_u.attributes,sizeof(fattr3));
-	*newinode=hsi_nfs3_ifind(ino->sb,&(ino->fh),&(ino->attr));
+	*newinode=hsi_nfs3_ifind(inode->sb,&(inode->fh),&(inode->attr));
 //	*newinode=ino;
 out1:
 	clnt_freeres(clntp,(xdrproc_t)xdr_link3res,(char *)&res);
