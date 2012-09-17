@@ -6,12 +6,42 @@
 
 extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
 
+/**
+ * @brief Make a directory
+ *
+ * Valid replies:
+ *   fuse_reply_err
+ *   fuse_reply_entry
+ *
+ * @param req[in] request handle
+ * @param parent[in] inode number of the parent directory
+ * @param name[in] to make
+ * @param mode[in] the mode to make
+ **/
 extern void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	       	mode_t mode);
 
+/**
+ * @brief Remove a directory
+ *
+ * Valid replies:
+ *   fuse_reply_err
+ *
+ * @param req[in] request handle
+ * @param parent[in] inode number of the parent directory
+ * @param name[in] to remove
+ **/
 extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
 
-extern void hsx_fuse_fill_reply(struct hsfs_inode *inode,
+/**
+ * @brief Fill the param in the entry
+ *
+ * @param inode[in] data fo hsfs_inode
+ * @param e[in] the param of the entry
+ *
+ * @param err[out] the error number of the function
+ **/
+extern int hsx_fuse_fill_reply(struct hsfs_inode *inode,
 	       	struct fuse_entry_param *e);
 			
 /**
@@ -238,5 +268,11 @@ extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 extern int hsx_fuse_unmount(const char *spec, const char *point,
 					struct fuse_chan *ch,
 					struct hsfs_super *super);
+/**
+ * hsx_fuse_setxattr
+ * set the extended attribute
+ **/
+extern void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
+				const char *value, size_t size, int flags );
 
 #endif
