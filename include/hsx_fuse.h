@@ -203,10 +203,27 @@ extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup);
 
 /**
- * hsx_fuse_open & hsx_fuse_release
+ * @Open a file
+ * 
+ * @Valid replies:
+ *  fuse_reply_err 
+ *  fuse_reply_open
+ *
+ * @param req[in] request handle
+ * @param ino[in] the old inode number
+ * @param fi[in]  file information
  * */
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
-
+/**
+ * @Release a file
+ *
+ * @Valid replies:
+ *  fuse_reply_err
+ *
+ * @param req[in] request handle
+ * @param ino[in] the old inode number
+ * @param fi[in]  file information
+ **/
 extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 
 /**
@@ -235,12 +252,14 @@ extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino,
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 			     int to_set, struct fuse_file_info *fi);
 /**
- * hsx_fuse_statfs
- * Get the filesystem statistics
- * reply:
- * fuse_reply_statfs
- * fuse_reply_err
- **/
+ * @Get the filesystem statistics
+ *
+ * Valid replies:
+ *  fuse_reply_statfs fuse_reply_err
+ *
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ */
 extern void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino);
 
 /**
