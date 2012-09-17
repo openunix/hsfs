@@ -113,25 +113,25 @@ extern int hsi_nfs3_write(struct hsfs_rw_info* rw);
 
 
 /**
- * hsi_nfs3_access
+ * @brief Request permission to an operation.
  *
- * To request whether or not you have the permission to perform an operation.
+ * @param hi[in] the information of the inode requested
+ * @param mask[in] the permission requested
  *
- * @param hi the struct hsfs_inode of the node you want to request
- * @param mask the permission you want to request
+ * return error number
  **/
 extern int hsi_nfs3_access(struct hsfs_inode *hi, int mask);
 
 
 /**
- * hsi_nfs3_create
+ * @brief Create a regular file.
  *
- * To create a new regular file.
+ * @param hi[in] the information of the parent directory
+ * @param newhi[out] the information of the file created
+ * @param name[in] the name of the file you want to create
+ * @param mode[in] the access mode of the file
  *
- * @param hi the struct hsfs_inode of the node you want to create a file
- * @param newhi the struct hsfs_inode of the node that you just create
- * @param name the name of the file you want to create
- *	@param mode the access mode of the file
+ * @return error number
  */
 extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			   const char *name, mode_t mode);
