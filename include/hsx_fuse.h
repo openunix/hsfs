@@ -13,10 +13,39 @@ extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
 
 extern void hsx_fuse_fill_reply(struct hsfs_inode *inode,
 	       	struct fuse_entry_param *e);
-
-extern void hsx_fuse_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi);
-
-extern void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf, size_t size, off_t off, struct fuse_file_info *fi);
+			
+/**
+ * @brief Read data
+ *
+ * Valid replies:
+ *   fuse_reply_buf
+ *   fuse_reply_err
+ *
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ * @param size[in] number of bytes to read
+ * @param off[in] offset to read from
+ * @param fi[in] file information
+ **/
+extern void hsx_fuse_read(fuse_req_t req, fuse_ino_t ino, size_t size,
+				off_t off, struct fuse_file_info *fi);
+				
+/**
+ * @brief Write data
+ *
+ * Valid replies:
+ *   fuse_reply_write
+ *   fuse_reply_err
+ *
+ * @param req[in] request handle
+ * @param ino[in] the inode number
+ * @param buf[in] data to write
+ * @param size[in] number of bytes to write
+ * @param off[in] offset to read from
+ * @param fi[in] file information
+ **/
+extern void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf,
+				size_t size, off_t off, struct fuse_file_info *fi);
 
 /**
  * @brief Remove a file

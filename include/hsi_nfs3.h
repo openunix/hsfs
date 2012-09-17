@@ -93,9 +93,9 @@ extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 			    const char *nfs_link, const char *nfs_name);
 
 /**
- * File read 
+ * @brief Read file 
  *
- * @param rw      	the content of the read operation 
+ * @param rw[in,out] the content of the read operation 
  *
  * @return error number
  **/
@@ -103,9 +103,9 @@ extern int hsi_nfs3_read(struct hsfs_rw_info* rw);
 
 
 /**  
- * File write 
+ * @brief Write file
  *
- * @param rw      	the content of the write operation 
+ * @param rw[int,out] the content of the write operation 
  *
  * @return error number
  **/
