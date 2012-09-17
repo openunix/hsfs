@@ -8,7 +8,7 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
-int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc, 
+int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc, 
 					size_t maxcount)
 {
 	CLIENT *clntp = NULL;
@@ -28,15 +28,15 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	memset(&res, 0, sizeof(res));
 	args.cookie = hrc->off;
 	memcpy(args.cookieverf, hrc->cookieverf, NFS3_COOKIEVERFSIZE);
-	args.dir.data.data_val = hi->fh.data.data_val;
-	args.dir.data.data_len = hi->fh.data.data_len;
+	args.dir.data.data_val = parent->fh.data.data_val;
+	args.dir.data.data_len = parent->fh.data.data_len;
 	args.maxcount = maxcount;
 	dircount = (size_t *)&(args.dircount);
 	temp_hrc1 = hrc;
-	clntp = hi->sb->clntp;
+	clntp = parent->sb->clntp;
 
 	do{		
-		err = hsi_nfs3_clnt_call(hi->sb, clntp, NFSPROC3_READDIRPLUS,
+		err = hsi_nfs3_clnt_call(parent->sb, clntp, NFSPROC3_READDIRPLUS,
 				(xdrproc_t)xdr_readdirplus3args, (char *)&args,
 				(xdrproc_t)xdr_readdirplus3res, (char *)&res);
 		if (err)
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	size_t fhLen = 0;
     	unsigned char *fhvalp = NULL;
 	struct hysfattr3 *fattrp = NULL;
-	struct hsfs_inode *hi = NULL;
+	struct hsfs_inode *parent = NULL;
 	struct hsfs_readdir_ctx *hrc = NULL;
 	struct rpc_err rerr;
 	size_t *dircount = NULL;
@@ -152,18 +152,18 @@ int main(int argc, char *argv[])
 		goto out;
 	} 
 	
-	hi = (struct hsfs_inode*)malloc(sizeof(struct hsfs_inode));
+	parent = (struct hsfs_inode*)malloc(sizeof(struct hsfs_inode));
 	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	hi->sb = (struct hsfs_super*)malloc(sizeof(struct hsfs_super));
-	hi->sb->clntp = clntp;
-	hi->fh.data.data_val = fhvalp ;
-	hi->fh.data.data_len = fhLen;
+	parent->sb = (struct hsfs_super*)malloc(sizeof(struct hsfs_super));
+	parent->sb->clntp = clntp;
+	parent->fh.data.data_val = fhvalp ;
+	parent->fh.data.data_len = fhLen;
 	maxcount = 8192;
-	err = hsi_nfs3_readdir(hi, hrc, dircount, maxcount);
+	err = hsi_nfs3_readdir(parent, hrc, dircount, maxcount);
 	if (err) {
 		ERR("Call RPC Server failure:%s", clnt_sperrno(err));
-                clnt_geterr(hi->sb->clntp, &rerr);
+                clnt_geterr(parent->sb->clntp, &rerr);
                 err = rerr.re_errno;
 		goto out;
 	}
