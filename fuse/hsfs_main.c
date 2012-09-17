@@ -44,17 +44,16 @@ static struct option hsfs_opts[] = {
 
 void hsi_mount_usage()
 {
-	printf("usage: %s remotetarget dir [-rvVwfnh] [-t version] [-o enfsoptions]\n", progname);
+	printf("usage: %s remotetarget dir [-rvVwfnh] [-t version] [-o hsfsoptions]\n", progname);
 	printf("options:\n\t-r\t\tMount file system readonly\n");
 	printf("\t-v\t\tVerbose\n");
 	printf("\t-V\t\tPrint version\n");
 	printf("\t-w\t\tMount file system read-write\n");
 	printf("\t-f\t\tForeground, not a daemon\n");
 	printf("\t-n\t\tDo not update /etc/mtab\n");
-	printf("\t-s\t\tTolerate sloppy mount options rather than failing.\n");
 	printf("\t-h\t\tPrint this help\n");
-	printf("\tversion\t\tenfs - currently, the only choice\n");
-	printf("\tenfsoptions\tRefer mount.enfs(8) or enfs(5)\n\n");
+	printf("\tversion\t\thsfs - currently, the only choice\n");
+	printf("\thsfsoptions\tRefer mount.hsfs(8) or hsfs(5)\n\n");
 	exit(0);
 }
 
@@ -347,7 +346,7 @@ static int hsi_parse_cmdline(int argc, char **argv, int *flags,
 	char *tdata = NULL;
 	int c = 0, ret = 0;
 
-	while((c = getopt_long(argc, argv, "rvVwfno:hs",
+	while((c = getopt_long(argc, argv, "rvVwfno:h",
 			        hsfs_opts, NULL)) != -1) {
 		switch(c) {
 		case 'r':
