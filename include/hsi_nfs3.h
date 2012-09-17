@@ -138,29 +138,29 @@ extern int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 
 
 /**
- *  hsi_nfs3_mknod
+ *  @brief Create a special file
  *
- *  To create a special file
- *
- *  @param   parent	the inode of the parent directory
- *  @param   newinode 	the inode of the created file
- *  @param   name 	the name to create
- *  @param   mode	file type and access mode of the file
- *  @param   rdev	device number of the file: only used for CHR and BLK
- *  * */
+ *  @param parent[in] the inode of the parent directory
+ *  @param newinode[out] the inode of the created file
+ *  @param name[in] the name to create
+ *  @param mode[in] file type and access mode of the file
+ *  @param rdev[in] device number of the file: only used for CHR and BLK
+ *  
+ *  @return error number
+ */
 extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode 
 		  	**newinode, const char *name,mode_t mode, dev_t rdev);
 
 /**
- * hsi_nfs3_link
+ * @brief Create a hard link to a file
  *
- * To create a hard link to a file
- *
- * @param   ino		the inode of the file
- * @param   newparent	the inode of the new parent
- * @param   newinode	the inode of the linked file
- * @param   name	the name to of the link to create
- * */
+ * @param ino[in] the inode of the file
+ * @param newparent[in] the inode of the new parent
+ * @param newinode[out] the inode of the linked file
+ * @param name[in] the name to of the link to create
+ * 
+ * @return error number
+ */
 extern 	int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent, 
 			struct hsfs_inode **newinode ,  const char *name);
 

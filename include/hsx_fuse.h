@@ -165,38 +165,34 @@ extern void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 			    mode_t mode, struct fuse_file_info *fi);                              
 
 /**
- * hsx_fuse_mknod
- *
- * To create special file : CHR, BLK,FIFO,SOCK, err number will return if the type is not one of them
+ * @brief Create a special file 
  *
  * Valid replies:
- * 		fuse_reply_entry
- * 		fuse_reply_err
+ *  fuse_reply_entry
+ *  fuse_reply_err
  *
- * @param  req		request handle
- * @param  parent	the inode number of the parent directory where you want to create the special file
- * @param  name		the name of the special file you want to create
- * @param  mode		file type and access mode of the file
- * @param  rdev		device number of the special file: only used for CHR and BLK
- * **/
+ * @param  req[in] request handle
+ * @param  parent[in] the inode number of the parent directory 
+ * @param  name[in] the name of the special file you want to create
+ * @param  mode[in] file type and access mode of the file
+ * @param  rdev[in] device number of the special file
+ */
 extern	void hsx_fuse_mknod(fuse_req_t	req, fuse_ino_t	parent,const char *name,
 			 			mode_t mode, dev_t rdev);
 
 
 /**
- * hsx_fuse_link
- * 
- * To create a hard link to a file
+ * @brief Create a hard link to a file
  *
  * Valid replies:
- * 		fuse_reply_entry
- * 		fuse_reply_err
+ *  fuse_reply_entry
+ *  fuse_reply_err
  *
- * @param  req		request handle
- * @param  ino		the old inode number
- * @param  newparent	inode number of the new parent directory
- * @param  newname	new name to create
- * */
+ * @param  req[in] request handle
+ * @param  ino[in] the old inode number
+ * @param  newparent[in] inode number of the new parent directory
+ * @param  newname[in] new name to create
+ */
 extern	void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
 				 const char *newname);
 
