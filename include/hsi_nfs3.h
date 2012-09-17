@@ -269,10 +269,36 @@ extern int hsi_super2statvfs (struct hsfs_super *sp, struct statvfs *stbuf);
 extern int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx 
 						*hrc, size_t maxcount);
 
-/* Get NFS filesystem info */
+/**
+ * @Get static file system information of NFS
+ *
+ * @inode: hsfs inode of root directory
+ *
+ * @return errno number as Linux system
+ */
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
+
+/**
+ * @Retrieve POSIX information of NFS
+ *
+ * @inode: hsfs inode of root directory
+ *
+ * @return errno number as Linux system
+ */
 extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 
+/**
+ * @Potting clnt_call
+ *
+ * @sb: super block of hsfs
+ * @procnum: NFS procedure number(macro defined in nfs3.h)
+ * @inproc: function which is used to encode the procedure's parameters
+ * @in: the address of the procedure's argument(s)
+ * @outproc: function which is used to decode the procedure's results
+ * @out:	the address of where to place the result(s)
+ *
+ * @return errno number as Linux system
+ */
 extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, unsigned long procnum,
 				xdrproc_t inproc, char *in,
 				xdrproc_t outproc, char *out);

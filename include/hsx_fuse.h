@@ -285,9 +285,31 @@ extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off
  **/
 extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_info  *fi);
 
+/**
+ * @Mount NFS filesystem (get root filehandle)
+ *
+ * @spec[in]	mount spec at remote node
+ * @point[in]	mount point at local node
+ * @args[out]	save fuse arguments which is mapping from nfs
+ * @udata[out]	nfs arguments which is used for mtab
+ * @userdata[out]	hsfs super block
+ * 
+ * @return fuse channel
+ */
 extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 					struct fuse_args *args, char *udata,
 					struct hsfs_super *userdata);
+
+/**
+ * @Unmount NFS filesystem (release root filehandle)
+ *
+ * @spec[in]	mount spec at remote node
+ * @point[in]	mount point at local node
+ * @ch[in]	fuse channel for hsfs
+ * @userdata[out]	hsfs super block
+ * 
+ * @return errno number as Linux system
+ */
 extern int hsx_fuse_unmount(const char *spec, const char *point,
 					struct fuse_chan *ch,
 					struct hsfs_super *super);
