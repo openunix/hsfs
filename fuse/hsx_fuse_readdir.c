@@ -11,8 +11,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 {
 	struct hsfs_readdir_ctx *hrc = NULL;
 	struct hsfs_readdir_ctx *temp_ctx = NULL;
-	struct hsfs_inode *hi = NULL;
-	struct hsfs_super *hs = NULL;
+	struct hsfs_inode *parent = NULL;
+	struct hsfs_super *sb = NULL;
 	size_t maxcount = 0;
 	size_t newlen = 0;
 	char * buf = NULL;
@@ -34,8 +34,8 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		goto out;
 	}
 
-	hs = fuse_req_userdata(req);
-	if(!hs){
+	sb = fuse_req_userdata(req);
+	if(!sb){
 		err = ENOENT;
 		ERR("%s gets hsfs_super fails \n", progname);
 		goto out;
@@ -44,14 +44,14 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = RPCCOUNT*size;
 	hrc->off = off;
-	hi = hsx_fuse_iget(hs,ino);
-	if(!hi){
+	parent = hsx_fuse_iget(sb,ino);
+	if(!parent){
 		err = ENOENT;
 		ERR("%s gets file handle fails \n", progname);
 		goto out;
 	}
 
-	err = hsi_nfs3_readdir(hi, hrc, maxcount);
+	err = hsi_nfs3_readdir(parent, hrc, maxcount);
 	if(err)
 	{
 		ERR("Call hsi_nfs3_readdir failed 0x%x", err);
