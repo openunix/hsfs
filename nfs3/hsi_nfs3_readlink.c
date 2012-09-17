@@ -34,9 +34,9 @@ int main(int argc, char *argv[])
 	int err = 0;
 	int read_stat = 0;
 	int reply_stat = 0;
-	const  char * nfs_link = NULL;
+	const  char * link = NULL;
 	char contents[10];
-	nfs_link = contents;
+	link = contents;
 	struct hsfs_inode symlink ;
 	struct hsfs_super sb;
 	cliname = basename(argv[0]);
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 	symlink.fh.data.data_len = fh_len;
 	symlink.fh.data.data_val = fh_val;
 
-	read_stat= hsi_nfs3_readlink(&symlink, &nfs_link);
+	read_stat= hsi_nfs3_readlink(&symlink, &link);
 	if(read_stat){
 		fprintf(stderr, "read_stat = %d\n", read_stat);
 		goto out;
@@ -82,7 +82,7 @@ out:
 #include "log.h"
 
 
-int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
+int hsi_nfs3_readlink(struct hsfs_inode *inode, char **link)
 {
 	struct readlink3res res;
 	struct nfs_fh3 fh_readlink;
@@ -92,11 +92,11 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
 
 	memset(&res, 0, sizeof(res));
 	memset(&fh_readlink, 0, sizeof(fh_readlink));
-	fh_readlink = hi->fh;
-	clntp = hi->sb->clntp;
+	fh_readlink = inode->fh;
+	clntp = inode->sb->clntp;
 	DEBUG_IN("%s\n", "hsi_nfs3_readlink");
 
-	err = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_READLINK,
+	err = hsi_nfs3_clnt_call(inode->sb, NFSPROC3_READLINK,
 			(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh_readlink,
 			(xdrproc_t)xdr_readlink3res, (caddr_t)&res);
 
@@ -105,16 +105,16 @@ int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
 
 	st = res.status;
 	if(NFS3_OK != st){
-		ERR("the proc of readlink  is failed %d\n", st);
+		ERR("the proc of readlink is failed %d\n", st);
 		err = hsi_nfs3_stat_to_errno(st);
 		goto out1;
 	}
 	len = strlen(res.readlink3res_u.resok.data);
-	*nfs_link = (char *)malloc(len+1);
-	if((*nfs_link) == NULL){
+	*link = (char *)malloc(len+1);
+	if((*link) == NULL){
 		goto out1;
 	}
-	strcpy(*nfs_link, res.readlink3res_u.resok.data);
+	strcpy(*link, res.readlink3res_u.resok.data);
 out1:
 	clnt_freeres(clntp, (xdrproc_t)xdr_readlink3res, (char *)&res);
 out2:
