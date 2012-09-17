@@ -9,28 +9,23 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 { 
 	struct fsstat3res res;	
 	struct fsstat3resok resok;       
-	int st = 0;
-	struct timeval to;
 	struct nfs_fh3 fh;
+	int st = 0;
 
 	memset (&res, 0, sizeof(res));
 	memset (&fh, 0, sizeof(fh));
 	memset (&resok, 0, sizeof(resok));
 	fh.data.data_len=inode->fh.data.data_len;
 	fh.data.data_val=inode->fh.data.data_val;
-	to.tv_sec = (inode->sb->timeo) / 10;
-	to.tv_usec = ((inode->sb->timeo) % 10);
-	DEBUG_IN (" fh:%s",fh.data.data_val);
-	st = clnt_call (inode->sb->clntp, NFSPROC3_FSSTAT,
-			(xdrproc_t)xdr_nfs_fh3, (char *)&fh, 
-			(xdrproc_t)xdr_fsstat3res, (char *)&res,
-			to);
-	if (st){
-		ERR("clnt_call failed: %s\n",clnt_sperrno(st));
 
-		st = hsi_rpc_stat_to_errno (inode->sb->clntp);	
+	DEBUG_IN (" fh:%s",fh.data.data_val);
+
+	st = hsi_nfs3_clnt_call (inode->sb, NFSPROC3_FSSTAT,
+			(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh, 
+			(xdrproc_t)xdr_fsstat3res, (caddr_t)&res);
+	if (st)	
 		goto out;
-	}
+
 	st = res.status;
 	if (NFS3_OK != st){
 

@@ -17,11 +17,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	struct lookup3res res;
 	struct fattr3 *pattr = NULL;
 	nfs_fh3	*name_fh;
-	enum clnt_stat st;
-	int err = 0;
-	struct timeval to;
-	to.tv_sec = parent->sb->timeo / 10;
-	to.tv_usec = (parent->sb->timeo % 10) * 100000;
+	int st = 0, err = 0;
 
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
@@ -29,18 +25,15 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	DEBUG_IN("%s","");
 	args.dir = parent->fh;
 	args.name = (char *)name;
-	st=clnt_call(parent->sb->clntp,NFSPROC3_LOOKUP,(xdrproc_t)xdr_diropargs3
-		,(caddr_t)&args,(xdrproc_t)xdr_lookup3res, (caddr_t)&res, to);
+	err=hsi_nfs3_clnt_call(parent->sb,NFSPROC3_LOOKUP,
+			(xdrproc_t)xdr_diropargs3,(caddr_t)&args,
+			(xdrproc_t)xdr_lookup3res, (caddr_t)&res);
 
-	if (st) 
-	{
-		ERR("Call RPC Server (%u, %u) failure: "
-			"(%s).\n",NFS_PROGRAM, NFS_V3, clnt_sperrno(st));
-		err = hsi_rpc_stat_to_errno(parent->sb->clntp);
-                goto out;
-        }
-        st = res.status;
-        if (NFS3_OK != st) 
+	if (err) 
+		goto out;
+
+	st = res.status;
+	if (NFS3_OK != st) 
 	{
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).",name,st);

@@ -29,6 +29,10 @@ typedef struct mountres3 mntres_t;
 
 #define NFS_MOUNT_TCP		0x0001
 
+static clnt_addr_t nfs_server_bak = {};
+static int ssize_bak = 0;
+static int rsize_bak = 0;
+
 static int hsi_gethostbyname(const char *hostname, struct sockaddr_in *saddr)
 {
 	struct hostent *hp = NULL;
@@ -225,6 +229,10 @@ static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server,
 		clnt = NULL;
 		goto out;
 	};
+
+	ssize_bak = ssize;
+	rsize_bak = rsize;
+	nfs_server_bak = *nfs_server;
 out:
 	return clnt;
 }
@@ -767,4 +775,40 @@ int hsx_fuse_unmount(const char *spec, const char *point,
 	hsx_fuse_itable_del(super);
 
 	return hsi_nfs3_unmount(&mnt_server, &dirname);
+}
+
+int hsi_nfs3_clnt_call(struct hsfs_super *sb, unsigned long procnum,
+				xdrproc_t inproc, char *in,
+				xdrproc_t outproc, char *out)
+{
+	struct timeval tout = {sb->timeo / 10, sb->timeo % 10 * 100000};
+	enum clnt_stat st = RPC_SUCCESS;
+	CLIENT *clnt = sb->clntp;
+	int rtry = 0, ret = 0;
+retry:
+	st = clnt_call(clnt, procnum, inproc, in, outproc, out, tout);
+	if (st != RPC_SUCCESS) {
+		ret = hsi_rpc_stat_to_errno(clnt);
+
+		if (rtry >= 5) {
+			ERR("Have retry %d times, break!", rtry);
+		}else if (ret == EAGAIN) {
+			sleep(1);
+			rtry++;
+			goto retry;
+		} else if (ret == ENOTCONN || ret == ECONNRESET) {
+			hsi_mnt_closeclnt(clnt);
+			clnt = hsi_nfs3_clnt_create(&nfs_server_bak,
+						ssize_bak, ssize_bak);
+			if (clnt != NULL) {
+				sb->clntp = clnt;
+				rtry++;
+				goto retry;
+			}
+		}
+
+		ERR("Sending rpc request failed: %d(%d).", st, ret);
+	}
+
+	return ret;
 }

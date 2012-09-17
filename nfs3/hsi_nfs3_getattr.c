@@ -5,27 +5,22 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode)
 	int err = 0;
 	nfs_fh3 fh;
 	CLIENT *clntp = NULL;
-	struct timeval to;
 	struct getattr3res res;
-	enum clnt_stat st;
 	struct fattr3 *attr = NULL;
 	
 	DEBUG_IN("%s", "\n");
 
 	clntp= inode->sb->clntp;
-	to.tv_sec = inode->sb->timeo / 10;
-	to.tv_usec = (inode->sb->timeo % 10) * 100000;
 	fh.data.data_len = inode->fh.data.data_len;
 	fh.data.data_val = inode->fh.data.data_val;
 	memset(&res, 0, sizeof(res));
-	st = clnt_call(clntp, NFSPROC3_GETATTR, (xdrproc_t)xdr_nfs_fh3, 
-		       (caddr_t)&fh, (xdrproc_t)xdr_getattr3res, (caddr_t)&res,
-		       to);
-	if (st) {
-		err = hsi_rpc_stat_to_errno(clntp);
-		ERR("Call RPC Server failure: %d.\n", err);
+
+	err = hsi_nfs3_clnt_call(inode->sb, NFSPROC3_GETATTR,
+				(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh,
+				(xdrproc_t)xdr_getattr3res, (caddr_t)&res);
+	if (err)
 		goto out_no_free;
-	}
+
 	if (NFS3_OK != res.status) {
 		err = hsi_nfs3_stat_to_errno(res.status);
 		ERR("RPC Server returns failed status : %d.\n", err);

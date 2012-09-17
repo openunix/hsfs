@@ -49,21 +49,16 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 	CLIENT *clnt = sb->clntp;
 	fsinfo3res res = {};
 	post_op_attr *pattr = NULL;
-	struct timeval to = {sb->timeo / 10, sb->timeo % 10 * 100000};
-	enum clnt_stat st;
 	int ret = 0;
 
 	DEBUG_IN("ino: %lu", inode->ino);
 
-	st = clnt_call(clnt, NFSPROC3_FSINFO, (xdrproc_t)xdr_nfs_fh3,
-			 (char *)&inode->fh, (xdrproc_t)xdr_fsinfo3res,
-			 (char *)&res, to);
+	ret = hsi_nfs3_clnt_call(sb, NFSPROC3_FSINFO,
+			(xdrproc_t)xdr_nfs_fh3, (char *)&inode->fh,
+			(xdrproc_t)xdr_fsinfo3res, (char *)&res);
 
-	if (st != RPC_SUCCESS) {
-		ERR("Sending rpc request failed: %d.", st);
-		ret = hsi_rpc_stat_to_errno(clnt);
+	if (ret)
 		goto out;
-	}
 
 	if (res.status != 0) {
 		ERR("Got error when calling FSINFO: %d.", res.status);

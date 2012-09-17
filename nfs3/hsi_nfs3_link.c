@@ -116,16 +116,12 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	int err=0;
 	struct link3args args;
 	struct link3res res;
-	struct timeval to;
 
 	DEBUG_IN("the ino of newparent (%lu), the nlookup of newparent (%lu)",
                                           newparent->ino, newparent->nlookup);
 	ERR("the ino to link (%lu),the nlookup of ino (%lu)",inode->ino,
                                                            inode->nlookup);
 	*newinode=NULL;
-	to.tv_sec =newparent->sb->timeo /10;
-	to.tv_usec = (newparent->sb->timeo % 10) * 100000;
-
 	memset(&args, 0, sizeof(args));
 
 	if(strlen(name) > NAME_MAX){
@@ -145,13 +141,12 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	memset(&res, 0, sizeof(res));
 
 	clntp=newparent->sb->clntp; //get the client	
-	err=clnt_call(clntp, NFSPROC3_LINK, (xdrproc_t)xdr_link3args,
-                       &args, (xdrproc_t)xdr_link3res, &res, to);
-	if(err){
-		ERR("Call RPC Server Failure (%d) \n",err);
-		err=hsi_rpc_stat_to_errno(newparent->sb->clntp);
+	err=hsi_nfs3_clnt_call(newparent->sb, NFSPROC3_LINK,
+				(xdrproc_t)xdr_link3args, (caddr_t)&args,
+				(xdrproc_t)xdr_link3res, (caddr_t)&res);
+	if(err)
 		goto out2;
-	}	
+
 	if(res.link3res_u.res.linkdir_wcc.after.present){
 			memcpy(&(newparent->attr), &res.link3res_u.
                                                    res.linkdir_wcc.

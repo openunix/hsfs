@@ -273,6 +273,10 @@ extern int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
 extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 
+extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, unsigned long procnum,
+				xdrproc_t inproc, char *in,
+				xdrproc_t outproc, char *out);
+
 /**
  * hsi_nfs3_setxattr
  * set the extended attribute

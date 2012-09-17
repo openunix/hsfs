@@ -85,30 +85,24 @@ out:
 int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link)
 {
 	struct readlink3res res;
-	enum clnt_stat st;
 	struct nfs_fh3 fh_readlink;
 	CLIENT *clntp = NULL;
-	struct timeval to;
-	int err = 0;
+	int st = 0, err = 0;
 	int len = 0;
 
-	to.tv_sec = hi->sb->timeo / 10;
-	to.tv_usec = (hi->sb->timeo % 10) * 100000;
 	memset(&res, 0, sizeof(res));
 	memset(&fh_readlink, 0, sizeof(fh_readlink));
 	fh_readlink = hi->fh;
 	clntp = hi->sb->clntp;
 	DEBUG_IN("%s\n", "hsi_nfs3_readlink");
 
-	st = clnt_call(clntp, NFSPROC3_READLINK, (xdrproc_t)xdr_nfs_fh3,
-			(caddr_t)&fh_readlink, (xdrproc_t)xdr_readlink3res,
-			(caddr_t)&res, to);
+	err = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_READLINK,
+			(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh_readlink,
+			(xdrproc_t)xdr_readlink3res, (caddr_t)&res);
 
-	if(st){
-		ERR("call the RPC server fail %s\n", clnt_sperrno(st));
-		err = hsi_rpc_stat_to_errno(clntp);
+	if(err)
 		goto out2;
-	}
+
 	st = res.status;
 	if(NFS3_OK != st){
 		ERR("the proc of readlink  is failed %d\n", st);

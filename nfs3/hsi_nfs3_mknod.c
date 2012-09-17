@@ -145,10 +145,6 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
 	CLIENT *nfs_client=NULL;
 	struct mknod3args args;
 	struct diropres3 res;
-	struct timeval to;
-
-	to.tv_sec = parent->sb->timeo /10;
-	to.tv_usec = (parent->sb->timeo % 10) * 100000;
 
 	DEBUG_IN("the parent ino (%lu),the nlookup is (%lu)",parent->ino,
                                                         parent->nlookup);
@@ -206,13 +202,13 @@ pipe_sattrs:
 	// get the client 
 	nfs_client=parent->sb->clntp; 
 	memset(&res,0,sizeof(res));
-	err=clnt_call(nfs_client,NFSPROC3_MKNOD,(xdrproc_t)xdr_mknod3args,&args,(xdrproc_t)xdr_diropres3,&res,to);
-	if(err){
-		ERR("Call RPC Server Failure:(%d).\n",err);
-		err=hsi_rpc_stat_to_errno(parent->sb->clntp);	
+	err=hsi_nfs3_clnt_call(parent->sb,NFSPROC3_MKNOD,
+				(xdrproc_t)xdr_mknod3args,(caddr_t)&args,
+				(xdrproc_t)xdr_diropres3,(caddr_t)&res);
+	if(err)
 		goto out2;
-	}	
-	else if(res.status){
+
+	if(res.status){
 		ERR("Call NFS3 Server Failure:(%d).\n",res.status);
 		if(res.diropres3_u.resfail.after.present){
 			memcpy(&(parent->attr), &res.diropres3_u.      

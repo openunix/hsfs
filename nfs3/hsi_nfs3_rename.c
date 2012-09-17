@@ -43,7 +43,6 @@ int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 	CLIENT *clntp = sb->clntp;
 	rename3args args;
 	rename3res res;
-	struct timeval to;
 
 	DEBUG_IN(" %s to %s", name, newname);
 
@@ -53,17 +52,13 @@ int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 	args.from.name = (char *)name;
 	args.to.dir = newhi->fh;
 	args.to.name = (char *)newname;
-	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100000;
 
-	ret = clnt_call(clntp, NFSPROC3_RENAME, (xdrproc_t)xdr_rename3args,
-			(caddr_t)&args, (xdrproc_t)xdr_rename3res,
-			(caddr_t)&res, to);
-	if (ret) {
-		ERR("Call RPC Server failure:(%s).\n", clnt_sperrno(ret));
-		err = hsi_rpc_stat_to_errno(clntp);
+	err = hsi_nfs3_clnt_call(sb, NFSPROC3_RENAME,
+			(xdrproc_t)xdr_rename3args, (caddr_t)&args,
+			(xdrproc_t)xdr_rename3res, (caddr_t)&res);
+	if (err)
 		goto out1;
-	}
+
 	ret = res.status;
 	if (NFS3_OK != ret) {
 		ERR("Call NFS3 Server failure:(%d).\n", ret);

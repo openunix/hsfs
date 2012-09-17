@@ -5,17 +5,13 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 {
 	int err = 0;
 	CLIENT *clntp = NULL;
-	struct timeval to;
 	struct setattr3args args;
 	struct wccstat3 res;
-	enum clnt_stat st;
 	struct fattr3 *fattr = NULL;
 	
 	DEBUG_IN("%s", "\n");
 
 	clntp= inode->sb->clntp;
-	to.tv_sec = inode->sb->timeo / 10;
-	to.tv_usec = (inode->sb->timeo % 10) * 100000;
 	memset(&args, 0, sizeof(args));
 	args.object.data.data_len = inode->fh.data.data_len;
 	args.object.data.data_val = inode->fh.data.data_val;
@@ -71,13 +67,12 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	
 	args.guard.check = FALSE;
 	memset(&res, 0, sizeof(res));
-	st = clnt_call(clntp, NFSPROC3_SETATTR, (xdrproc_t)xdr_setattr3args, 
-		(caddr_t)&args, (xdrproc_t)xdr_wccstat3, (caddr_t)&res, to);
-	if (st) {
-		err = hsi_rpc_stat_to_errno(clntp);
-		ERR("Call RPC Server failure: %d.\n", err);
+	err = hsi_nfs3_clnt_call(inode->sb, NFSPROC3_SETATTR,
+			(xdrproc_t)xdr_setattr3args, (caddr_t)&args,
+			(xdrproc_t)xdr_wccstat3, (caddr_t)&res);
+	if (err) 
 		goto out_no_free;
-	}
+
 	if (NFS3_OK != res.status) {
 		err = hsi_nfs3_stat_to_errno(res.status);
 		ERR("RPC Server returns failed status : %d.\n", err);

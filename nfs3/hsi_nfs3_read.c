@@ -11,7 +11,6 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	struct read3args args;
 	struct read3res res;
 	struct read3resok * resok = NULL;
-	struct timeval to = {0, 0};
 	int err = 0;
 
 	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)rinfo->rw_off,
@@ -22,17 +21,12 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	args.file.data.data_val = rinfo->inode->fh.data.data_val;
 	args.offset = rinfo->rw_off;
 	args.count = rinfo->rw_size;
-	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100000;
 
-	err = clnt_call(clnt, NFSPROC3_READ,
+	err = hsi_nfs3_clnt_call(sb, NFSPROC3_READ,
 				(xdrproc_t)xdr_read3args, (char *)&args,
-				(xdrproc_t)xdr_read3res, (char *)&res, to);
-	if (err){
-		ERR("Call RPC Server failure:%s", clnt_sperrno(err));
-		err = hsi_rpc_stat_to_errno(clnt);
+				(xdrproc_t)xdr_read3res, (char *)&res);
+	if (err)
 		goto out;
-	}
 
 #ifdef HSFS_NFS3_TEST
 	err = res.status;

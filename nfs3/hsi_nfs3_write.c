@@ -11,7 +11,6 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	struct write3args args;
 	struct write3res res;
 	struct write3resok * resok = NULL;
-	struct timeval to = {0, 0};
 	int err = 0;
 
 	DEBUG_IN("offset 0x%x size 0x%x", (unsigned int)winfo->rw_off,
@@ -25,17 +24,12 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	args.offset = winfo->rw_off;
 	args.count = winfo->rw_size;
 	args.stable = winfo->stable;
-	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100000;
 
-	err = clnt_call(clnt, NFSPROC3_WRITE,
-		       (xdrproc_t)xdr_write3args, (char *)&args, 
-		(xdrproc_t)xdr_write3res, (char *)&res, to);
-	if(err){
-		ERR("Call RPC Server failure: %s", clnt_sperrno(err));
-		err = hsi_rpc_stat_to_errno(clnt);
+	err = hsi_nfs3_clnt_call(sb, NFSPROC3_WRITE,
+			(xdrproc_t)xdr_write3args, (char *)&args, 
+			(xdrproc_t)xdr_write3res, (char *)&res);
+	if(err)
 		goto out;
-	}
 
 #ifdef HSFS_NFS3_TEST
 	err = res.status;

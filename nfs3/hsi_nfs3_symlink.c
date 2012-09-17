@@ -95,28 +95,22 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 {
 	struct symlink3args args;
 	struct diropres3 res;
-	enum clnt_stat st;
-	struct timeval to;
-	int err = 0;
+	int st = 0, err = 0;
+
 	DEBUG_IN("%s\n", "hsi_nfs3_symlink");
 
-	to.tv_sec = parent->sb->timeo / 10;
-	to.tv_usec = (parent->sb->timeo % 10) * 100000;
 	memset(&res, 0, sizeof(res));
 	memset(&args, 0, sizeof(args));
 	args.where.dir = parent->fh;
 	args.where.name = (char *)nfs_name;
 	args.symlink.symlink_data = (char *)nfs_link;
 
-	st = clnt_call(parent->sb->clntp, NFSPROC3_SYMLINK,
-			(xdrproc_t)xdr_symlink3args,
-			(caddr_t)&args, (xdrproc_t)xdr_diropres3,
-			(caddr_t)&res, to);
-	if(st){
-		ERR( " Call RPC Server failure:%s.\n ", clnt_sperrno(st));
-		err = hsi_rpc_stat_to_errno(parent->sb->clntp);
+	err = hsi_nfs3_clnt_call(parent->sb, NFSPROC3_SYMLINK,
+			(xdrproc_t)xdr_symlink3args, (caddr_t)&args,
+			(xdrproc_t)xdr_diropres3, (caddr_t)&res);
+	if(err)
 		goto out2;
-	}
+
 	st = res.status;
 	if(NFS3_OK != st){
 		ERR("the proc of symlink failure:%d\n", st);

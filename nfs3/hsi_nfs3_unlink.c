@@ -103,7 +103,6 @@ int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	CLIENT *clntp = sb->clntp;
 	diropargs3 args;
 	wccstat3 res;
-	struct timeval to;
 
 	DEBUG_IN(" %s", name);
 
@@ -111,17 +110,13 @@ int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	memset(&res, 0, sizeof(res));
 	args.dir = hi->fh;
 	args.name = (char *)name;
-	to.tv_sec = sb->timeo / 10;
-	to.tv_usec = (sb->timeo % 10) * 100000;
 
-	ret = clnt_call(clntp, NFSPROC3_REMOVE, (xdrproc_t)xdr_diropargs3,
-			(caddr_t)&args, (xdrproc_t)xdr_wccstat3,
-			(caddr_t)&res, to);
-	if (ret) {
-		ERR("Call RPC Server failure:(%s).\n", clnt_sperrno(ret));
-		err = hsi_rpc_stat_to_errno(clntp);
+	err = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_REMOVE,
+			(xdrproc_t)xdr_diropargs3,	(caddr_t)&args,
+			(xdrproc_t)xdr_wccstat3, (caddr_t)&res);
+	if (err)
 		goto out1;
-	}
+
 	ret = res.status;
 	if (NFS3_OK != ret) {
 		ERR("Call NFS3 Server failure:(%d).\n", ret);

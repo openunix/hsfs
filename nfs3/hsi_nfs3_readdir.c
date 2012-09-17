@@ -18,7 +18,6 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	struct entryplus3 *temp_entry = NULL;
 	struct readdirplus3args args;
 	struct readdirplus3res res;
-	struct timeval to;
 	size_t *dircount = NULL;
 	size_t dir_size = 0;
 	int err = 0;
@@ -34,20 +33,14 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	args.maxcount = maxcount;
 	dircount = (size_t *)&(args.dircount);
 	temp_hrc1 = hrc;
-	to.tv_sec = hi->sb->timeo / 10;
-	to.tv_usec = (hi->sb->timeo % 10) * 100000;
 	clntp = hi->sb->clntp;
 
 	do{		
-		err = clnt_call(clntp, NFSPROC3_READDIRPLUS,
-				(xdrproc_t)xdr_readdirplus3args, &args,
-				(xdrproc_t)xdr_readdirplus3res, &res, to);
-		if (err) {	
-			ERR("Call RPC Server failure:(%s).\n", 
-							clnt_sperrno(err));
-			err = hsi_rpc_stat_to_errno(hi->sb->clntp);
+		err = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_READDIRPLUS,
+				(xdrproc_t)xdr_readdirplus3args, (char *)&args,
+				(xdrproc_t)xdr_readdirplus3res, (char *)&res);
+		if (err)
 			goto out;
-		}
 
 		if (NFS3_OK != res.status) {
 			ERR("Call NFS3 Server failure:(%d).\n", res.status);

@@ -20,11 +20,9 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 {
 	struct create3args args;
 	struct diropres3 res;
-	struct timeval to = {};
 	mode_t cmode = mode & 0xF0000;
 	mode_t fmode = mode & FULL_MODE;
 	CLIENT *clntp = NULL;
-	enum clnt_stat st;
 	int status = 0;
 
 	DEBUG_IN("%s%d", "In hsi_fuse_create(), with MODE = ", mode);
@@ -35,8 +33,6 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	args.where.dir = hi->fh;
 	args.where.name = (char *)name;
 	clntp = hi->sb->clntp;
-	to.tv_sec = hi->sb->timeo / 10;
-	to.tv_usec = (hi->sb->timeo % 10) * 100;
 	args.how.mode = cmode >> 16;
 	if (EXCLUSIVE == args.how.mode) {
 		memcpy(args.how.createhow3_u.verf, &hi->ino, NFS3_CREATEVERFSIZE);
@@ -56,15 +52,11 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 		args.how.createhow3_u.obj_attributes = sattr;
 	}
 	
-	st = clnt_call(clntp, NFSPROC3_CREATE,
+	status = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_CREATE,
 			(xdrproc_t)xdr_create3args, (caddr_t)&args,
-			(xdrproc_t)xdr_diropres3, (caddr_t)&res, to);
-	if (st) {
-		status = hsi_rpc_stat_to_errno(clntp);
-		ERR("%s%d", "Fail in calling rpc process," 
-				" with ERROR_CODE = ", status);
+			(xdrproc_t)xdr_diropres3, (caddr_t)&res);
+	if (status)
 		goto out;
-	}
 
 	if (NFS3_OK == res.status) {
 		status = res.status;
@@ -78,9 +70,8 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			struct hsfs_sattr sattr = {};
 			sattr.mode = fmode;
 			S_SETMODE(&sattr);
-			st = hsi_nfs3_setattr(*newhi, &sattr);
-			if (st) {
-				hsi_rpc_stat_to_errno(hi->sb->clntp);
+			status = hsi_nfs3_setattr(*newhi, &sattr);
+			if (status) {
 				WARNING("Setattr failed after create: %d", status);
 			}
 		}

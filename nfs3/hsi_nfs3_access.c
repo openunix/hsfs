@@ -22,9 +22,7 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 
 	struct access3args args = {};
 	struct access3res res = {};
-	struct timeval to = {};
 	CLIENT *clntp = NULL;
-	enum clnt_stat st = 0;
 	int status = 0;
 
 	DEBUG_IN("%s%d", "In hsi_nfs3_access(), with MASK =  ", mask);
@@ -34,19 +32,13 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 
 	args.object = hi->fh;
 	args.access = mask & FULL_ACCESS;
-	to.tv_sec = hi->sb->timeo / 10;
-	to.tv_usec = (hi->sb->timeo % 10) * 100;
 	clntp = hi->sb->clntp;
 	
-	st = clnt_call(clntp, NFSPROC3_ACCESS, 
+	status = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_ACCESS, 
 			(xdrproc_t)xdr_access3args, (caddr_t)&args, 
-			(xdrproc_t)xdr_access3res, (caddr_t)&res, to);
-	if (st) {
-		status = hsi_rpc_stat_to_errno(clntp);
-		ERR("%s%d", "Fail in calling rpc process," 
-				"with ERROR_CODE = ", status);
+			(xdrproc_t)xdr_access3res, (caddr_t)&res);
+	if (status)
 		goto out;
-	}
 	
 	status = hsi_nfs3_stat_to_errno(res.status);
 out:

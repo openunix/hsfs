@@ -23,8 +23,7 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 	int err = 0;
 	diropargs3 argp;
 	wccstat3 clnt_res;
-	struct timeval timeout = { hi_parent->sb->timeo/10,
-	       	(hi_parent->sb->timeo%10)*100000 };
+
 	DEBUG_IN(" ino:%lu.\n", hi_parent->ino);
 
 	memset (&argp, 0, sizeof(diropargs3));
@@ -34,15 +33,12 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 	argp.dir.data.data_val = hi_parent->fh.data.data_val;
 	argp.name = (char *) name;
 		
-	err = clnt_call (hi_parent->sb->clntp, NFSPROC3_RMDIR, 
+	err = hsi_nfs3_clnt_call (hi_parent->sb, NFSPROC3_RMDIR, 
 			(xdrproc_t) xdr_diropargs3, (caddr_t) &argp,
-			 (xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res,
-			       	timeout);
+			 (xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res);
 		
-	if (0 != err) {					/*err is a RPC clnt error. So use hsi_rpc_stat_to_errno().*/
-		err = hsi_rpc_stat_to_errno(hi_parent->sb->clntp);
+	if (0 != err)
 		goto out;
-	}
 	
 	err = hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
 	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3,
