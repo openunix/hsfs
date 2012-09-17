@@ -193,10 +193,30 @@ extern	void hsx_fuse_mknod(fuse_req_t	req, fuse_ino_t	parent,const char *name,
 extern	void hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
 				 const char *newname);
 
-/*hsx_fuse_lookup  and  hsx_fuse_forget declaration */
-
+/**
+ * @brief Look up a directory entry by name
+ *
+ * Valid replies:
+ *  fuse_reply_entry
+ *  fuse_reply_err
+ *
+ * @param  req[in] request handle
+ * @param  ino[in] inode number of the parent directory 
+ * @param  name[in] the name to look up
+ */
 extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 
+
+/**
+ * @brief Forget about an inode
+ *
+ * Valid replies:
+ *  fuse_reply_none
+ *
+ * @param  req[in] request handle
+ * @param  ino[in] the inode number to forget 
+ * @param  nlookup[in] the number of lookups to forget  
+ */
 extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup);
 
 /**

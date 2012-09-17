@@ -165,40 +165,38 @@ extern 	int hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent
 			struct hsfs_inode **newinode ,  const char *name);
 
 /**
- * hsi_nfs3_lookup:		Look up a directory entry by name
+ * @brief Look up a directory entry by name
  *
- * @param parent[IN]		The information of the parent node
- * @param newinode[OUT]	Point to the node information obtained by name
- * @param name[IN]		The name to look up
+ * @param parent[IN] The information of the parent node
+ * @param newinode[OUT] Point to the node information obtained by name
+ * @param name[IN] The name to look up
  *
  * @return error number
- *
  * */
 extern  int hsi_nfs3_lookup(struct hsfs_inode *parent, struct hsfs_inode 
 			**newinode, const char *name);
 
 /**
- * hsi_nfs3_alloc_node: allocate memory for a node 
+ * @brief Allocate memory for a node
  *
- * @param sb[IN]:       the information of the superblock
- * @param pfh[IN]:      a pointer to the filehandle of node 
- * @param ino[IN]:      the inode number
- * @param pattr[IN]:    a pointer to the attributes of node 
- * @return:             a pointer to the object if successfull,else NULL
+ * @param sb[IN] the information of the superblock
+ * @param pfh[IN] a pointer to the filehandle of node 
+ * @param ino[IN] the inode number
+ * @param pattr[IN] a pointer to the attributes of node 
  *
+ * @return a pointer to the object if successfull,else NULL
  * */
 extern struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 
 					*pfh, uint64_t ino, fattr3 *pattr);
 
 /**
- * hsi_nfs3_ifind:		Look up a node from hash table
+ * @brief Look up a node from hash table
  *
- * @param sb[IN]:		The information of the superblock
- * @param fh[IN]:		Filehandle of the parent directory
- * @param attr[IN]:		Node attributes
+ * @param sb[IN] The information of the superblock
+ * @param fh[IN] Filehandle of the parent directory
+ * @param attr[IN] Node attributes
  *
- * @return:			A pointer to the node information
- *
+ * @return A pointer to the node information
  * */
 extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, 
 					 fattr3 *attr);
