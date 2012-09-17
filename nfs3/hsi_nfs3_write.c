@@ -25,7 +25,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	args.count = winfo->rw_size;
 	args.stable = winfo->stable;
 
-	err = hsi_nfs3_clnt_call(sb, NFSPROC3_WRITE,
+	err = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_WRITE,
 			(xdrproc_t)xdr_write3args, (char *)&args, 
 			(xdrproc_t)xdr_write3res, (char *)&res);
 	if(err)

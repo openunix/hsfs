@@ -15,7 +15,7 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode)
 	fh.data.data_val = inode->fh.data.data_val;
 	memset(&res, 0, sizeof(res));
 
-	err = hsi_nfs3_clnt_call(inode->sb, NFSPROC3_GETATTR,
+	err = hsi_nfs3_clnt_call(inode->sb, clntp, NFSPROC3_GETATTR,
 				(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh,
 				(xdrproc_t)xdr_getattr3res, (caddr_t)&res);
 	if (err)

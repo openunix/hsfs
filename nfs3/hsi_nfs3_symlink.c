@@ -93,6 +93,7 @@ out:
 int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 			const char *link, const char *name)
 {
+	struct hsfs_super *sb = parent->sb;
 	struct symlink3args args;
 	struct diropres3 res;
 	int st = 0, err = 0;
@@ -105,7 +106,7 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 	args.where.name = (char *)name;
 	args.symlink.symlink_data = (char *)link;
 
-	err = hsi_nfs3_clnt_call(parent->sb, NFSPROC3_SYMLINK,
+	err = hsi_nfs3_clnt_call(sb, sb->clntp, NFSPROC3_SYMLINK,
 			(xdrproc_t)xdr_symlink3args, (caddr_t)&args,
 			(xdrproc_t)xdr_diropres3, (caddr_t)&res);
 	if(err)
@@ -121,7 +122,7 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 	&(res.diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
 out1:
-	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_diropres3, (char*)&res);
+	clnt_freeres(sb->clntp, (xdrproc_t)xdr_diropres3, (char*)&res);
 out2:
 	DEBUG_OUT("with errno %d\n", err);
 	return err;

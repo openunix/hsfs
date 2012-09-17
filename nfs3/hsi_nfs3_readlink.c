@@ -96,7 +96,7 @@ int hsi_nfs3_readlink(struct hsfs_inode *inode, char **link)
 	clntp = inode->sb->clntp;
 	DEBUG_IN("%s\n", "hsi_nfs3_readlink");
 
-	err = hsi_nfs3_clnt_call(inode->sb, NFSPROC3_READLINK,
+	err = hsi_nfs3_clnt_call(inode->sb, clntp, NFSPROC3_READLINK,
 			(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh_readlink,
 			(xdrproc_t)xdr_readlink3res, (caddr_t)&res);
 

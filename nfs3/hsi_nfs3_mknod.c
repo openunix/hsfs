@@ -202,7 +202,7 @@ pipe_sattrs:
 	// get the client 
 	nfs_client=parent->sb->clntp; 
 	memset(&res,0,sizeof(res));
-	err=hsi_nfs3_clnt_call(parent->sb,NFSPROC3_MKNOD,
+	err=hsi_nfs3_clnt_call(parent->sb,nfs_client,NFSPROC3_MKNOD,
 				(xdrproc_t)xdr_mknod3args,(caddr_t)&args,
 				(xdrproc_t)xdr_diropres3,(caddr_t)&res);
 	if(err)

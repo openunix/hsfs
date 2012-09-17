@@ -67,7 +67,7 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 	
 	args.guard.check = FALSE;
 	memset(&res, 0, sizeof(res));
-	err = hsi_nfs3_clnt_call(inode->sb, NFSPROC3_SETATTR,
+	err = hsi_nfs3_clnt_call(inode->sb, clntp, NFSPROC3_SETATTR,
 			(xdrproc_t)xdr_setattr3args, (caddr_t)&args,
 			(xdrproc_t)xdr_wccstat3, (caddr_t)&res);
 	if (err) 

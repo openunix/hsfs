@@ -12,7 +12,7 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 
 	DEBUG_IN("ino: %lu.", inode->ino);
 
-	ret = hsi_nfs3_clnt_call(sb, NFSPROC3_PATHCONF,
+	ret = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_PATHCONF,
 			(xdrproc_t)xdr_nfs_fh3, (char *)&inode->fh,
 			(xdrproc_t)xdr_pathconf3res, (char *)&res);
 

@@ -7,6 +7,7 @@
 
 int hsi_nfs3_statfs (struct hsfs_inode *inode)
 { 
+	struct hsfs_super *sb = inode->sb;
 	struct fsstat3res res;	
 	struct fsstat3resok resok;       
 	struct nfs_fh3 fh;
@@ -20,7 +21,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 
 	DEBUG_IN (" fh:%s",fh.data.data_val);
 
-	st = hsi_nfs3_clnt_call (inode->sb, NFSPROC3_FSSTAT,
+	st = hsi_nfs3_clnt_call (sb, sb->clntp, NFSPROC3_FSSTAT,
 			(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh, 
 			(xdrproc_t)xdr_fsstat3res, (caddr_t)&res);
 	if (st)	
@@ -31,7 +32,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 
 		st = hsi_nfs3_stat_to_errno (st);
 		ERR ("rpc request failed: %d\n",st);
-		clnt_freeres (inode->sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
+		clnt_freeres (sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
 		goto out;
 	}
 	resok = res.fsstat3res_u.resok;
@@ -41,7 +42,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	inode->sb->tfiles = resok.tfiles;
 	inode->sb->ffiles = resok.ffiles;
 	inode->sb->afiles = resok.afiles;
-	clnt_freeres (inode->sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
+	clnt_freeres (sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
 out:	
 	DEBUG_OUT (" err:%d",st);
 	return st;

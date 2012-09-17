@@ -53,7 +53,7 @@ int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
 	args.to.dir = newhi->fh;
 	args.to.name = (char *)newname;
 
-	err = hsi_nfs3_clnt_call(sb, NFSPROC3_RENAME,
+	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_RENAME,
 			(xdrproc_t)xdr_rename3args, (caddr_t)&args,
 			(xdrproc_t)xdr_rename3res, (caddr_t)&res);
 	if (err)

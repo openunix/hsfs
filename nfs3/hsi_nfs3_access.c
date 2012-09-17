@@ -34,7 +34,7 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 	args.access = mask & FULL_ACCESS;
 	clntp = hi->sb->clntp;
 	
-	status = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_ACCESS, 
+	status = hsi_nfs3_clnt_call(hi->sb, clntp, NFSPROC3_ACCESS, 
 			(xdrproc_t)xdr_access3args, (caddr_t)&args, 
 			(xdrproc_t)xdr_access3res, (caddr_t)&res);
 	if (status)

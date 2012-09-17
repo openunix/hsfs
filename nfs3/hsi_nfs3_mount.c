@@ -777,13 +777,24 @@ int hsx_fuse_unmount(const char *spec, const char *point,
 	return hsi_nfs3_unmount(&mnt_server, &dirname);
 }
 
-int hsi_nfs3_clnt_call(struct hsfs_super *sb, unsigned long procnum,
+
+static CLIENT *hsi_nfs3_clnt_reconnect(struct hsfs_super *sb, CLIENT *clnt)
+{
+	if (clnt == sb->clntp) {
+		hsi_mnt_closeclnt(clnt);
+		return hsi_nfs3_clnt_create(&nfs_server_bak,
+						ssize_bak, ssize_bak);
+	}
+	return NULL;
+}
+
+int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
+				unsigned long procnum,
 				xdrproc_t inproc, char *in,
 				xdrproc_t outproc, char *out)
 {
 	struct timeval tout = {sb->timeo / 10, sb->timeo % 10 * 100000};
 	enum clnt_stat st = RPC_SUCCESS;
-	CLIENT *clnt = sb->clntp;
 	int rtry = 0, ret = 0;
 retry:
 	st = clnt_call(clnt, procnum, inproc, in, outproc, out, tout);
@@ -797,11 +808,8 @@ retry:
 			rtry++;
 			goto retry;
 		} else if (ret == ENOTCONN || ret == ECONNRESET) {
-			hsi_mnt_closeclnt(clnt);
-			clnt = hsi_nfs3_clnt_create(&nfs_server_bak,
-						ssize_bak, ssize_bak);
+			clnt = hsi_nfs3_clnt_reconnect(sb, clnt);
 			if (clnt != NULL) {
-				sb->clntp = clnt;
 				rtry++;
 				goto retry;
 			}

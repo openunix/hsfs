@@ -36,7 +36,7 @@ int hsi_nfs3_readdir(struct hsfs_inode *hi, struct hsfs_readdir_ctx *hrc,
 	clntp = hi->sb->clntp;
 
 	do{		
-		err = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_READDIRPLUS,
+		err = hsi_nfs3_clnt_call(hi->sb, clntp, NFSPROC3_READDIRPLUS,
 				(xdrproc_t)xdr_readdirplus3args, (char *)&args,
 				(xdrproc_t)xdr_readdirplus3res, (char *)&res);
 		if (err)

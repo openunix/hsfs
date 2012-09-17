@@ -52,7 +52,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 		args.how.createhow3_u.obj_attributes = sattr;
 	}
 	
-	status = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_CREATE,
+	status = hsi_nfs3_clnt_call(hi->sb, clntp, NFSPROC3_CREATE,
 			(xdrproc_t)xdr_create3args, (caddr_t)&args,
 			(xdrproc_t)xdr_diropres3, (caddr_t)&res);
 	if (status)

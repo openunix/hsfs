@@ -20,6 +20,7 @@
 
 int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 {
+	struct hsfs_super *sb = hi_parent->sb;
 	int err = 0;
 	diropargs3 argp;
 	wccstat3 clnt_res;
@@ -33,7 +34,7 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 	argp.dir.data.data_val = hi_parent->fh.data.data_val;
 	argp.name = (char *) name;
 		
-	err = hsi_nfs3_clnt_call (hi_parent->sb, NFSPROC3_RMDIR, 
+	err = hsi_nfs3_clnt_call (sb, sb->clntp, NFSPROC3_RMDIR, 
 			(xdrproc_t) xdr_diropargs3, (caddr_t) &argp,
 			 (xdrproc_t) xdr_wccstat3, (caddr_t) &clnt_res);
 		
@@ -41,8 +42,7 @@ int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
 		goto out;
 	
 	err = hsi_nfs3_stat_to_errno(clnt_res.status); 	/*nfs error.*/
-	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_wccstat3,
-		       	(char *)&clnt_res);
+	clnt_freeres(sb->clntp, (xdrproc_t)xdr_wccstat3, (char *)&clnt_res);
 out:
 	DEBUG_OUT(" out, errno is(%d)\n", err);
 	return err;

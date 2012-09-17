@@ -141,7 +141,7 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	memset(&res, 0, sizeof(res));
 
 	clntp=newparent->sb->clntp; //get the client	
-	err=hsi_nfs3_clnt_call(newparent->sb, NFSPROC3_LINK,
+	err=hsi_nfs3_clnt_call(newparent->sb, clntp, NFSPROC3_LINK,
 				(xdrproc_t)xdr_link3args, (caddr_t)&args,
 				(xdrproc_t)xdr_link3res, (caddr_t)&res);
 	if(err)

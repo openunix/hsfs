@@ -22,6 +22,7 @@
 int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	       		const char *name, mode_t mode)
 {
+	struct hsfs_super *sb = hi_parent->sb;
 	int err = 0;
 	mkdir3args argp;
 	diropres3 clnt_res;	
@@ -35,7 +36,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	argp.attributes.mode.set = 1;
 	argp.attributes.mode.set_uint32_u.val = mode&0xfff;
 		
-	err = hsi_nfs3_clnt_call (hi_parent->sb, NFSPROC3_MKDIR, 
+	err = hsi_nfs3_clnt_call (sb, sb->clntp, NFSPROC3_MKDIR, 
 			(xdrproc_t) xdr_mkdir3args, (caddr_t) &argp,
 		       	(xdrproc_t) xdr_diropres3, (caddr_t) &clnt_res);
 	if (err) {	/*RPC error*/
@@ -55,8 +56,7 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 	}
 
 outfree:
-	clnt_freeres(hi_parent->sb->clntp, (xdrproc_t)xdr_diropres3,
-		       	(char *)&clnt_res);
+	clnt_freeres(sb->clntp, (xdrproc_t)xdr_diropres3, (char *)&clnt_res);
 out:
 	DEBUG_OUT(" out, errno:%d\n", err);
 	return err;

@@ -289,6 +289,7 @@ extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
  * @Potting clnt_call
  *
  * @sb: super block of hsfs
+ * @clnt: CLIENT info
  * @procnum: NFS procedure number(macro defined in nfs3.h)
  * @inproc: function which is used to encode the procedure's parameters
  * @in: the address of the procedure's argument(s)
@@ -297,7 +298,8 @@ extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
  *
  * @return errno number as Linux system
  */
-extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, unsigned long procnum,
+extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
+				unsigned long procnum,
 				xdrproc_t inproc, char *in,
 				xdrproc_t outproc, char *out);
 

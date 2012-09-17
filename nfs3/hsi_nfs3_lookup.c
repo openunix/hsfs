@@ -13,6 +13,7 @@ struct hsfs_super *sb=&s;
 int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, 
 		const char *name)
 {
+	struct hsfs_super *sb = parent->sb;
 	struct diropargs3 args;
 	struct lookup3res res;
 	struct fattr3 *pattr = NULL;
@@ -25,7 +26,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	DEBUG_IN("%s","");
 	args.dir = parent->fh;
 	args.name = (char *)name;
-	err=hsi_nfs3_clnt_call(parent->sb,NFSPROC3_LOOKUP,
+	err=hsi_nfs3_clnt_call(sb, sb->clntp, NFSPROC3_LOOKUP,
 			(xdrproc_t)xdr_diropargs3,(caddr_t)&args,
 			(xdrproc_t)xdr_lookup3res, (caddr_t)&res);
 
@@ -38,7 +39,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
-		clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
+		clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, 
 			(char *)&res);
 		goto out;
 	}
@@ -46,8 +47,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	{
 		ERR("Acquired property is invalid !");
 		err = EINVAL;
-		clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
-			(char *)&res);
+		clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
 		goto out;
 	}
 	
@@ -55,8 +55,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode,
 	name_fh = &res.lookup3res_u.resok.object;
         
 	*newinode = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
-	clnt_freeres(parent->sb->clntp, (xdrproc_t)xdr_lookup3res, 
-			(char *)&res);
+	clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
 
 out:
 	DEBUG_OUT(" with errno %d",err);

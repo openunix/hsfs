@@ -22,7 +22,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	args.offset = rinfo->rw_off;
 	args.count = rinfo->rw_size;
 
-	err = hsi_nfs3_clnt_call(sb, NFSPROC3_READ,
+	err = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_READ,
 				(xdrproc_t)xdr_read3args, (char *)&args,
 				(xdrproc_t)xdr_read3res, (char *)&res);
 	if (err)

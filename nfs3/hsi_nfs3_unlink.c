@@ -111,7 +111,7 @@ int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name)
 	args.dir = hi->fh;
 	args.name = (char *)name;
 
-	err = hsi_nfs3_clnt_call(hi->sb, NFSPROC3_REMOVE,
+	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_REMOVE,
 			(xdrproc_t)xdr_diropargs3,	(caddr_t)&args,
 			(xdrproc_t)xdr_wccstat3, (caddr_t)&res);
 	if (err)
