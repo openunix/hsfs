@@ -451,8 +451,9 @@ int main(int argc, char **argv)
 		}
 		fuse_session_destroy(se);
 	}
-
-	hsi_del_mtab(mountpoint);
+	
+	if (getuid() == 0)
+		hsi_del_mtab(mountpoint);
 
 	hsx_fuse_unmount(mountspec, mountpoint, ch, &super);
 out:
