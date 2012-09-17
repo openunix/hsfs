@@ -148,11 +148,11 @@ struct hsfs_sattr{
 }hsfs_sattr_t;
 
 struct hsfs_readdir_ctx{
-  off_t	off;
-  char	*name;
-  char	cookieverf[NFS3_COOKIEVERFSIZE];
-  struct stat	stbuf;
-  struct hsfs_readdir_ctx *next;
+	off_t		off;
+	char		*name;
+	char		cookieverf[NFS3_COOKIEVERFSIZE];
+	struct stat	stbuf;
+	struct hsfs_readdir_ctx *next;
 };
 
 /* for nfs3 */
