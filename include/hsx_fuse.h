@@ -105,29 +105,31 @@ extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name,
 			    fuse_ino_t newparent, const char *newname);
 
 /**
- * read the content of the symlink
- * Valid replies:
- *   fuse_reply_readlink
- *   fuse_reply_err
+ * @brief Read the content of the symlink
  *
- * @param req request handle
- * @param ino the inode number
+ * Valid replies:
+ * fuse_reply_readlink
+ * fuse_reply_err
+ *
+ * @param req[in]	 request handle
+ * @param ino[in]	 the inode number
  **/
 extern void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino);
 
 /**
- * Create a symbolic link
- * Valid replies:
- *   fuse_reply_entry
- *   fuse_reply_err
+ * @brief Create a symbolic link
  *
- * @param req request handle
- * @param link the contents of the symbolic link
- * @param parent inode number of the parent directory
- * @param name to create
+ * Valid replies:
+ * fuse_reply_entry
+ * fuse_reply_err
+ *
+ * @param req[in]	 request handle
+ * @param link[in]	 the contents of the symbolic link
+ * @param parent[in]	 inode number of the parent directory
+ * @param name[in]	 to create
  **/
-extern void hsx_fuse_symlink(fuse_req_t req, const char *link,                      
-			     fuse_ino_t parent, const char *name);
+extern void hsx_fuse_symlink(fuse_req_t req, const char *link, 
+				fuse_ino_t parent, const char *name);
 
 
 /**
