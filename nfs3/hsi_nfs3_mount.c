@@ -788,7 +788,7 @@ static CLIENT *hsi_nfs3_clnt_reconnect(struct hsfs_super *sb, CLIENT *clnt)
 			sb->clntp = clnt;
 		}
 	}
-	return NULL;
+	return clnt;
 }
 
 int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
