@@ -19,44 +19,44 @@ extern int hsi_nfs3_mkdir(struct hsfs_inode *parent, struct hsfs_inode **new,
 extern int hsi_nfs3_rmdir(struct hsfs_inode *hi_parent, const char *name);
 
 /**
- * Remove a file
+ * @brief Remove a file
  *
- * @param hsfs_inode
- * @param name to remove
- *
- * @return error number
- **/
-extern int hsi_nfs3_unlink(struct hsfs_inode *hi, const char *name);
-
-/**
- * Rename a file
- *
- * @param source hsfs_inode
- * @param source name
- * @param target hsfs_inode
- * @param target name
+ * @param parent[in] the information of the parent directory
+ * @param name[in] to remove
  *
  * @return error number
  **/
-extern int hsi_nfs3_rename(struct hsfs_inode *hi, const char *name,
-			   struct hsfs_inode *newhi, const char *newname);
+extern int hsi_nfs3_unlink(struct hsfs_inode *parent, const char *name);
 
 /**
- * Change nfs3 status number to fuse error number
+ * @brief Rename a file
  *
- * @param nfs3 status number
+ * @param parent[in] the information of the source parent directory
+ * @param name[in] source name
+ * @param newparent[in] the information of the target parent directory
+ * @param newname[in] target name
  *
- * @return fuse error number
+ * @return error number
+ **/
+extern int hsi_nfs3_rename(struct hsfs_inode *parent, const char *name,
+			   struct hsfs_inode *newparent, const char *newname);
+
+/**
+ * @brief Change nfs3 status number to system error number
+ *
+ * @param stat[in] nfs3 status number
+ *
+ * @return error number
  **/
 extern int hsi_nfs3_stat_to_errno(int stat);
 
 /**
-* Change rpc status number to fuse error number
-*
-* @param rpc status number
-*
-* @return fuse error number
-**/
+ * @brief Change rpc status number to system error number
+ *
+ * @param clntp[in] rpc client handle
+ *
+ * @return error number
+ **/
 extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
 
 
@@ -160,9 +160,9 @@ extern 	int hsi_nfs3_link(struct hsfs_inode *ino, struct hsfs_inode *newparent,
 /**
  * hsi_nfs3_lookup:		Look up a directory entry by name
  *
- * @param parent[IN]:		The information of the parent node
- * @param newinode[OUT]:	Point to the node information obtained by name
- * @param name[IN]:		The name to look up
+ * @param parent[IN]		The information of the parent node
+ * @param newinode[OUT]	Point to the node information obtained by name
+ * @param name[IN]		The name to look up
  *
  * @return error number
  *

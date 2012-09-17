@@ -19,39 +19,28 @@ extern void hsx_fuse_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off
 extern void hsx_fuse_write(fuse_req_t req, fuse_ino_t ino, const char *buf, size_t size, off_t off, struct fuse_file_info *fi);
 
 /**
- * Remove a file
- *
- * If the file's inode's lookup count is non-zero, the file
- * system is expected to postpone any removal of the inode
- * until the lookup count reaches zero (see description of the
- * forget function).
+ * @brief Remove a file
  *
  * Valid replies:
  *   fuse_reply_err
  *
- * @param req request handle
- * @param parent inode number of the parent directory
- * @param name to remove
+ * @param req[in] request handle
+ * @param parent[in] inode number of the parent directory
+ * @param name[in] to remove
  **/
 extern void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name);
 
 /** 
- * Rename a file
- *
- * If the target exists it should be atomically replaced. If
- * the target's inode's lookup count is non-zero, the file
- * system is expected to postpone any removal of the inode
- * until the lookup count reaches zero (see description of the
- * forget function).
+ * @brief Rename a file
  *
  * Valid replies:
  *   fuse_reply_err
  *
- * @param req request handle
- * @param parent inode number of the old parent directory
- * @param name old name
- * @param newparent inode number of the new parent directory
- * @param newname new name
+ * @param req[in] request handle
+ * @param parent[in] inode number of the old parent directory
+ * @param name[in] old name
+ * @param newparent[in] inode number of the new parent directory
+ * @param newname[in] new name
  **/
 extern void hsx_fuse_rename(fuse_req_t req, fuse_ino_t parent, const char *name, 
 			    fuse_ino_t newparent, const char *newname);
