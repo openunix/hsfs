@@ -68,29 +68,29 @@ extern int hsi_rpc_stat_to_errno(CLIENT *clntp);
 
 
 /**
- * Read the contents of the symbolic link
+ * @brief Read the contents of the symbolic link
  *
- * @param hi           the struct hsfs_inode of the symbolic link 
- * @param nfs_link     the contents of the symbolic link
+ * @param inode[in]		the struct hsfs_inode of the symbolic link 
+ * @param link[out]		the contents of the symbolic link
  *
  * @return error number
  **/
 
-extern int hsi_nfs3_readlink(struct hsfs_inode *hi, char **nfs_link);
+extern int hsi_nfs3_readlink(struct hsfs_inode *inode, char **link);
 
 
 /**
- * Create a symbolic link
+ * @brief Create a symbolic link
  *
- * @param parent      the struct hsfs_inode of the parent 
- * @param new         the struct hsfs_inode of the new
- * @param nfs_link    the contents of the new symbolic link
- * @param nfs_name    the name of the new symbolic link
+ * @param parent[in]	the struct hsfs_inode of the parent 
+ * @param new[out]	the struct hsfs_inode of the new
+ * @param link[in]	the contents of the new symbolic link
+ * @param name[in]	the name of the new symbolic link
  *
  * @return error number
  **/
 extern int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new, 
-			    const char *nfs_link, const char *nfs_name);
+				const char *link, const char *name);
 
 /**
  * @brief Read file 
