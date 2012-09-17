@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 	int result = 0;
 	int err = 0;
 	int symlink_stat = 0;
-	const char *nfs_link = NULL;
-	const char *nfs_name = NULL;
+	const char *link = NULL;
+	const char *name = NULL;
 	struct hsfs_super sb_parent;
 	struct hsfs_super *sb_new;
 	struct hsfs_inode parent;
@@ -43,11 +43,11 @@ int main(int argc, char *argv[])
 
 	if (argc < 3) {
 		err = EINVAL;
-		fprintf(stderr, "%s $nfs_link $nfs_name.\n", cliname);
+		fprintf(stderr, "%s $link $name.\n", cliname);
 		goto out;
 	}
-	nfs_link = argv[1];
-	nfs_name = argv[2];
+	link = argv[1];
+	name = argv[2];
 
 	result = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh_val);
 	if(result != 0){
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 	parent.fh.data.data_len = fh_len;
 	parent.fh.data.data_val = fh_val;
 
-	symlink_stat = hsi_nfs3_symlink(&parent, &new, nfs_link, nfs_name);
+	symlink_stat = hsi_nfs3_symlink(&parent, &new, link, name);
 
 	if(symlink_stat){
 		err = EACCES;
@@ -91,7 +91,7 @@ out:
 #include "hsi_nfs3.h"
 
 int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
-			const char *nfs_link, const char *nfs_name)
+			const char *link, const char *name)
 {
 	struct symlink3args args;
 	struct diropres3 res;
@@ -102,8 +102,8 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 	memset(&res, 0, sizeof(res));
 	memset(&args, 0, sizeof(args));
 	args.where.dir = parent->fh;
-	args.where.name = (char *)nfs_name;
-	args.symlink.symlink_data = (char *)nfs_link;
+	args.where.name = (char *)name;
+	args.symlink.symlink_data = (char *)link;
 
 	err = hsi_nfs3_clnt_call(parent->sb, NFSPROC3_SYMLINK,
 			(xdrproc_t)xdr_symlink3args, (caddr_t)&args,
