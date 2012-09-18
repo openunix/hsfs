@@ -9,7 +9,7 @@
  *
  * @param parent[in] the information of the source parent directory
  * @param name[in] directory name
- * @param new[out]] the information of the target directory
+ * @param new[out] the information of the target directory
  * @param mode[in] the mode of the target directory
  *
  * @return error number
@@ -289,13 +289,13 @@ extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 /**
  * @brief Potting clnt_call
  *
- * @param[in] sb super block of hsfs
- * @param[in] clnt CLIENT info
- * @param[in] procnum NFS procedure number(macro defined in nfs3.h)
- * @param[in] inproc function which is used to encode the procedure's parameters
- * @param[in] in the address of the procedure's argument(s)
- * @param[in] outproc function which is used to decode the procedure's results
- * @param[out] out	the address of where to place the result(s)
+ * @param sb[in] 	super block of hsfs
+ * @param clnt[in] 	CLIENT info
+ * @param procnum[in] 	NFS procedure number(macro defined in nfs3.h)
+ * @param inproc[in] 	function which is used to encode the procedure's parameters
+ * @param in[in] the 	address of the procedure's argument(s)
+ * @param outproc[in] 	function which is used to decode the procedure's results
+ * @param out[out]	the address of where to place the result(s)
  *
  * @return errno number as Linux system
  */
