@@ -84,8 +84,17 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc,
 			 
 			err = temp_entry->name_attributes.present;
 			if (1 != err) {
-				ERR("Rpc get fattr3 failure: %s.", 
-							clnt_sperrno(err));
+				err = resok->dir_attributes.present;
+				if (1 ==err){
+					err = hsi_nfs3_fattr2stat(&resok->
+					dir_attributes.post_op_attr_u.
+					attributes, &temp_hrc->stbuf);
+					if(err != 0){
+						ERR("stat err:(0x%x).", err);
+						goto out;
+					}
+				}
+						
 			}
 
 	    		if (1 == err) {
