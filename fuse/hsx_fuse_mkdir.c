@@ -2,13 +2,7 @@
 #include "hsfs.h"
 #include "hsx_fuse.h"
 #include "hsi_nfs3.h"
-/**
- *  hsx_fuse_mkdir
- *  function for make dir
- *  Edit:2012/09/05 Hu yuwei
- *  
- *  @param fuse_req_t:data about RPC fuse, the function will use struct CLIENT
- */
+
 void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	       	mode_t mode)
 {	
