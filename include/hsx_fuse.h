@@ -36,7 +36,7 @@ extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
 /**
  * @brief Fill the param in the entry
  *
- * @param inode[in] data fo hsfs_inode
+ * @param inode[in] data of hsfs_inode
  * @param e[in] the param of the entry
  *
  * @return the error number of the function
@@ -314,13 +314,13 @@ extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_
  * @param point[in]	mount point at local node
  * @param args[out]	save fuse arguments which is mapping from nfs
  * @param udata[out]	nfs arguments which is used for mtab
- * @param userdata[out]	hsfs super block
+ * @param super[out]	hsfs super block
  * 
  * @return fuse channel
  */
 extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 					struct fuse_args *args, char *udata,
-					struct hsfs_super *userdata);
+					struct hsfs_super *super);
 
 /**
  * @brief Unmount NFS filesystem (release root filehandle)
@@ -328,7 +328,7 @@ extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
  * @param spec[in]	mount spec at remote node
  * @param point[in]	mount point at local node
  * @param ch[in]	fuse channel for hsfs
- * @param userdata[out]	hsfs super block
+ * @param super[out]	hsfs super block
  * 
  * @return errno number as Linux system
  */
