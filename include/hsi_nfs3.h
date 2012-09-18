@@ -256,7 +256,7 @@ extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
  * @param sp[in] the information of hsfs_super
  * @param stbuf[out] the information of the file system
  * 
- * return error number
+ * @return error number
  */
 extern int hsi_super2statvfs (struct hsfs_super *sp, struct statvfs *stbuf);
 
@@ -322,7 +322,7 @@ extern int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
                        struct posix_acl **pbuf, int type);
 
 /**
- * @brief Set extended attributes
+ * @brief Set extended attribute
  *
  * @param inode[in] 	the hsfs_inode struct
  * @param value[in] 	data of attributes
