@@ -90,5 +90,5 @@ extern struct posix_acl *posix_acl_alloc(int count);
 extern int posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, 
 				size_t size);
 extern struct posix_acl *posix_acl_from_xattr(const void *value, size_t size);
-struct posix_acl *posix_acl_from_mode(mode_t mode);
+extern struct posix_acl *posix_acl_from_mode(mode_t mode);
 #endif /* */
