@@ -305,7 +305,7 @@ extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
 				xdrproc_t outproc, char *out);
 
 /**
- * @brief Get an extended attribute
+ * @brief Get extended attribute
  *
  * @param inode[in] the information of the node 
  * @param mask[in] attribute mask
@@ -318,7 +318,7 @@ extern int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
                        struct posix_acl **pbuf, int type);
 
 /**
- * @brief extended attributes
+ * @brief Set extended attributes
  *
  * @param inode[in] 	the hsfs_inode struct
  * @param value[in] 	data of attributes
