@@ -132,12 +132,12 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
 	return NULL;
 }
 
-struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 
+struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, fattr3 
 				*attr)
 {
 	struct hsfs_inode *hsfs_node = NULL;
 	uint64_t ino ;
-	if(sb == NULL || pfh == NULL || attr == NULL)
+	if(sb == NULL || fh == NULL || attr == NULL)
 	{
 		return  NULL;
 	}
@@ -148,7 +148,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3
 	hsfs_node = hsx_fuse_iget(sb,ino);
 	if (hsfs_node == NULL)
 	{
-		hsfs_node = hsi_nfs3_alloc_node(sb, pfh, ino, attr);
+		hsfs_node = hsi_nfs3_alloc_node(sb, fh, ino, attr);
 		if (hsfs_node == NULL)
 			return NULL;
 		DEBUG("This is a new node ,and now to add to hash table.");
