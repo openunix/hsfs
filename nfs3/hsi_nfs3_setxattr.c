@@ -14,6 +14,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	struct posix_acl  *dfacl = NULL;
 	int error = 0;
 	int mask = 0;
+	int i = 0;
 
 	DEBUG_IN("in ino: %lu, mask %d\n", inode->ino, mask);
 
@@ -69,16 +70,36 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 		}
 	}
 
+	args.acl.aclcnt = acl->a_count;
 	args.acl.aclent.aclent_len = acl->a_count;
-	args.acl.aclent.aclent_val = (aclent *)acl->a_entries;
+	//args.acl.aclent.aclent_val = (aclent *)acl->a_entries;
+	args.acl.aclent.aclent_val = (aclent *) calloc(acl->a_count,
+					sizeof(struct aclent));
+	
+	for (i = 0; i < acl->a_count; i++) {
+		args.acl.aclent.aclent_val[i].type = acl->a_entries[i].e_tag;
+		args.acl.aclent.aclent_val[i].id = acl->a_entries[i].e_id;
+		args.acl.aclent.aclent_val[i].perm = acl->a_entries[i].e_perm;
+	}
+
 	DEBUG("getxattr is ok. ........acl.type = %d, acl.id = %d, acl.perm ="
 		"%d\n", args.acl.aclent.aclent_val[0].type,
 			args.acl.aclent.aclent_val[0].id,
 			args.acl.aclent.aclent_val[0].perm);	
 	if (dfacl) {
-		args.acl.dfaclcnt = dfacl->a_refcount.counter;
-		args.acl.dfaclent.dfaclent_len = dfacl->a_count;
-		args.acl.dfaclent.dfaclent_val = (aclent *)dfacl->a_entries;
+		args.acl.dfaclcnt = dfacl->a_count;
+		args.acl.dfaclent.dfaclent_len = dfacl->a_count;	
+		args.acl.dfaclent.dfaclent_val = (aclent *) calloc (
+						dfacl->a_count, 
+						sizeof(struct aclent));		
+
+		for (i = 0; i < dfacl->a_count; i++) {
+			args.acl.dfaclent.dfaclent_val[i].type = dfacl->a_entries[i].e_tag;
+			args.acl.dfaclent.dfaclent_val[i].id = dfacl->a_entries[i].e_id;
+			args.acl.dfaclent.dfaclent_val[i].perm = dfacl->a_entries[i].e_perm;
+		}
+
+		//args.acl.dfaclent.dfaclent_val = (aclent *)dfacl->a_entries;
 	}
 	
 	error = hsi_nfs3_clnt_call(inode->sb, inode->sb->acl_clntp, ACLPROC3_SETACL,
