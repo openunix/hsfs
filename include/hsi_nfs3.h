@@ -318,9 +318,16 @@ extern int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
                        struct posix_acl **pbuf, int type);
 
 /**
- * hsi_nfs3_setxattr
- * set the extended attribute
+ * @brief extended attributes
+ *
+ * @param inode[in] 	the hsfs_inode struct
+ * @param value[in] 	data of attributes
+ * @param type[in] 	the mode of extended attributes
+ * @param size[in] 	the value size
+ *
+ * @return errno number as Linux system
  */
-extern int hsi_nfs3_setxattr(struct hsfs_inode *hi, const char *value, int type,
+
+extern int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 				size_t size);
 #endif
