@@ -77,9 +77,7 @@ struct  hsfs_table
 struct hsfs_super {
   CLIENT *clntp;
   int    flags;
-  /* rsize/wrise, filled up at hsx_fuse_init 
-   * for read/write
-   */
+  /* for read/write */
   int    rsize;
   int	 wsize;
   /* For all clnt_call timeout,
@@ -92,7 +90,7 @@ struct hsfs_super {
   int	 acdirmin;
   int	 acdirmax;
   struct sockaddr_in	addr;
-  /* namelen, filled up at hsx_fuse_init */
+  /* for statfs */
   int	 namlen;
   /* Readdir size */
   int	 dtsize;

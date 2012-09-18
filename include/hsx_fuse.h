@@ -4,8 +4,6 @@
 
 #include <sys/stat.h>
 
-extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
-
 /**
  * @brief Make a directory
  *
@@ -308,27 +306,27 @@ extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off
 extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_info  *fi);
 
 /**
- * @Mount NFS filesystem (get root filehandle)
+ * @brief Mount NFS filesystem (get root filehandle)
  *
- * @spec[in]	mount spec at remote node
- * @point[in]	mount point at local node
- * @args[out]	save fuse arguments which is mapping from nfs
- * @udata[out]	nfs arguments which is used for mtab
- * @userdata[out]	hsfs super block
+ * @param spec[in]	mount spec at remote node
+ * @param point[in]	mount point at local node
+ * @param args[out]	save fuse arguments which is mapping from nfs
+ * @param udata[out]	nfs arguments which is used for mtab
+ * @param super[out]	hsfs super block
  * 
  * @return fuse channel
  */
 extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 					struct fuse_args *args, char *udata,
-					struct hsfs_super *userdata);
+					struct hsfs_super *super);
 
 /**
- * @Unmount NFS filesystem (release root filehandle)
+ * @brief Unmount NFS filesystem (release root filehandle)
  *
- * @spec[in]	mount spec at remote node
- * @point[in]	mount point at local node
- * @ch[in]	fuse channel for hsfs
- * @userdata[out]	hsfs super block
+ * @param spec[in]	mount spec at remote node
+ * @param point[in]	mount point at local node
+ * @param ch[in]	fuse channel for hsfs
+ * @param super[out]	hsfs super block
  * 
  * @return errno number as Linux system
  */

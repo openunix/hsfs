@@ -268,33 +268,33 @@ extern int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx
 						*hrc, size_t maxcount);
 
 /**
- * @Get static file system information of NFS
+ * @brief Get static file system information of NFS
  *
- * @inode: hsfs inode of root directory
+ * @param inode[in]	hsfs inode of root directory
  *
  * @return errno number as Linux system
  */
 extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
 
 /**
- * @Retrieve POSIX information of NFS
+ * @brief Retrieve POSIX information of NFS
  *
- * @inode: hsfs inode of root directory
+ * @param inode[in]	hsfs inode of root directory
  *
  * @return errno number as Linux system
  */
 extern int hsi_nfs3_pathconf(struct hsfs_inode *inode);
 
 /**
- * @Potting clnt_call
+ * @brief Potting clnt_call
  *
- * @sb: super block of hsfs
- * @clnt: CLIENT info
- * @procnum: NFS procedure number(macro defined in nfs3.h)
- * @inproc: function which is used to encode the procedure's parameters
- * @in: the address of the procedure's argument(s)
- * @outproc: function which is used to decode the procedure's results
- * @out:	the address of where to place the result(s)
+ * @param sb[in]	super block of hsfs
+ * @param clnt[in]	CLIENT info
+ * @param procnum[in]	NFS procedure number(macro defined in nfs3.h)
+ * @param inproc[in]	function which is used to encode the procedure's parameters
+ * @param in[in]	the address of the procedure's argument(s)
+ * @param outproc[in]	function which is used to decode the procedure's results
+ * @param out[in,out]	the address of where to place the result(s)
  *
  * @return errno number as Linux system
  */
