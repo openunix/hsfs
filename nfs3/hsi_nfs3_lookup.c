@@ -10,7 +10,7 @@ struct hsfs_super s;
 struct hsfs_super *sb=&s;
 #endif /* HSFS_NFS3_TEST */
 
-int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **newinode, 
+int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new, 
 		const char *name)
 {
 	struct hsfs_super *sb = parent->sb;
