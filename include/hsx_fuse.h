@@ -39,7 +39,7 @@ extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
  * @param inode[in] data fo hsfs_inode
  * @param e[in] the param of the entry
  *
- * @param err[out] the error number of the function
+ * @return the error number of the function
  **/
 extern int hsx_fuse_fill_reply(struct hsfs_inode *inode,
 	       	struct fuse_entry_param *e);
@@ -220,7 +220,7 @@ extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup);
 
 /**
- * @Open a file
+ * @brief Open a file
  * 
  * @Valid replies:
  *  fuse_reply_err 
@@ -232,7 +232,7 @@ extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nloo
  * */
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 /**
- * @Release a file
+ * @brief Release a file
  *
  * @Valid replies:
  *  fuse_reply_err
@@ -269,7 +269,7 @@ extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino,
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 			     int to_set, struct fuse_file_info *fi);
 /**
- * @Get the filesystem statistics
+ * @brief Get the filesystem statistics
  *
  * Valid replies:
  *  fuse_reply_statfs fuse_reply_err
@@ -308,13 +308,13 @@ extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off
 extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_info  *fi);
 
 /**
- * @Mount NFS filesystem (get root filehandle)
+ * @brief Mount NFS filesystem (get root filehandle)
  *
- * @spec[in]	mount spec at remote node
- * @point[in]	mount point at local node
- * @args[out]	save fuse arguments which is mapping from nfs
- * @udata[out]	nfs arguments which is used for mtab
- * @userdata[out]	hsfs super block
+ * @param spec[in]	mount spec at remote node
+ * @param point[in]	mount point at local node
+ * @param args[out]	save fuse arguments which is mapping from nfs
+ * @param udata[out]	nfs arguments which is used for mtab
+ * @param userdata[out]	hsfs super block
  * 
  * @return fuse channel
  */
@@ -323,12 +323,12 @@ extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 					struct hsfs_super *userdata);
 
 /**
- * @Unmount NFS filesystem (release root filehandle)
+ * @brief Unmount NFS filesystem (release root filehandle)
  *
- * @spec[in]	mount spec at remote node
- * @point[in]	mount point at local node
- * @ch[in]	fuse channel for hsfs
- * @userdata[out]	hsfs super block
+ * @param spec[in]	mount spec at remote node
+ * @param point[in]	mount point at local node
+ * @param ch[in]	fuse channel for hsfs
+ * @param userdata[out]	hsfs super block
  * 
  * @return errno number as Linux system
  */
