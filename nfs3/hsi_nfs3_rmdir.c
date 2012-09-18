@@ -18,20 +18,20 @@
 #include <libgen.h>
 #endif
 
-int hsi_nfs3_rmdir (struct hsfs_inode *hi_parent, const char *name)
+int hsi_nfs3_rmdir (struct hsfs_inode *parent, const char *name)
 {
-	struct hsfs_super *sb = hi_parent->sb;
+	struct hsfs_super *sb = parent->sb;
 	int err = 0;
 	diropargs3 argp;
 	wccstat3 clnt_res;
 
-	DEBUG_IN(" ino:%lu.\n", hi_parent->ino);
+	DEBUG_IN(" ino:%lu.\n", parent->ino);
 
 	memset (&argp, 0, sizeof(diropargs3));
 	memset (&clnt_res, 0, sizeof(wccstat3));
 		
-	argp.dir.data.data_len = hi_parent->fh.data.data_len;
-	argp.dir.data.data_val = hi_parent->fh.data.data_val;
+	argp.dir.data.data_len = parent->fh.data.data_len;
+	argp.dir.data.data_val = parent->fh.data.data_val;
 	argp.name = (char *) name;
 		
 	err = hsi_nfs3_clnt_call (sb, sb->clntp, NFSPROC3_RMDIR, 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	enum clnt_stat st;
 	int err = 0;
 	int argv_len = 0;
-	struct hsfs_inode *hi_parent = NULL ;
+	struct hsfs_inode *parent = NULL ;
 	struct hsfs_inode *new;
 	cliname = basename (argv[0]);
 	if (argc < 3) {
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "%s $svraddr $fpath.\n", cliname);
 			goto out;
 		}
-	hi_parent = (struct hsfs_inode *) malloc(sizeof(struct hsfs_inode));
+	parent = (struct hsfs_inode *) malloc(sizeof(struct hsfs_inode));
 	svraddr = argv[1];
 	fpath = argv[2];
 	name = argv[3];
@@ -91,15 +91,15 @@ int main(int argc, char *argv[])
 	st_tmp = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh);
 	args.where.dir.data.data_len  = fh_len;
 	args.where.dir.data.data_val = fh;
-	hi_parent->sb = (struct hsfs_super *) malloc(sizeof(struct hsfs_super));
-	if (NULL == hi_parent->sb)
+	parent->sb = (struct hsfs_super *) malloc(sizeof(struct hsfs_super));
+	if (NULL == parent->sb)
 	{
-		printf("No memory:hi_parent->sb.\n");
+		printf("No memory:parent->sb.\n");
 	}
-	hi_parent->sb->clntp = clntp;
-	hi_parent->fh.data.data_len = args.where.dir.data.data_len;
-	hi_parent->fh.data.data_val = args.where.dir.data.data_val;
-	st = hsi_nfs3_rmdir(hi_parent, name);
+	parent->sb->clntp = clntp;
+	parent->fh.data.data_len = args.where.dir.data.data_len;
+	parent->fh.data.data_val = args.where.dir.data.data_val;
+	st = hsi_nfs3_rmdir(parent, name);
 	if (st) {
 		err = EIO;
 		fprintf (stderr, "%s: Call RPC Server (%s, %u, %u) failure: (%s).\n", cliname, svraddr, NFSPROC3_MKDIR, NFS_V3,clnt_sperrno(st));
@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
 	}
 
 out:
-	free(hi_parent->sb);
-	free(hi_parent);
+	free(parent->sb);
+	free(parent);
 	if (NULL != clntp)
 		clnt_destroy(clntp);
 	exit(st);
