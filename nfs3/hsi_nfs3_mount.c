@@ -734,11 +734,11 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 	}
 
 	return ch;
-clnt_des:
-	clnt_destroy(super->clntp);
+
 umnt_fail:
 	free(mntres.mountres3_u.mountinfo.fhandle.fhandle3_val);
 fmnt_fail:
+	clnt_destroy(super->clntp);
 	hsi_nfs3_unmount(&mnt_server, &dirname);
 fail:
 	return NULL;
