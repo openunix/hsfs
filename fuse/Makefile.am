@@ -1,12 +1,12 @@
 sbindir = /sbin
 
-sbin_PROGRAMS = mount.hsfs
-mount_hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
+noinst_PROGRAMS = hsfs
+hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			`pkg-config fuse --cflags` 
-mount_hsfs_LDFLAGS = `pkg-config fuse --libs`
-mount_hsfs_LDADD = $(top_builddir)/fuse/libhsx_fuse.a \
+hsfs_LDFLAGS = `pkg-config fuse --libs`
+hsfs_LDADD = $(top_builddir)/fuse/libhsx_fuse.a \
 		     $(top_builddir)/nfs3/libhsi_nfs3.a
-mount_hsfs_SOURCES = xcommon.c hsfs_main.c
+hsfs_SOURCES = xcommon.c hsfs_main.c
 
 noinst_LIBRARIES = libhsx_fuse.a
 libhsx_fuse_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
@@ -19,3 +19,13 @@ libhsx_fuse_a_SOURCES = hsfs_fuse_table.c hsx_fuse_getattr.c hsx_fuse_statfs.c \
 			hsx_fuse_unlink.c hsx_fuse_rename.c hsx_fuse_readdir.c \			hsx_fuse_opendir.c \
 			hsx_fuse_mknod.c hsx_fuse_link.c hsx_fuse_create.c \
 			hsx_fuse_access.c
+
+MOUNT_HSFS = mount.hsfs
+install:
+	@if test -e $(sbindir)/$(MOUNT_HSFS); then \
+		echo "mount.hsfs has exist, delete first.";\
+		rm $(sbindir)/$(MOUNT_HSFS) -f ;\
+	fi;
+	cp hsfs $(sbindir)/$(MOUNT_HSFS) -f
+uninstall:
+	rm $(sbindir)/$(MOUNT_HSFS) -f
