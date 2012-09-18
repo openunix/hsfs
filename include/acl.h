@@ -22,11 +22,19 @@
 #define ACL_MASK		(0x10)
 #define ACL_OTHER		(0x20)
 
+/* flags for getacl/setacl mode */
+#define NFS_ACL			0x0001
+#define NFS_ACLCNT		0x0002
+#define NFS_DFACL		0x0004
+#define NFS_DFACLCNT		0x0008
+
 /* permissions in the e_perm field */
 #define ACL_READ		(0x04)
 #define ACL_WRITE		(0x02)
 #define ACL_EXECUTE		(0x01)
 //#define ACL_ADD		(0x08)
+
+
 
 /* A define for big endian and little endian we just use the type define  */
 typedef unsigned short __le16;
@@ -72,13 +80,15 @@ typedef struct {
 	posix_acl_xattr_entry	a_entries[0];
 } posix_acl_xattr_header;
 
-static inline size_t posix_acl_xattr_size(int count)
+static inline size_t posix_acl_xattr_size (int count)
 {
 	return (sizeof(posix_acl_xattr_header) +
 		(count * sizeof(posix_acl_xattr_entry)));
 }
+
 extern struct posix_acl *posix_acl_alloc(int count);
 extern int posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, 
 				size_t size);
-
+extern struct posix_acl *posix_acl_from_xattr(const void *value, size_t size);
+struct posix_acl *posix_acl_from_mode(mode_t mode);
 #endif /* */
