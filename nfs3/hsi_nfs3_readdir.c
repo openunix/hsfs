@@ -81,22 +81,22 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc,
 				memcpy(args.cookieverf, resok->cookieverf, 
 						NFS3_COOKIEVERFSIZE);
 			}
-	 
+			 
 			err = temp_entry->name_attributes.present;
 			if (1 != err) {
 				ERR("Rpc get fattr3 failure: %s.", 
 							clnt_sperrno(err));
-				goto out;
 			}
-	    		
-			err = hsi_nfs3_fattr2stat(&temp_entry->
+
+	    		if (1 == err) {
+				err = hsi_nfs3_fattr2stat(&temp_entry->
 				name_attributes.post_op_attr_u.attributes,
 						&temp_hrc->stbuf);
 			
-			if(err != 0){
-				ERR("Set fattr3 to stat failure: (0x%x).", err);
-				goto out;
-	
+				if(err != 0){
+					ERR("Get stat failure:(0x%x).", err);
+					goto out;
+				}
 			}
 			temp_hrc1->next = temp_hrc;
 			temp_hrc1 = temp_hrc;
