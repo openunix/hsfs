@@ -114,6 +114,8 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	clnt_freeres(inode->sb->acl_clntp, (xdrproc_t)xdr_SETACL3res,
 			 (char *)&clnt_res);
 fail:
+	free(args.acl.aclent.aclent_val);
+	free(args.acl.dfaclent.dfaclent_val);
 	free(acl);
 	free(alloc);
 	return error;
