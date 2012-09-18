@@ -2,6 +2,7 @@
 #define __HSI_NFS3_H__
 
 #include "hsfs.h"
+#include "acl3.h"
 #include "acl.h"
 /**
  * @brief make a directory
