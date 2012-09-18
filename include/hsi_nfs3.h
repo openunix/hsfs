@@ -251,8 +251,12 @@ extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 extern int hsi_nfs3_statfs (struct hsfs_inode *inode);
 
 /**
- * hsi_super2statvfs
- * Change some fields of hsfs_super to statvfs
+ * @brief Change some fileds of hsfs_super to statvfs
+ * 
+ * @param sp[in] the information of hsfs_super
+ * @param stbuf[out] the information of the file system
+ * 
+ * return error number
  */
 extern int hsi_super2statvfs (struct hsfs_super *sp, struct statvfs *stbuf);
 
