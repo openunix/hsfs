@@ -1,7 +1,7 @@
 #include <errno.h>
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
-
+#include "acl.h"
 void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t size)
 {
 	struct hsfs_inode *hsfs_node;

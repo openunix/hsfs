@@ -233,9 +233,9 @@ static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server,
 
 	ssize_bak = ssize;
 	rsize_bak = rsize;
-	if (nfs_server->pmap->prog == NFS_PROGRAM)
+	if (nfs_server->pmap.pm_prog == NFS_PROGRAM)
 		nfs_server_bak = *nfs_server;
-	else if (nfs_server->pmap->proc == NFS_ACL_PROGRAM)
+	else if (nfs_server->pmap.pm_prog == NFS_ACL_PROGRAM)
 		acl_server_bak = *nfs_server;
 	else
 		ERR("Bad nfs server.");
@@ -830,14 +830,13 @@ int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
 	enum clnt_stat st = RPC_SUCCESS;
 	int rtry = 0, ret = 0;
 retry:
-	ret = 0;
 	st = clnt_call(clnt, procnum, inproc, in, outproc, out, tout);
 	if (st != RPC_SUCCESS) {
 		ret = hsi_rpc_stat_to_errno(clnt);
 
 		if (rtry >= 5) {
 			ERR("Have retry %d times, break!", rtry);
-		} else if (ret == EAGAIN) {
+		}else if (ret == EAGAIN) {
 			sleep(1);
 			rtry++;
 			goto retry;

@@ -8,15 +8,22 @@ HSFS_MNT_H = $(top_builddir)/include/mount.h
 HSFS_MNT_XDR = mount_xdr.c
 HSFS_MNT_CLNT = mount_clnt.c
 
+HSFS_ACL3_X = acl3.x
+HSFS_ACL3_H = $(top_builddir)/include/acl3.h
+HSFS_ACL3_XDR = acl3xdr.c
+HSFS_ACL3_CLNT = acl3clnt.c
+
 HSFS_NFS3_FILES = $(HSFS_NFS3_H) $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT)
 HSFS_MNT_FILES = $(HSFS_MNT_H) $(HSFS_MNT_XDR) $(HSFS_MNT_CLNT)
+HSFS_ACL3_FILES = $(HSFS_ACL3_H) $(HSFS_ACL3_XDR) $(HSFS_ACL3_CLNT)
 
 noinst_LIBRARIES = libhsi_nfs3.a
 
 libhsi_nfs3_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			 `pkg-config fuse --cflags`
 libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
-			$(HSFS_MNT_CLNT) fstab.c nfs_mntent.c hsi_nfs3_mount.c \
+			$(HSFS_MNT_CLNT) $(HSFS_ACL3_XDR) $(HSFS_ACL3_CLNT)\
+			fstab.c nfs_mntent.c hsi_nfs3_mount.c \
 			hsi_nfs3_fattr2stat.c hsi_nfs3_unlink.c hsi_nfs3_getattr.c \
 			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c hsi_nfs3_statfs.c\
 			hsi_nfs3_lookup.c hsi_nfs3_mkdir.c hsi_nfs3_read.c \
@@ -24,7 +31,7 @@ libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
 			hsi_nfs3_rmdir.c hsi_nfs3_readlink.c hsi_nfs3_symlink.c \
 			hsi_nfs3_rename.c hsi_nfs3_readdir.c \
 			hsi_nfs3_mknod.c  hsi_nfs3_link.c hsi_nfs3_create.c \
-			hsi_nfs3_access.c 
+			hsi_nfs3_access.c hsi_nfs3_getxattr.c hsi_acl3.c
 
 $(HSFS_NFS3_H) : $(HSFS_NFS3_X)
 	test -f $@ && rm -rf $@ || true
@@ -49,5 +56,16 @@ $(HSFS_MNT_XDR) : $(HSFS_MNT_X) $(HSFS_MNT_H)
 $(HSFS_MNT_CLNT) : $(HSFS_MNT_X) $(HSFS_MNT_H)
 	test -f $@ && rm -rf $@ || true
 	rpcgen -l -o $@ $<
+$(HSFS_ACL3_H) : $(HSFS_ACL3_X)
+	test -f $@ && rm -rf $@ || true
+	rpcgen -h -o $@ $<
 
-CLEANFILES = $(HSFS_NFS3_FILES) $(HSFS_MNT_FILES)
+$(HSFS_ACL3_XDR) : $(HSFS_ACL3_X) $(HSFS_ACL3_H)
+	test -f $@ && rm -rf $@ || true
+	rpcgen -c -C -o $@ $<
+
+$(HSFS_ACL3_CLNT) : $(HSFS_ACL3_X) $(HSFS_ACL3_H)
+	test -f $@ && rm -rf $@ || true
+	rpcgen -l -o $@ $<
+
+CLEANFILES = $(HSFS_NFS3_FILES) $(HSFS_MNT_FILES) $(HSFS_ACL3_FILES)
