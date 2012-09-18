@@ -1,10 +1,3 @@
-/**
- * hsi_nfs3_symlink.c
- * xuehaitao
- *2012.9.6
- **/
-
-
 #ifdef HSFS_NFS3_TEST
 
 #include <stdio.h>

@@ -1,8 +1,3 @@
-/**
- * hsx_fuse_statfs
- * liuyoujin
- */
-
 #include <sys/errno.h>
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"

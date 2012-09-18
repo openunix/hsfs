@@ -1,8 +1,3 @@
-/**
- * hsi_nfs3_statfs
- * liuyoujin
- */
-
 #include "hsi_nfs3.h"
 
 int hsi_nfs3_statfs (struct hsfs_inode *inode)

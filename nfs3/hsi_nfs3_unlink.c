@@ -1,9 +1,3 @@
-/**
- * hsi_nfs3_unlink.c
- * yanhuan
- * 2012.9.6
- **/
-
 #ifdef HSFS_NFS3_TEST
 # include <rpc/rpc.h>
 # include <libgen.h>

@@ -1,9 +1,3 @@
-/**
- *  hsi_nfs3_mknod.c
- *  sunxiaobin
- *  2012/09/06
- */
-
 #ifdef HSFS_NFS3_TEST
 #include <string.h>
 #include <sys/types.h>

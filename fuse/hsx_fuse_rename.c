@@ -1,9 +1,3 @@
-/**
- * hsx_fuse_rename.c
- * yanhuan
- * 2012.9.5
- **/
-
 #include "hsfs.h"
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"

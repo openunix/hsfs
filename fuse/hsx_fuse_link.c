@@ -1,9 +1,3 @@
-/**
- * hsx_fuse_link
- * sunxiaobin
- * 2012/09/06
- */
-
 #include <errno.h>
 #include "hsfs.h"
 #include "hsx_fuse.h"

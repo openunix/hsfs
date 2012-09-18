@@ -1,9 +1,3 @@
-/**
- * hsi_nfs3_mkdir.c
- * Hu yuwei
- * 2012/09/06
- */
-
 #include "hsi_nfs3.h"
 #ifdef HSFS_NFS3_TEST
 #include "hsi_nfs3.h"
