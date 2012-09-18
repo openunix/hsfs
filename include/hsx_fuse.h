@@ -359,7 +359,7 @@ extern void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
  * @param name[in]	the mask of operation
  * @param value[in]	data of the extended attributes
  * @param size[in]      the data size
- * @param flags         extended arg
+ * @param flags[in]         extended arg
  * 
  */
 
