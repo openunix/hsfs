@@ -1,13 +1,7 @@
 #include "hsi_nfs3.h"
 #include "hsfs.h"
 #include "nfs3.h"
-/**
- *  hsx_fuse_fill_reply
- *  fill the struct fuse_entry_param with struct hsfs_inode.fattr3
- *  struct fuse_entry_param provide to fuse_reply_entry
- *  Edit:2012/09/03 Hu yuwei
- *  
- */
+
 int hsx_fuse_fill_reply (struct hsfs_inode *inode, struct fuse_entry_param *e)
 {	
 	DEBUG_IN(" ino %lu.\n", inode->ino);
