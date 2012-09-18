@@ -213,12 +213,12 @@ extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
 /**
  * @brief Convert struct fattr3 to struct stat
  *                                                                                                                                         
- * @param fattr[in] the attributes 
+ * @param attr[in] the attributes 
  * @param st[out] the result of the convertion
  * 
  * @return error number
  */
-extern int hsi_nfs3_fattr2stat(struct fattr3 *fattr, struct stat *st);
+extern int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st);
 
 /**
  * @brief Convert struct stat to struct hsfs_sattr
