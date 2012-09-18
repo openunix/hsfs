@@ -54,7 +54,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 	pattr=&res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
 	name_fh = &res.lookup3res_u.resok.object;
         
-	*newinode = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
+	*new = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
 	clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
 
 out:
