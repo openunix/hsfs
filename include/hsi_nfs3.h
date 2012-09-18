@@ -242,7 +242,7 @@ extern int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
 
 /**
- * @Get Dynamic file system information
+ * @brief get Dynamic file system information
  *
  * @param inode[in,out] the information of inode
  * @return error number
