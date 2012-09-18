@@ -4,6 +4,8 @@
 
 #include <sys/stat.h>
 
+extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
+
 /**
  * @brief Make a directory
  *
@@ -218,7 +220,7 @@ extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup);
 
 /**
- * @brief Open a file
+ * @Open a file
  * 
  * @Valid replies:
  *  fuse_reply_err 
@@ -230,7 +232,7 @@ extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nloo
  * */
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 /**
- * @brief Release a file
+ * @Release a file
  *
  * @Valid replies:
  *  fuse_reply_err
@@ -253,7 +255,7 @@ extern void hsx_fuse_release (fuse_req_t req, fuse_ino_t ino, struct fuse_file_i
 extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, 
 			     struct fuse_file_info *fi);
 /**
- * @brief Set file attributes
+ * @breif Set file attributes
  *
  * Valid replies:
  *     fuse_reply_err, fuse_reply_attr
@@ -267,7 +269,7 @@ extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino,
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 			     int to_set, struct fuse_file_info *fi);
 /**
- * @brief Get the filesystem statistics
+ * @Get the filesystem statistics
  *
  * Valid replies:
  *  fuse_reply_statfs fuse_reply_err
@@ -306,33 +308,36 @@ extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off
 extern void hsx_fuse_opendir(fuse_req_t req,  fuse_ino_t ino,  struct fuse_file_info  *fi);
 
 /**
- * @brief Mount NFS filesystem (get root filehandle)
+ * @Mount NFS filesystem (get root filehandle)
  *
- * @param spec[in]	mount spec at remote node
- * @param point[in]	mount point at local node
- * @param args[out]	save fuse arguments which is mapping from nfs
- * @param udata[out]	nfs arguments which is used for mtab
- * @param super[out]	hsfs super block
+ * @spec[in]	mount spec at remote node
+ * @point[in]	mount point at local node
+ * @args[out]	save fuse arguments which is mapping from nfs
+ * @udata[out]	nfs arguments which is used for mtab
+ * @userdata[out]	hsfs super block
  * 
  * @return fuse channel
  */
 extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 					struct fuse_args *args, char *udata,
-					struct hsfs_super *super);
+					struct hsfs_super *userdata);
 
 /**
- * @brief Unmount NFS filesystem (release root filehandle)
+ * @Unmount NFS filesystem (release root filehandle)
  *
- * @param spec[in]	mount spec at remote node
- * @param point[in]	mount point at local node
- * @param ch[in]	fuse channel for hsfs
- * @param super[out]	hsfs super block
+ * @spec[in]	mount spec at remote node
+ * @point[in]	mount point at local node
+ * @ch[in]	fuse channel for hsfs
+ * @userdata[out]	hsfs super block
  * 
  * @return errno number as Linux system
  */
 extern int hsx_fuse_unmount(const char *spec, const char *point,
 					struct fuse_chan *ch,
 					struct hsfs_super *super);
+extern void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
+				 size_t size);
+
 /**
  * hsx_fuse_setxattr
  * set the extended attribute

@@ -76,6 +76,7 @@ struct  hsfs_table
 
 struct hsfs_super {
   CLIENT *clntp;
+  CLIENT *acl_clntp;
   int    flags;
   /* for read/write */
   int    rsize;

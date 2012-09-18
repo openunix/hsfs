@@ -2,7 +2,8 @@
 #define __HSI_NFS3_H__
 
 #include "hsfs.h"
-
+#include "acl3.h"
+#include "acl.h"
 /**
  * @brief make a directory
  *
@@ -302,6 +303,8 @@ extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
 				unsigned long procnum,
 				xdrproc_t inproc, char *in,
 				xdrproc_t outproc, char *out);
+extern int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask, 
+                       struct posix_acl **pbuf, int type);
 
 /**
  * hsi_nfs3_setxattr
