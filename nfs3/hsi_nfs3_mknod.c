@@ -138,7 +138,7 @@ out:
 #endif /*#ifdef HSFS_NFS3_TEST*/
 
 int
-hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **newinode,
+hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **new,
                const char *name,mode_t mode, dev_t rdev)
 {
 	int err=0;
@@ -226,12 +226,12 @@ pipe_sattrs:
                                         sizeof(fattr3));
 	}
 
-	*newinode=hsi_nfs3_ifind(parent->sb,&res.diropres3_u.resok.obj.
+	*new=hsi_nfs3_ifind(parent->sb,&res.diropres3_u.resok.obj.
 				post_op_fh3_u.handle,&res.diropres3_u.
 			 	resok.obj_attributes.post_op_attr_u.
                                 attributes);
-	ERR("the new made node ino (%lu),the nlookup (%lu)",(*newinode)->ino,
-                                                      (*newinode)->nlookup);
+	ERR("the new made node ino (%lu),the nlookup (%lu)",(*new)->ino,
+                                                      (*new)->nlookup);
 
 out1:
 	clnt_freeres(nfs_client,(xdrproc_t)xdr_diropres3,(char *)&res);

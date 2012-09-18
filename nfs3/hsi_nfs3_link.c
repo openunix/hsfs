@@ -110,7 +110,7 @@ out:
 
 int
 hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
-                    struct hsfs_inode **newinode, const char *name)
+                    struct hsfs_inode **new, const char *name)
 {
 	CLIENT *clntp=NULL;
 	int err=0;
@@ -121,7 +121,7 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
                                           newparent->ino, newparent->nlookup);
 	ERR("the ino to link (%lu),the nlookup of ino (%lu)",inode->ino,
                                                            inode->nlookup);
-	*newinode=NULL;
+	*new=NULL;
 	memset(&args, 0, sizeof(args));
 
 	if(strlen(name) > NAME_MAX){
@@ -163,8 +163,8 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	if(res.link3res_u.res.file_attributes.present)
 		memcpy(&(inode->attr),&res.link3res_u.res.file_attributes.
                                     post_op_attr_u.attributes,sizeof(fattr3));
-	*newinode=hsi_nfs3_ifind(inode->sb,&(inode->fh),&(inode->attr));
-//	*newinode=ino;
+	*new=hsi_nfs3_ifind(inode->sb,&(inode->fh),&(inode->attr));
+//	*new=ino;
 out1:
 	clnt_freeres(clntp,(xdrproc_t)xdr_link3res,(char *)&res);
 out2:

@@ -149,12 +149,12 @@ extern int hsi_nfs3_create(struct hsfs_inode *parent, struct hsfs_inode **new,
  *  @return error number
  */
 extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode 
-		  	**newinode, const char *name,mode_t mode, dev_t rdev);
+		  	**new, const char *name,mode_t mode, dev_t rdev);
 
 /**
  * @brief Create a hard link to a file
  *
- * @param ino[in] the inode of the file
+ * @param inode[in] the inode of the file
  * @param newparent[in] the inode of the new parent
  * @param newinode[out] the inode of the linked file
  * @param name[in] the name to of the link to create
@@ -162,7 +162,7 @@ extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode
  * @return error number
  */
 extern 	int hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent, 
-			struct hsfs_inode **newinode ,  const char *name);
+			struct hsfs_inode **new,  const char *name);
 
 /**
  * @brief Look up a directory entry by name
