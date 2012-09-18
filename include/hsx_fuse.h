@@ -218,7 +218,7 @@ extern  void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name);
 extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup);
 
 /**
- * @brief open a file
+ * @brief Open a file
  * 
  * @Valid replies:
  *  fuse_reply_err 
@@ -230,7 +230,7 @@ extern  void  hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nloo
  * */
 extern void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
 /**
- * @brief release a file
+ * @brief Release a file
  *
  * @Valid replies:
  *  fuse_reply_err
@@ -267,7 +267,7 @@ extern void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino,
 extern void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 			     int to_set, struct fuse_file_info *fi);
 /**
- * @brief get the filesystem statistics
+ * @brief Get the filesystem statistics
  *
  * Valid replies:
  *  fuse_reply_statfs fuse_reply_err
