@@ -48,16 +48,6 @@ static uint64_t hsfs_ino_hash(struct hsfs_super *sb, uint64_t ino)
 	return hash;
 }
 
-/**
- * hsi_nfs3_alloc_node:	allocate memory for a node 
- *
- * @param sb[IN]:	the information of the superblock
- * @param pfh[IN]:	a pointer to the filehandle of node 
- * @param ino[IN]:	the inode number
- * @param pattr[IN]:	a pointer to the attributes of node 
- * @return:	a pointer to the object if successfull,else NULL
- *
- * */
 struct hsfs_inode *hsi_nfs3_alloc_node(struct hsfs_super *sb, nfs_fh3 *pfh, 
 					uint64_t ino, fattr3 *pattr)
 {
@@ -142,17 +132,8 @@ struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
 	return NULL;
 }
 
-/**
- * hsi_nfs3_ifind:	Look up a node from hash table  
- *
- * @param sb[IN]:	The information of the superblock
- * @param pfh[IN]:	A pointer to node filehandle 
- * @param pattr[IN]:	A pointer to node attributes
- * @return:	A pointer to the node information
- *
- * */
 struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3 
-				*pattr)
+				*attr)
 {
 	struct hsfs_inode *hsfs_node = NULL;
 	uint64_t ino ;

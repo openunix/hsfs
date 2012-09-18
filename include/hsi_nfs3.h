@@ -8,8 +8,8 @@
  * @brief Make a directory
  *
  * @param parent[in] the information of the source parent directory
- * @param name[in] directory name
  * @param new[out] the information of the target directory
+ * @param name[in] directory name
  * @param mode[in] the mode of the target directory
  *
  * @return error number

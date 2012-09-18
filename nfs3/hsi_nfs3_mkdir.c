@@ -19,19 +19,19 @@
 #include <string.h>
 #endif
 
-int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
+int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 	       		const char *name, mode_t mode)
 {
-	struct hsfs_super *sb = hi_parent->sb;
+	struct hsfs_super *sb = parent->sb;
 	int err = 0;
 	mkdir3args argp;
 	diropres3 clnt_res;	
 	
-	DEBUG_IN(" ino: %lu.\n", hi_parent->ino);
+	DEBUG_IN(" ino: %lu.\n", parent->ino);
 	memset(&argp, 0, sizeof(mkdir3args));
 	memset(&clnt_res, 0, sizeof(diropres3));
-	argp.where.dir.data.data_len = hi_parent->fh.data.data_len;
-	argp.where.dir.data.data_val = hi_parent->fh.data.data_val;
+	argp.where.dir.data.data_len = parent->fh.data.data_len;
+	argp.where.dir.data.data_val = parent->fh.data.data_val;
 	argp.where.name = (char *)name;
 	argp.attributes.mode.set = 1;
 	argp.attributes.mode.set_uint32_u.val = mode&0xfff;
@@ -40,18 +40,18 @@ int hsi_nfs3_mkdir (struct hsfs_inode *hi_parent, struct hsfs_inode **hi_new,
 			(xdrproc_t) xdr_mkdir3args, (caddr_t) &argp,
 		       	(xdrproc_t) xdr_diropres3, (caddr_t) &clnt_res);
 	if (err) {	/*RPC error*/
-		*hi_new = NULL;
+		*new = NULL;
 		goto out;
 	}
 	if (0 != clnt_res.status) {	/*RPC is OK, nfs error*/
-		*hi_new = NULL;
+		*new = NULL;
 		err = hsi_nfs3_stat_to_errno(clnt_res.status);
 		goto outfree;
 	}
-	*hi_new = hsi_nfs3_ifind (hi_parent->sb,
+	*new = hsi_nfs3_ifind (parent->sb,
 			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
 	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
-	if(NULL == *hi_new) {
+	if(NULL == *new) {
 		ERR("Error in create inode.\n");
 	}
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	enum clnt_stat st;
 	int err = 0;
 	int argv_len = 0;
-	struct hsfs_inode *hi_parent = NULL ;
+	struct hsfs_inode *parent = NULL ;
 	struct hsfs_inode *new;
 	cliname = basename (argv[0]);
 	if (argc < 3) {
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "%s $svraddr $fpath.\n", cliname);
 			goto out;
 		}
-	hi_parent = (struct hsfs_inode *) malloc(sizeof(struct hsfs_inode));
+	parent = (struct hsfs_inode *) malloc(sizeof(struct hsfs_inode));
 	svraddr = argv[1];
 	fpath = argv[2];
 	name = argv[3];
@@ -105,15 +105,15 @@ int main(int argc, char *argv[])
 	st_tmp = map_path_to_nfs3fh(svraddr, fpath, &fh_len, &fh);
 	args.where.dir.data.data_len  = fh_len;
 	args.where.dir.data.data_val = fh;
-	hi_parent->sb = (struct hsfs_super *) malloc(sizeof(struct hsfs_super));
-	if (NULL == hi_parent->sb)
+	parent->sb = (struct hsfs_super *) malloc(sizeof(struct hsfs_super));
+	if (NULL == parent->sb)
 	{
-		printf("No memory:hi_parent->sb.\n");
+		printf("No memory:parent->sb.\n");
 	}
-	hi_parent->sb->clntp = clntp;
-	hi_parent->fh.data.data_len = args.where.dir.data.data_len;
-	hi_parent->fh.data.data_val = args.where.dir.data.data_val;
-	st = hsi_nfs3_mkdir(hi_parent, &new, name, 555);
+	parent->sb->clntp = clntp;
+	parent->fh.data.data_len = args.where.dir.data.data_len;
+	parent->fh.data.data_val = args.where.dir.data.data_val;
+	st = hsi_nfs3_mkdir(parent, &new, name, 555);
 	if (st) {
 		err = EIO;
 		fprintf (stderr, "%s: Call RPC Server (%s, %u, %u) failure: (%s).\n", cliname, svraddr, NFSPROC3_MKDIR, NFS_V3,clnt_sperrno(st));
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
 	}
 
 out:
-	free(hi_parent->sb);
-	free(hi_parent);
+	free(parent->sb);
+	free(parent);
 	if (NULL != clntp)
 		clnt_destroy(clntp);
 	exit(st);
