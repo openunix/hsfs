@@ -119,7 +119,7 @@ extern int hsi_nfs3_write(struct hsfs_rw_info* rw);
  * @param inode[in] the information of the inode requested
  * @param mask[in] the permission requested
  *
- * return error number
+ * @return error number
  **/
 extern int hsi_nfs3_access(struct hsfs_inode *inode, int mask);
 
