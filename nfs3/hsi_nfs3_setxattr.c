@@ -25,7 +25,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	if(S_ISDIR(inode->attr.type)) {
 		mask |= NA_DFACLCNT | NA_DFACL;
 		DEBUG("in hsi_nfs3_setxattr mask:%u,NFS_ACL %u..........", mask,
-NFS_ACL);
+			NFS_ACL);
 	}       
 
 	memset (&args, 0, sizeof(SETACL3args));
