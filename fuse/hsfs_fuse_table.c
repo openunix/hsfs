@@ -137,18 +137,18 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3
 {
 	struct hsfs_inode *hsfs_node = NULL;
 	uint64_t ino ;
-	if(sb == NULL || pfh == NULL || pattr == NULL)
+	if(sb == NULL || pfh == NULL || attr == NULL)
 	{
 		return  NULL;
 	}
-	pattr->fileid |= (1UL<<63);
-	ino = pattr->fileid;
-	pattr->fileid &= ~(1UL<<63);
+	attr->fileid |= (1UL<<63);
+	ino = attr->fileid;
+	attr->fileid &= ~(1UL<<63);
 
 	hsfs_node = hsx_fuse_iget(sb,ino);
 	if (hsfs_node == NULL)
 	{
-		hsfs_node = hsi_nfs3_alloc_node(sb, pfh, ino, pattr);
+		hsfs_node = hsi_nfs3_alloc_node(sb, pfh, ino, attr);
 		if (hsfs_node == NULL)
 			return NULL;
 		DEBUG("This is a new node ,and now to add to hash table.");
@@ -156,7 +156,7 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *pfh, fattr3
 	}
 	else
 	{
-		hsfs_node->attr = *pattr;
+		hsfs_node->attr = *attr;
 		hsfs_node->nlookup++;
 	}
 	DEBUG("ino : %lu, nlookup : %lu ",hsfs_node->ino,hsfs_node->nlookup);
