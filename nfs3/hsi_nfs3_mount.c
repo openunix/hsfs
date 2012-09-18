@@ -30,6 +30,7 @@ typedef struct mountres3 mntres_t;
 #define NFS_MOUNT_TCP		0x0001
 
 static clnt_addr_t nfs_server_bak = {};
+static clnt_addr_t acl_server_bak = {};
 static int ssize_bak = 0;
 static int rsize_bak = 0;
 
@@ -232,7 +233,12 @@ static CLIENT *hsi_nfs3_clnt_create(clnt_addr_t *nfs_server,
 
 	ssize_bak = ssize;
 	rsize_bak = rsize;
-	nfs_server_bak = *nfs_server;
+	if (nfs_server->pmap->prog == NFS_PROGRAM)
+		nfs_server_bak = *nfs_server;
+	else if (nfs_server->pmap->proc == NFS_ACL_PROGRAM)
+		acl_server_bak = *nfs_server;
+	else
+		ERR("Bad nfs server.");
 out:
 	return clnt;
 }
@@ -591,6 +597,9 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 	clnt_addr_t nfs_server = { 
 		.hostname = &hostname 
 	};
+	clnt_addr_t acl_server = {
+		.hostname = &hostname
+	};
 
 	struct sockaddr_in *nfs_saddr = &nfs_server.saddr;
 	struct pmap  *mnt_pmap = &mnt_server.pmap,
@@ -704,6 +713,16 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 		goto umnt_fail;
 	}
 
+	/* acl client */
+	memcpy(&acl_server, &nfs_server, sizeof(acl_server));
+	acl_server.pmap.pm_prog = NFS_ACL_PROGRAM;
+	acl_server.pmap.pm_vers = NFS_ACL_V3;
+	super->acl_clntp = hsi_nfs3_clnt_create(&acl_server, super->wsize,
+						super->rsize);
+	if (super->acl_clntp == NULL) {
+		goto umnt_fail;
+	}
+	
 	/* root filehandle */
 	{
 		mountres3_ok *mountres;
@@ -735,6 +754,7 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 
 	return ch;
 
+	clnt_destroy(super->acl_clntp);
 umnt_fail:
 	free(mntres.mountres3_u.mountinfo.fhandle.fhandle3_val);
 fmnt_fail:
@@ -781,14 +801,23 @@ int hsx_fuse_unmount(const char *spec, const char *point,
 
 static CLIENT *hsi_nfs3_clnt_reconnect(struct hsfs_super *sb, CLIENT *clnt)
 {
+	CLIENT **sclnt = NULL;
+	clnt_addr_t *addr_bak = NULL;
+
 	if (clnt == sb->clntp) {
-		hsi_mnt_closeclnt(clnt);
-		clnt = hsi_nfs3_clnt_create(&nfs_server_bak,
-					ssize_bak, ssize_bak);
-		if (clnt) {
-			sb->clntp = clnt;
-		}
-	}
+		sclnt = &sb->clntp;
+		addr_bak = &nfs_server_bak;
+	} else if (clnt == sb->acl_clntp) {
+		sclnt = &sb->acl_clntp;
+		addr_bak = &acl_server_bak;
+	} else
+		ERR("Bad client point.");
+
+	hsi_mnt_closeclnt(clnt);
+	clnt = hsi_nfs3_clnt_create(addr_bak, ssize_bak, ssize_bak);
+	if (clnt)
+		*sclnt = clnt;
+
 	return clnt;
 }
 
