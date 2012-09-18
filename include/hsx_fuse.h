@@ -335,6 +335,15 @@ extern struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 extern int hsx_fuse_unmount(const char *spec, const char *point,
 					struct fuse_chan *ch,
 					struct hsfs_super *super);
+/**
+ * @brief Get an extended attribute
+ *       
+ * @param req[in] request handle 
+ * @param ino[in] the inode number
+ * @param name[in] of the extended attribute 
+ * @param size[in} maximum size of the value to send  
+ */
+
 extern void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
 				 size_t size);
 

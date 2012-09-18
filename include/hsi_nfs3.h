@@ -304,6 +304,16 @@ extern int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
 				xdrproc_t inproc, char *in,
 				xdrproc_t outproc, char *out);
 
+/**
+ * @brief Get an extended attribute
+ *
+ * @param hsfs_node[in] the information of the node 
+ * @param mask[in] attribute mask
+ * @param pbuf[out] point nodes acl information
+ * @param type[in] acl type
+ *
+ * @return error number as Linux system
+ */
 extern int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask, 
                        struct posix_acl **pbuf, int type);
 
