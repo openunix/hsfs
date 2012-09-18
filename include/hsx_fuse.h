@@ -347,10 +347,22 @@ extern int hsx_fuse_unmount(const char *spec, const char *point,
 extern void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
 				 size_t size);
 
+
 /**
- * hsx_fuse_setxattr
- * set the extended attribute
- **/
+ * @brief set Extended Attributes for files
+ *
+ * Valid replies:
+ *   fuse_reply_err
+ *
+ * @param req[in]	file requset handle
+ * @param ino[in]	inode number
+ * @param name[in]	the mask of operation
+ * @param value[in]	data of the extended attributes
+ * @param size[in]      the data size
+ * @param flags         extended arg
+ * 
+ */
+
 extern void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
 				const char *value, size_t size, int flags );
 
