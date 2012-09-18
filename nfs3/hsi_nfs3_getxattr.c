@@ -7,7 +7,7 @@
 
 
 
-int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask, 
+int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask, 
 			struct posix_acl **pval , int type)
 {
 	struct GETACL3args args;
@@ -22,10 +22,10 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask,
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
-	args.fh = hsfs_node->fh;
+	args.fh = inode->fh;
 	args.mask = mask;
 	
-	err = hsi_nfs3_clnt_call(hsfs_node->sb,hsfs_node->sb->acl_clntp,
+	err = hsi_nfs3_clnt_call(inode->sb,inode->sb->acl_clntp,
 		ACLPROC3_GETACL,(xdrproc_t)xdr_GETACL3args,(caddr_t)&args, 
 		(xdrproc_t)xdr_GETACL3res, (caddr_t)&res);
 	if(err)
@@ -38,7 +38,7 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask,
 	{
 		ERR("Obtain extern attribute failure : (%d) !", st);
 		err = hsi_nfs3_stat_to_errno(st);
-		clnt_freeres(hsfs_node->sb->acl_clntp, (xdrproc_t)xdr_GETACL3res,
+		clnt_freeres(inode->sb->acl_clntp, (xdrproc_t)xdr_GETACL3res,
 						(char *)&res);
 		goto out;
         }
@@ -58,7 +58,7 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask,
 	{
 		err = ENOMEM ;
 		ERR("Memory allocation failure !");
-		clnt_freeres(hsfs_node->sb->clntp, (xdrproc_t)xdr_GETACL3res,
+		clnt_freeres(inode->sb->clntp, (xdrproc_t)xdr_GETACL3res,
 		                                (char *)&res);
 		goto out;
 	}
@@ -89,7 +89,7 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *hsfs_node, u_int mask,
 		}
 	}
 	
-	clnt_freeres(hsfs_node->sb->acl_clntp, (xdrproc_t)xdr_GETACL3res,
+	clnt_freeres(inode->sb->acl_clntp, (xdrproc_t)xdr_GETACL3res,
 	                                (char *)&res);
 out:
 	DEBUG_OUT("%s","");
