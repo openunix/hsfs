@@ -46,7 +46,9 @@ void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t 
 	buf = (char *)calloc(1,size);
 	if(buf == NULL && size)
 	{
-		err = ENOMEM;
+		err = ENOMEM;	
+		free(acl);
+		acl =NULL;
 		goto out;	
 	}
 
