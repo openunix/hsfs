@@ -830,6 +830,7 @@ int hsi_nfs3_clnt_call(struct hsfs_super *sb, CLIENT *clnt,
 	enum clnt_stat st = RPC_SUCCESS;
 	int rtry = 0, ret = 0;
 retry:
+	ret = 0;
 	st = clnt_call(clnt, procnum, inproc, in, outproc, out, tout);
 	if (st != RPC_SUCCESS) {
 		ret = hsi_rpc_stat_to_errno(clnt);
