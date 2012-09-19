@@ -51,11 +51,6 @@ void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t 
 	}
 
 	real_size = posix_acl_to_xattr(acl, (void *)buf, size);
-	if(real_size == ERANGE)
-	{
-		err = ERANGE;
-		goto out;
-	}
 	if(size == 0)
 	{
 		free(acl);
@@ -63,6 +58,15 @@ void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t 
 		fuse_reply_xattr(req,real_size);
 		DEBUG_OUT("%s","success exit");
 		return ;
+	}
+	if(real_size == ERANGE)
+	{
+		err = ERANGE;
+		free(buf);
+		free(acl);
+		buf = NULL;
+		acl = NULL;
+		goto out;
 	}
 	fuse_reply_buf(req,buf,real_size);
 	free(buf);
