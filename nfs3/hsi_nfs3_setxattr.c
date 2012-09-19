@@ -23,7 +23,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 		DEBUG("in hsi_nfs3_setxattr mask:%u,NFS_ACL %u..........", mask,
 			NFS_ACL);
 
-	if(S_ISDIR(inode->attr.type)) {
+	if(inode->attr.type == 2) {
 		mask |= NA_DFACLCNT | NA_DFACL;
 		DEBUG("in hsi_nfs3_setxattr mask:%u,NFS_ACL %u..........", mask,
 			NFS_ACL);
@@ -41,6 +41,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 		args.acl.mask |= NFS_DFACL;
 		switch(type) {
 			case ACL_TYPE_ACCESS:
+				DEBUG("ACL_TYPE_ACCESS.......");
 				if (hsi_nfs3_getxattr(inode, mask, &dfacl,
 					type)) {
 					DEBUG("here i am. \n");
@@ -50,6 +51,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 				break;
 
 			case ACL_TYPE_DEFAULT:
+				DEBUG("ACL_TYPE_DEACCESS.......");
 				dfacl = acl;
 				if (hsi_nfs3_getxattr(inode, mask, &acl, type))
 					goto fail;
@@ -116,7 +118,10 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 fail:
 	free(args.acl.aclent.aclent_val);
 	free(args.acl.dfaclent.dfaclent_val);
+	DEBUG("....................");
 	free(acl);
+	DEBUG("....................");
 	free(alloc);
+	DEBUG("....................");
 	return error;
 }
