@@ -34,5 +34,6 @@ void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name, const
 
 out:
 	DEBUG_OUT("out,err: %d\n",err);
+	fuse_reply_err(req, err);
 	return;
 }
