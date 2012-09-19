@@ -81,7 +81,7 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 		for(i=0; i<(*pval)->a_count; i++)
 		{
 			(*pval)->a_entries[i].e_tag = acl->dfaclent.
-							dfaclent_val[i].type;
+					dfaclent_val[i].type & (~NA_ACL_DEFAULT);
 			(*pval)->a_entries[i].e_perm = acl->dfaclent.
 							dfaclent_val[i].perm;
 			(*pval)->a_entries[i].e_id = acl->dfaclent.
