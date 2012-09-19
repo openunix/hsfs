@@ -21,7 +21,7 @@ void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t 
 		}
 	else
 	{
-		err = EINVAL;
+		err = ENOTSUP;
 		goto out;
 	}
 	sb = fuse_req_userdata(req);
