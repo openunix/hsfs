@@ -1,28 +1,24 @@
 HSFS_NFS3_X = nfs3.x
 HSFS_NFS3_H = $(top_builddir)/include/nfs3.h
 HSFS_NFS3_XDR = nfs3xdr.c
-HSFS_NFS3_CLNT = nfs3clnt.c
 
 HSFS_MNT_X = mount.x
 HSFS_MNT_H = $(top_builddir)/include/mount.h
-HSFS_MNT_XDR = mount_xdr.c
-HSFS_MNT_CLNT = mount_clnt.c
+HSFS_MNT_XDR = mountxdr.c
 
 HSFS_ACL3_X = acl3.x
 HSFS_ACL3_H = $(top_builddir)/include/acl3.h
 HSFS_ACL3_XDR = acl3xdr.c
-HSFS_ACL3_CLNT = acl3clnt.c
 
-HSFS_NFS3_FILES = $(HSFS_NFS3_H) $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT)
-HSFS_MNT_FILES = $(HSFS_MNT_H) $(HSFS_MNT_XDR) $(HSFS_MNT_CLNT)
-HSFS_ACL3_FILES = $(HSFS_ACL3_H) $(HSFS_ACL3_XDR) $(HSFS_ACL3_CLNT)
+HSFS_NFS3_FILES = $(HSFS_NFS3_H) $(HSFS_NFS3_XDR)
+HSFS_MNT_FILES = $(HSFS_MNT_H) $(HSFS_MNT_XDR)
+HSFS_ACL3_FILES = $(HSFS_ACL3_H) $(HSFS_ACL3_XDR)
 
 noinst_LIBRARIES = libhsi_nfs3.a
 
 libhsi_nfs3_a_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			 `pkg-config fuse --cflags`
-libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_NFS3_CLNT) $(HSFS_MNT_XDR) \
-			$(HSFS_MNT_CLNT) $(HSFS_ACL3_XDR) $(HSFS_ACL3_CLNT)\
+libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_MNT_XDR) $(HSFS_ACL3_XDR) \
 			fstab.c nfs_mntent.c hsi_nfs3_mount.c \
 			hsi_nfs3_fattr2stat.c hsi_nfs3_unlink.c hsi_nfs3_getattr.c \
 			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c hsi_nfs3_statfs.c\
@@ -42,10 +38,6 @@ $(HSFS_NFS3_XDR) : $(HSFS_NFS3_X) $(HSFS_NFS3_H)
 	test -f $@ && rm -rf $@ || true
 	rpcgen -c -C -o $@ $<
 
-$(HSFS_NFS3_CLNT) : $(HSFS_NFS3_X) $(HSFS_NFS3_H)
-	test -f $@ && rm -rf $@ || true
-	rpcgen -l -o $@ $<
-
 $(HSFS_MNT_H) : $(HSFS_MNT_X)
 	test -f $@ && rm -rf $@ || true
 	rpcgen -h -o $@ $<
@@ -54,9 +46,6 @@ $(HSFS_MNT_XDR) : $(HSFS_MNT_X) $(HSFS_MNT_H)
 	test -f $@ && rm -rf $@ || true
 	rpcgen -c -C -o $@ $<
 
-$(HSFS_MNT_CLNT) : $(HSFS_MNT_X) $(HSFS_MNT_H)
-	test -f $@ && rm -rf $@ || true
-	rpcgen -l -o $@ $<
 $(HSFS_ACL3_H) : $(HSFS_ACL3_X)
 	test -f $@ && rm -rf $@ || true
 	rpcgen -h -o $@ $<
@@ -64,9 +53,5 @@ $(HSFS_ACL3_H) : $(HSFS_ACL3_X)
 $(HSFS_ACL3_XDR) : $(HSFS_ACL3_X) $(HSFS_ACL3_H)
 	test -f $@ && rm -rf $@ || true
 	rpcgen -c -C -o $@ $<
-
-$(HSFS_ACL3_CLNT) : $(HSFS_ACL3_X) $(HSFS_ACL3_H)
-	test -f $@ && rm -rf $@ || true
-	rpcgen -l -o $@ $<
 
 CLEANFILES = $(HSFS_NFS3_FILES) $(HSFS_MNT_FILES) $(HSFS_ACL3_FILES)
