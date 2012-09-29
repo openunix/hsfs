@@ -47,5 +47,6 @@ AC_CHECK_MEMBERS([struct stat.st_atimespec])
 AC_CONFIG_FILES([Makefile
                  fuse/Makefile
                  nfs3/Makefile
+                 man/Makefile
 		])
 AC_OUTPUT
