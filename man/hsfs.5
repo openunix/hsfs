@@ -1,0 +1,69 @@
+.\ "@(#)hsfs.5"
+.TH HSFS 5 "29 Sep 2012"
+.SH NAME
+hsfs \- fstab format and options for the
+.B hsfs
+file systems
+.SH SYNOPSIS
+.I /etc/fstab
+.SH DESCRIPTION
+HSFS was developed based on fuse and 
+.B nfs.
+.P 
+The 
+.BR mount (8)
+command attaches a file system to the system's 
+name space hierarchy at a given mount point.
+.I /etc/fstab
+file describes how 
+.BR mount (8)
+should assemble a system's file name hierarchy
+from various independent file systems.
+Each line in the 
+.I /etc/fstab
+file describes a single file system,its mount point,
+and a set of default mount options for that mount point.
+.P 
+For Hsfs file system mounts, a line in the
+.I /etc/fstab
+file specifies the server name,
+the path name of the exported server directory to mount,
+the local directory that is the mount point,
+the type of file system that is being mounted,
+and a list of mount options that control
+the way the filesystem is mounted and 
+how the HSFS client behaves when accessing
+files on this mount point.
+.P
+.SP
+.NF
+.TA 2.5i +0.75i +0.75i +1.0i
+	server:path	/mountpoint	fstype option,option, ...
+.FI
+.P
+The server's hostname and export pathname
+are separated by colon, while
+the mount options are separated by commas. The remaining fileds
+are separated by blanks or tabs.
+.P
+The server's hostname can be an unqualifiled hostname,
+a fully qualified domain name,
+or a dotted quad IPv4 address.
+.P
+The
+.I fstype
+field contains "hsfs".  Use of the "hsfs" fstype in
+.I /etc/fstab
+is deprecated.
+.SH "MOUNT OPTIONS"
+Refer to
+.BR mount (8)
+for a description of generic mount options
+available for all file systems. If you do not need to
+specify any mount options, use the generic option
+.B defaults
+in
+.IR /etc/fstab .
+.SH "SEE ALSO"
+.BR mount (8)
+.BR munt.hsfs (5)

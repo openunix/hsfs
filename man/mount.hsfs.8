@@ -1,0 +1,74 @@
+.\"@(#)mount.nfs.8"
+.TH MOUNT.HSFS 8 "28 Sep 2012"
+.SH NAME
+mount.hsfs, \- mount a Network File System
+.SH SYNOPSIS
+.BI "mount.hsfs" " remotetarget dir" " [\-rvVwfnsh] [\-t "version"] [\-o " hsfsoptions"]
+.SH DESCRIPTION
+.BR mount.hsfs
+is a part of
+.BR hsfs (5)
+utilities package, which provides HSFS client functionality.
+.BR mount.hsfs
+is meant to be used by the
+.BR mount (8)
+is used to mount HSFS file systems
+.I remotetarget
+is a server share usually in the form of
+.BR servername:/path/to/share.
+.I dir
+is the directory on which the file system is to be mounted.
+.SH OPEIONS
+.TP
+.BI "\-r"
+Mount file system readonly
+.TP
+.BI "\-v"
+Be verbose
+.TP
+.BI "\-V"
+print version
+.TP
+.BI "\-w"
+Mount file system read-write
+.TP
+.BI "\-f"
+Fake mount. Don't actually call the mount system call.
+.TP
+.BI "\-n"
+Do not update
+.I /etc/mtab.
+for every mounted file system. Use this option to skip making an entry.
+.TP
+.BI "\-h"
+Print help message.
+.TP
+.BI "version"
+hsfs - currently, the only choice
+.TP
+.BI "hsfsoptions"
+Refer to
+.BR mount.hsfs (8)
+or
+.BR hsfs (5)
+manual pages.
+.SH NOTE
+For further information please refer
+.BR hsfs (5)
+and
+.BR mount (8)
+manual pages.
+.SH FILES
+.TP 18n
+.I /etc/fstab
+file system table
+.TP
+.I /etc/mtab
+table of mounted file systems
+.PD
+.SH "SEE ALSO"
+.BR hsfs (5),
+.BR mount (8).
+
+
+
