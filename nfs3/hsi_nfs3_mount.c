@@ -719,10 +719,9 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 	acl_server.pmap.pm_vers = NFS_ACL_V3;
 	super->acl_clntp = hsi_nfs3_clnt_create(&acl_server, super->wsize,
 						super->rsize);
-	if (super->acl_clntp == NULL) {
-		goto umnt_fail;
-	}
-	
+	if (super->acl_clntp == NULL)
+		INFO("Not supported ACL.");
+
 	/* root filehandle */
 	{
 		mountres3_ok *mountres;
@@ -754,10 +753,12 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 
 	return ch;
 
-	clnt_destroy(super->acl_clntp);
 umnt_fail:
 	free(mntres.mountres3_u.mountinfo.fhandle.fhandle3_val);
 fmnt_fail:
+	if (super->acl_clntp)
+		clnt_destroy(super->acl_clntp);
+
 	clnt_destroy(super->clntp);
 	hsi_nfs3_unmount(&mnt_server, &dirname);
 fail:
@@ -807,7 +808,7 @@ static CLIENT *hsi_nfs3_clnt_reconnect(struct hsfs_super *sb, CLIENT *clnt)
 	if (clnt == sb->clntp) {
 		sclnt = &sb->clntp;
 		addr_bak = &nfs_server_bak;
-	} else if (clnt == sb->acl_clntp) {
+	} else if (sb->acl_clntp && clnt == sb->acl_clntp) {
 		sclnt = &sb->acl_clntp;
 		addr_bak = &acl_server_bak;
 	} else

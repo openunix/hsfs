@@ -1,3 +1,5 @@
+
+#include <errno.h>
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
 #include "nfs3.h"
@@ -11,12 +13,17 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	SETACL3res clnt_res;    /*the data of clnt_call result*/
 	struct posix_acl *acl = NULL;
 	struct posix_acl *alloc = NULL;
-	struct posix_acl  *dfacl = NULL;
+	struct posix_acl *dfacl = NULL;
+	CLIENT *acl_clntp = NULL;
 	int error = 0;
 	int mask = 0;
 	int i = 0;
 
 	DEBUG_IN("in ino: %lu, mask %d\n", inode->ino, mask);
+
+	acl_clntp = inode->sb->acl_clntp;
+	if (!acl_clntp)
+		return ENOTSUP;
 
 	if (type == ACL_TYPE_ACCESS)
 		mask |= NA_ACLCNT | NA_ACL;	
@@ -100,7 +107,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 
 	}
 	
-	error = hsi_nfs3_clnt_call(inode->sb, inode->sb->acl_clntp, ACLPROC3_SETACL,
+	error = hsi_nfs3_clnt_call(inode->sb, acl_clntp, ACLPROC3_SETACL,
 				(xdrproc_t) xdr_SETACL3args, (caddr_t) &args,
 				(xdrproc_t) xdr_SETACL3res,(caddr_t) &clnt_res);
 	
@@ -108,8 +115,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 		goto fail;
 	}  else
 		error = hsi_nfs3_stat_to_errno(clnt_res.status);
-	clnt_freeres(inode->sb->acl_clntp, (xdrproc_t)xdr_SETACL3res,
-			 (char *)&clnt_res);
+	clnt_freeres(acl_clntp, (xdrproc_t)xdr_SETACL3res, (char *)&clnt_res);
 fail:
 	free(args.acl.aclent.aclent_val);
 	free(args.acl.dfaclent.dfaclent_val);

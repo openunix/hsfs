@@ -5,11 +5,10 @@
 #include <errno.h>
 #include "hsi_nfs3.h"
 
-
-
-int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask, 
+int hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask, 
 			struct posix_acl **pval , int type)
 {
+	CLIENT *acl_clntp = NULL;
 	struct GETACL3args args;
 	struct GETACL3res  res;
 	struct secattr *acl = NULL;
@@ -24,9 +23,13 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 
 	args.fh = inode->fh;
 	args.mask = mask;
+
+	acl_clntp = inode->sb->acl_clntp;
+	if (!acl_clntp)
+		return ENOTSUP;
 	
-	err = hsi_nfs3_clnt_call(inode->sb,inode->sb->acl_clntp,
-		ACLPROC3_GETACL,(xdrproc_t)xdr_GETACL3args,(caddr_t)&args, 
+	err = hsi_nfs3_clnt_call(inode->sb, acl_clntp, ACLPROC3_GETACL,
+		(xdrproc_t)xdr_GETACL3args,(caddr_t)&args,
 		(xdrproc_t)xdr_GETACL3res, (caddr_t)&res);
 	if(err)
 	{
@@ -38,8 +41,7 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 	{
 		ERR("Obtain extern attribute failure : (%d) !", st);
 		err = hsi_nfs3_stat_to_errno(st);
-		clnt_freeres(inode->sb->acl_clntp, (xdrproc_t)xdr_GETACL3res,
-						(char *)&res);
+		clnt_freeres(acl_clntp, (xdrproc_t)xdr_GETACL3res, (char *)&res);
 		goto out;
         }
 	acl = &res.GETACL3res_u.resok.acl;
@@ -89,8 +91,7 @@ int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 		}
 	}
 	
-	clnt_freeres(inode->sb->acl_clntp, (xdrproc_t)xdr_GETACL3res,
-	                                (char *)&res);
+	clnt_freeres(acl_clntp, (xdrproc_t)xdr_GETACL3res, (char *)&res);
 out:
 	DEBUG_OUT("%s","");
         return(err);
