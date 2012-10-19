@@ -1,0 +1,13 @@
+
+HSFS - an NFS client via FUSE  <steve.shuo.feng@gmail.com>
+
+This was actually an internal training program for the newbies in my
+team(a team for file system R&D). We finally got some time to make it
+to github just in case someone might be interesting in it......
+
+    https://github.com/openunix/hsfs
+
+Now HSFS only supports NFSv3 (RFC1813) and Solaris' extension for
+NFSv3 ACL. It can pass LTP file tests and some basic copy-diff scripts
+but still lacks lots of NFS features which are already in kennel
+implementations such as: Hard link handling Silly rename Clone mount
