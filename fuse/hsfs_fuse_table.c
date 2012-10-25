@@ -114,6 +114,11 @@ void  hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node)
  * */
 struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino)
 {
+	return __hsfs_ilookup(sb, ino);
+}
+
+struct hsfs_inode *__hsfs_ilookup(struct hsfs_super *sb, uint64_t ino)
+{
 	struct hsfs_inode  *hsfs_node = NULL;
 	uint64_t hash = 0;
 
@@ -141,9 +146,9 @@ struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh, fattr3
 	{
 		return  NULL;
 	}
-	attr->fileid |= (1UL<<63);
+	attr->fileid |= (1ULL<<63);
 	ino = attr->fileid;
-	attr->fileid &= ~(1UL<<63);
+	attr->fileid &= ~(1ULL<<63);
 
 	hsfs_node = hsx_fuse_iget(sb,ino);
 	if (hsfs_node == NULL)

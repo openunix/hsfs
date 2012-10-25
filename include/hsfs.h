@@ -166,6 +166,21 @@ extern	struct hsfs_inode *hsx_fuse_iget(struct hsfs_super *sb, uint64_t ino);
 extern	int hsx_fuse_idel(struct hsfs_super *sb, struct hsfs_inode *hs_node);
 extern	int hsx_fuse_itable_del(struct hsfs_super *sb);
 
+/* XXX This should be used internally but keep it here to avoid
+ * changing too much code */
+extern struct hsfs_inode *__hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
+
 #define min(x, y) ((x) < (y) ? (x) : (y))
+
+
+/**
+ * @brief Lookup the inode cache with ino
+ *
+ * @param sb[IN] the hsfs superblock
+ * @param ino[IN] the hsfs number (non-persistent)
+ * @return the pointer to the hsfs inode found if success, else NULL 
+ **/
+extern struct hsfs_inode *hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
+
 
 #endif
