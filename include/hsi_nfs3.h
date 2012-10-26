@@ -222,7 +222,7 @@ extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
 extern int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st);
 
 /**
- * @brief Convert struct stat to struct hsfs_sattr
+ * @brief Convert struct stat to struct hsfs_iattr
  *
  * @param st[in] the struct stat of file attributes
  * @param to_set[in] bit mask of attributes which should be set
@@ -230,8 +230,8 @@ extern int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st);
  *
  * @return error number
  */
-extern int hsi_nfs3_stat2sattr(struct stat *st, int to_set, 
-			       struct hsfs_sattr *attr);
+extern int hsi_nfs3_stat2iattr(struct stat *st, int to_set, 
+			       struct hsfs_iattr *attr);
 /**
  * @brief Set file attributes
  * 
@@ -240,7 +240,7 @@ extern int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
  *
  * @return error number
  */
-extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr);
+extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr);
 
 /**
  * @brief Get Dynamic file system information

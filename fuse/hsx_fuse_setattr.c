@@ -7,7 +7,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
   	int err = 0;
 	double to = 0;
 	struct stat st;
-	struct hsfs_sattr sattr;
+	struct hsfs_iattr sattr;
 	struct hsfs_inode *inode = NULL;
 	struct hsfs_super *sb = NULL;
 	
@@ -25,7 +25,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 		ERR("ino :%lu is invalid.\n", ino);
 		goto out;
 	}
-	err = hsi_nfs3_stat2sattr(attr, to_set, &sattr);
+	err = hsi_nfs3_stat2iattr(attr, to_set, &sattr);
 	if (err)
 		goto out;
 	err = hsi_nfs3_setattr(inode, &sattr);

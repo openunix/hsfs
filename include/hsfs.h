@@ -145,9 +145,9 @@ struct hsfs_rw_info {
   } data;//data buffer
 };
 
-/* XXX Should we change to hsfs_fattr or keep this? */
-struct hsfs_sattr{
-	int              valid;
+/* XXX This should be equal to iattr in Linux kernel */
+struct hsfs_iattr{
+	unsigned int	valid;
 	mode_t           mode;
 	uid_t	         uid;
 	gid_t	         gid;

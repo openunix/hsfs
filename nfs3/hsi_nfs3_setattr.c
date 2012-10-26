@@ -20,7 +20,7 @@
 #include <errno.h>
 #include "hsi_nfs3.h"
 
-int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
+int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr)
 {
 	int err = 0;
 	CLIENT *clntp = NULL;

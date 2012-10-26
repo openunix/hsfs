@@ -67,7 +67,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 			obj_attributes.post_op_attr_u.attributes);
 	
 		if (EXCLUSIVE == args.how.mode) {
-			struct hsfs_sattr sattr = {};
+			struct hsfs_iattr sattr = {};
 			sattr.mode = fmode;
 			S_SETMODE(&sattr);
 			status = hsi_nfs3_setattr(*newhi, &sattr);
