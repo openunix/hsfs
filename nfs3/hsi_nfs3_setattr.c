@@ -102,6 +102,8 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_sattr *attr)
 		ERR("Try again to set file attributes.\n");
 		goto out;
 	}
+
+	/* XXX Use a shared WCC handler routine here */
 	fattr = &res.wccstat3_u.wcc.after.post_op_attr_u.attributes;
 	inode->attr.type = fattr->type;
 	inode->attr.mode = fattr->mode;
