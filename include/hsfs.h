@@ -154,6 +154,7 @@ struct hsfs_iattr{
 	off_t	         size;
 	struct timespec  atime;
 	struct timespec  mtime;
+	struct timespec ctime;
 };
 
 struct hsfs_readdir_ctx{

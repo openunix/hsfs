@@ -20,8 +20,10 @@
 #include <errno.h>
 #include "hsi_nfs3.h"
 
-int hsi_nfs3_stat2sattr(struct stat *st, int to_set, 
-			struct hsfs_iattr *attr)
+/* XXX Should move to hsfs/ or remove it at all */
+#include "../fuse/fuse_misc.h"
+
+int hsi_nfs3_stat2iattr(struct stat *st, int to_set, struct hsfs_iattr *attr)
 {
   	int err = 0;
   	
@@ -42,15 +44,13 @@ int hsi_nfs3_stat2sattr(struct stat *st, int to_set,
 	attr->uid = st->st_uid;
 	attr->gid = st->st_gid;
 	attr->size = st->st_size;
+
 	attr->atime.tv_sec = st->st_atime;
 	attr->mtime.tv_sec = st->st_mtime;
-#if defined __USE_MISC || defined __USE_XOPEN2K8
-	attr->atime.tv_nsec = st->st_atim.tv_nsec;
-	attr->mtime.tv_nsec = st->st_mtim.tv_nsec;
-#else
-	attr->atime.tv_nsec = st->st_atimensec;
-	attr->mtime.tv_nsec = st->st_mtimensec;
-#endif
+	attr->ctime.tv_sec = st->st_ctime;
+	attr->atime.tv_nsec = ST_ATIM_NSEC(st);
+	attr->mtime.tv_nsec = ST_MTIM_NSEC(st);
+	attr->ctime.tv_nsec = ST_CTIM_NSEC(st);
 
  out:
 	DEBUG_OUT("with errno : %d.\n", err);
