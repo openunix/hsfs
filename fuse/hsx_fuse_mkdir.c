@@ -17,14 +17,14 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	memset(&e, 0, sizeof(struct fuse_entry_param));
 
 	sb = fuse_req_userdata(req);
-	hi_parent = hsx_fuse_iget(sb, parent);
+	hi_parent = hsfs_ilookup(sb, parent);
 	
 	if(NULL == sb) {
 		ERR("ERR in fuse_req_userdata");
 		goto out;
 	}
 	if(NULL == hi_parent) {
-		ERR("ERR in hsx_fuse_iget");
+		ERR("ERR in hsfs_ilookup");
 		goto out;
 	}
 

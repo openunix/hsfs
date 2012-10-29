@@ -11,7 +11,7 @@ void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 		goto out;
 
 	sb = fuse_req_userdata(req);	
-	hsfs_node = hsx_fuse_iget(sb, ino);
+	hsfs_node = hsfs_ilookup(sb, ino);
 	if(hsfs_node == NULL)
 		goto out;
 	

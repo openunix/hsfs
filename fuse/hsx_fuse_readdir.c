@@ -44,7 +44,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
 	maxcount = RPCCOUNT*size;
 	hrc->off = off;
-	parent = hsx_fuse_iget(sb,ino);
+	parent = hsfs_ilookup(sb,ino);
 	if(!parent){
 		err = ENOENT;
 		ERR("%s gets file handle fails \n", progname);

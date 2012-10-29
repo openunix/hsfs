@@ -12,7 +12,7 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 
 	DEBUG_IN(" lookup %s", name);
 	sb = fuse_req_userdata(req);
-	if((parent=hsx_fuse_iget(sb,ino)) == NULL)
+	if((parent=hsfs_ilookup(sb,ino)) == NULL)
 	{
 		err = ENOENT;
 		goto out;

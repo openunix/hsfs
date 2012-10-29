@@ -17,8 +17,8 @@ void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name, const
 		goto out;
 	}
 
-	if ((hi = hsx_fuse_iget(sb, ino)) == NULL) {
-		ERR("ERR in hsx_fuse_iget");
+	if ((hi = hsfs_ilookup(sb, ino)) == NULL) {
+		ERR("ERR in hsfs_ilookup");
 		goto out;
 	}	
 	

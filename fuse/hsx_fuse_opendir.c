@@ -20,7 +20,7 @@ void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 		goto out;
 	}
 
-	parent = hsx_fuse_iget(sb, ino);
+	parent = hsfs_ilookup(sb, ino);
 	if(!parent){
 		ERR("%s gets file handle fails \n", progname);
 		err = ENOENT;

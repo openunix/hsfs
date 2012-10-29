@@ -23,7 +23,7 @@ void hsx_fuse_readlink(fuse_req_t req, fuse_ino_t ino)
 		err = ENOENT;
 		goto out;
 	}
-	hi = hsx_fuse_iget(hi_sb, ino);
+	hi = hsfs_ilookup(hi_sb, ino);
 	if(!hi){
 		ERR("%s gets inode fails \n", progname);
 		err = ENOENT;

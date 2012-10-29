@@ -39,7 +39,7 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 		goto out;
 	}
 
-	inode = hsx_fuse_iget(sb, ino);
+	inode = hsfs_ilookup(sb, ino);
 	if (NULL == inode) {
 		err = ENOENT;
 		ERR("ino :%lu is invalid.\n", ino);

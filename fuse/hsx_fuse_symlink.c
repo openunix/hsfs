@@ -29,7 +29,7 @@ void hsx_fuse_symlink(fuse_req_t req, const char *link,
 		goto out;
 	}
 
-	nfs_parent = hsx_fuse_iget(sb_parent, parent);
+	nfs_parent = hsfs_ilookup(sb_parent, parent);
 	if(!nfs_parent){
 		ERR("%s gets inode fails \n", progname);
 		err = ENOENT;

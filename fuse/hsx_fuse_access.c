@@ -22,7 +22,7 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 		err = EIO;
 		goto out;
 	}
-	hi = hsx_fuse_iget(hs, ino);
+	hi = hsfs_ilookup(hs, ino);
 	if (NULL == hi) {
 		ERR("%s", "Getting hsfs_inode fail!");
 		err = EIO;

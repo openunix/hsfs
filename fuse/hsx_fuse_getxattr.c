@@ -25,7 +25,7 @@ void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name, size_t 
 		goto out;
 	}
 	sb = fuse_req_userdata(req);
-	if((hsfs_node=hsx_fuse_iget(sb,ino)) == NULL)
+	if((hsfs_node=hsfs_ilookup(sb,ino)) == NULL)
 	{
 		err = ENOENT;
 		goto out;

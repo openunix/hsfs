@@ -23,7 +23,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 		err = EIO;
 		goto out;
 	}
-	hi = hsx_fuse_iget(hs, (uint64_t)parent);
+	hi = hsfs_ilookup(hs, (uint64_t)parent);
 	if (NULL == hi) {
 		ERR("%s", "Getting hsfs_inode fail!");
 		err = EIO;

@@ -14,8 +14,8 @@ void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name)
 		ERR("ERR in fuse_req_userdata pointer sb is null");
 		return;
 	}
-	if((hi_parent = hsx_fuse_iget(sb, parent)) == NULL) {
-		ERR("ERR in hsx_fuse_iget pointer hi_parent is null");
+	if((hi_parent = hsfs_ilookup(sb, parent)) == NULL) {
+		ERR("ERR in hsfs_ilookup pointer hi_parent is null");
 		return;
 	}
 	

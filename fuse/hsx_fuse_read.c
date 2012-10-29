@@ -21,7 +21,7 @@ void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	}
 	
 	memset(&rinfo, 0, sizeof(struct hsfs_rw_info));
-	if(NULL == (rinfo.inode = hsx_fuse_iget(sb, ino))){
+	if(NULL == (rinfo.inode = hsfs_ilookup(sb, ino))){
 		err = ENOENT;
 		fuse_reply_err(req, err);
 		goto out;

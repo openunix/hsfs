@@ -17,7 +17,7 @@ void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
 		ERR("req is invalid.\n");
 		goto out;
 	}
-	inode = hsx_fuse_iget(sb, ino);
+	inode = hsfs_ilookup(sb, ino);
 	if (NULL == inode) {
 		err = ENOENT;
 		ERR("ino :%lu is invalid.\n", ino);

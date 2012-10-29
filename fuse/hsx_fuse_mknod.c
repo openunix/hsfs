@@ -13,7 +13,7 @@ hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
 	// get the super block of hsfs
 	struct hsfs_super *hsfs_sb=fuse_req_userdata(req);
 	// get the inode of parent 
-	struct hsfs_inode *parentp=hsx_fuse_iget(hsfs_sb,parent);
+	struct hsfs_inode *parentp=hsfs_ilookup(hsfs_sb,parent);
 	if(!parentp){
 		ERR("%s gets hsfs_inode fails \n",progname);
 		err=ENOENT;

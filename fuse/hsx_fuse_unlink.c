@@ -32,7 +32,7 @@ void hsx_fuse_unlink(fuse_req_t req, fuse_ino_t parent, const char *name)
 		err = EIO;
 		goto out;
 	}
-	if (!(hi = hsx_fuse_iget(sb, parent))) {
+	if (!(hi = hsfs_ilookup(sb, parent))) {
 		ERR("get hsfs inode failed\n");
 		err = ENOENT;
 		goto out;

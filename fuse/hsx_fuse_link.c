@@ -13,14 +13,14 @@ hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
 	// to get the super block
 	struct hsfs_super *hsfs_sb=fuse_req_userdata(req);
 	
-	struct hsfs_inode *parent=hsx_fuse_iget(hsfs_sb,newparent);
+	struct hsfs_inode *parent=hsfs_ilookup(hsfs_sb,newparent);
 	if(!parent){
 		ERR("%s gets hsfs_inode fails \n",progname);
 		err=ENOENT;
 		goto out;
 	}
 	
-	struct hsfs_inode *inop=hsx_fuse_iget(hsfs_sb,ino);
+	struct hsfs_inode *inop=hsfs_ilookup(hsfs_sb,ino);
 	if(!inop){
 		ERR("%s gets hsfs_inode fails \n",progname);
 		err=ENOENT;
