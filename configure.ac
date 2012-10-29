@@ -43,10 +43,13 @@ AC_CHECK_FUNCS([alarm gethostbyname hasmntopt inet_ntoa memset realpath socket s
 AC_CHECK_MEMBERS([struct stat.st_atim])
 AC_CHECK_MEMBERS([struct stat.st_atimespec])
 
+# Check for system service
+AC_SYS_LARGEFILE
 
 AC_CONFIG_FILES([Makefile
                  fuse/Makefile
                  nfs3/Makefile
                  man/Makefile
+		 hsfs/Makefile
 		])
 AC_OUTPUT
