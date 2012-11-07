@@ -51,5 +51,6 @@ AC_CONFIG_FILES([Makefile
                  nfs3/Makefile
                  man/Makefile
 		 hsfs/Makefile
+		 nfs_common/Makefile
 		])
 AC_OUTPUT

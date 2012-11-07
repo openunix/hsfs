@@ -65,8 +65,24 @@ extern int fg;
  */
 #define HSFS_MAX_READDIR_PAGES 8
 
+struct hsfs_iattr{
+	unsigned int	valid;
+	mode_t           mode;
+	uid_t	         uid;
+	gid_t	         gid;
+	off_t	         size;
+	struct timespec  atime;
+	struct timespec  mtime;
+	struct timespec ctime;
+};
+
 struct hsfs_inode
 {
+	struct hsfs_iattr iattr;
+	unsigned int i_state;
+	unsigned int i_nlink;
+	uint64_t i_blocks;
+
   uint64_t          ino;
   unsigned long     generation;
   nfs_fh3           fh;
@@ -75,6 +91,30 @@ struct hsfs_inode
   struct hsfs_super *sb;
   struct hsfs_inode *next;
 };
+
+/* All the i_ except i_state is actually in hsfs_iattr */
+#define i_mode iattr.mode
+#define i_atime iattr.atime
+#define i_mtime iattr.mtime
+#define i_ctime iattr.ctime
+#define i_size iattr.size
+#define i_uid iattr.uid
+#define i_gid iattr.gid
+
+
+#define I_NEW (1UL << 3)
+
+/**
+ *is_bad_inode - is an inode errored
+ *@inode: inode to test
+ *
+ *Returns true if the inode in question has been marked as bad.
+ */
+ 
+static int is_bad_inode(struct hsfs_inode *inode)
+{
+	return (inode->ino == 0);
+}
 
 struct  hsfs_table
 {
@@ -145,17 +185,6 @@ struct hsfs_rw_info {
   } data;//data buffer
 };
 
-/* XXX This should be equal to iattr in Linux kernel */
-struct hsfs_iattr{
-	unsigned int	valid;
-	mode_t           mode;
-	uid_t	         uid;
-	gid_t	         gid;
-	off_t	         size;
-	struct timespec  atime;
-	struct timespec  mtime;
-	struct timespec ctime;
-};
 
 struct hsfs_readdir_ctx{
 	off_t		off;
@@ -193,4 +222,27 @@ extern struct hsfs_inode *__hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
 extern struct hsfs_inode *hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
 
 
+/**
+ * iget5_locked - obtain an inode from a mounted file system
+ * @sb:super block of file system
+ * @hashval:hash value (usually inode number) to get
+ * @test:callback used for comparisons between inodes
+ * @set:callback used to initialize a new struct inode
+ * @data:opaque data pointer to pass to @test and @set
+ *
+ * iget5_locked() uses ifind() to search for the inode specified by @hashval
+ * and @data in the inode cache and if present it is returned with an increased
+ * reference count. This is a generalized version of iget_locked() for file
+ * systems where the inode number is not sufficient for unique identification
+ * of an inode.
+ *
+ * If the inode is not in cache, get_new_inode() is called to allocate a new
+ * inode and this is returned locked, hashed, and with the I_NEW flag set. The
+ * file system gets to fill it in before unlocking it via unlock_new_inode().
+ *
+ * Note both @test and @set are called with the inode_lock held, so can't sleep.
+ */
+struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashval,
+				     int (*test)(struct hsfs_inode *, void *),
+				     int (*set)(struct hsfs_inode *, void *), void *data);
 #endif

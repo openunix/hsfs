@@ -1,44 +1,65 @@
-#ifndef _LINUX_ERR_H
-#define _LINUX_ERR_H
-
-#include <linux/compiler.h>
-
-#include <asm/errno.h>
-
 /*
- * Kernel pointers have redundant information, so we can use a
- * scheme where we can return either an error code or a dentry
- * pointer with the same return value.
+ * Copyright (C) 2012 Feng Shuo <steve.shuo.feng@gmail.com>
  *
- * This should be a per-architecture thing, to allow different
- * error and pointer decisions.
+ * This file is part of HSFS and based on linux include/linux/err.h
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#define MAX_ERRNO	4095
 
-#ifndef __ASSEMBLY__
+#ifndef _HSFS_ERR_H
+#define _HSFS_ERR_H
+
+#include <errno.h>
+#include <assert.h>
+
+#include <hsfs.h>
+
+extern struct hsfs_inode bad_hsfs_inode;
+
+#define MAX_ERRNO (sizeof(bad_hsfs_inode))
 
 #define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
 
-static inline void * __must_check ERR_PTR(long error)
+static inline void * ERR_PTR(long error)
 {
-	return (void *) error;
+	unsigned long tmp = (long)&bad_hsfs_inode;
+
+	if (error < 0)
+		tmp -= error;
+	else
+		tmp -= error;
+
+	assert(tmp < (unsigned long)(&bad_hsfs_inode + 1));
+	return (void *)tmp;
 }
 
-static inline long __must_check PTR_ERR(const void *ptr)
+static inline long PTR_ERR(const void *ptr)
 {
-	return (long) ptr;
+	return (long) ptr - (long)&bad_hsfs_inode;
 }
 
-static inline long __must_check IS_ERR(const void *ptr)
+static inline long IS_ERR(const void *ptr)
 {
 	return IS_ERR_VALUE((unsigned long)ptr);
 }
 
-static inline long __must_check IS_ERR_OR_NULL(const void *ptr)
+static inline long IS_ERR_OR_NULL(const void *ptr)
 {
 	return !ptr || IS_ERR_VALUE((unsigned long)ptr);
 }
 
+#if 0
 /**
  * ERR_CAST - Explicitly cast an error-valued pointer to another pointer type
  * @ptr: The pointer to cast.
