@@ -6,11 +6,7 @@
 #ifndef _LINUX_HASHTABLE_H
 #define _LINUX_HASHTABLE_H
 
-#include <linux/list.h>
-#include <linux/types.h>
-#include <linux/kernel.h>
-#include <linux/hash.h>
-#include <linux/rculist.h>
+#include <list.h>
 
 #define DEFINE_HASHTABLE(name, bits)						\
 	struct hlist_head name[1 << (bits)] =					\
@@ -19,6 +15,7 @@
 #define DECLARE_HASHTABLE(name, bits)                                   	\
 	struct hlist_head name[1 << (bits)]
 
+#ifdef __KERNEL__
 #define HASH_SIZE(name) (ARRAY_SIZE(name))
 #define HASH_BITS(name) ilog2(HASH_SIZE(name))
 
@@ -29,6 +26,7 @@
 	hash_32(val, bits) :							\
 	hash_long(val, bits);							\
 })
+#endif
 
 static inline void __hash_init(struct hlist_head *ht, unsigned int sz)
 {

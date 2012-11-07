@@ -14,6 +14,8 @@
 #include "nfs3.h"
 #include "log.h"
 
+#include "hashtable.h"
+
 #define HSFS_TYPE "hsfs"
 
 /* FUSE version <= 2.7 don't have this */
@@ -123,7 +125,17 @@ struct  hsfs_table
   size_t  size;
 };
 
-struct hsfs_super {
+#define HSFS_NAME_HASH_BITS 10
+#define HSFS_NAME_HASH_SIZE (1 << HSFS_NAME_HASH_BITS)
+#define HSFS_ID_HASH_BITS 10
+#define HSFS_ID_HASH_SIZE (1 << HSFS_ID_HASH_BITS)
+
+struct hsfs_super
+{
+	DECLARE_HASHTABLE(name_table, HSFS_NAME_HASH_BITS); /* For HSFS iget5 */
+	DECLARE_HASHTABLE(id_table, HSFS_ID_HASH_BITS);	/* For HSFS iget/ilookup */
+
+	/* XXX Should put them into nfs_super */
   CLIENT *clntp;
   CLIENT *acl_clntp;
   int    flags;
