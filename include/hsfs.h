@@ -2,6 +2,8 @@
 #ifndef __HSFS_H__
 #define __HSFS_H__
 
+#include <hsfs_config.h>
+
 #ifndef FUSE_USE_VERSION
 #define FUSE_USE_VERSION 26
 #endif
@@ -113,7 +115,7 @@ struct hsfs_inode
  *Returns true if the inode in question has been marked as bad.
  */
  
-static int is_bad_inode(struct hsfs_inode *inode)
+static inline int is_bad_inode(struct hsfs_inode *inode)
 {
 	return (inode->ino == 0);
 }
@@ -132,7 +134,7 @@ struct  hsfs_table
 
 struct hsfs_super
 {
-	DECLARE_HASHTABLE(name_table, HSFS_NAME_HASH_BITS); /* For HSFS iget5 */
+	DECLARE_HASHTABLE(fh_table, HSFS_NAME_HASH_BITS); /* For HSFS iget5 */
 	DECLARE_HASHTABLE(id_table, HSFS_ID_HASH_BITS);	/* For HSFS iget/ilookup */
 
 	/* XXX Should put them into nfs_super */
@@ -222,7 +224,7 @@ extern	int hsx_fuse_itable_del(struct hsfs_super *sb);
 extern struct hsfs_inode *__hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
-
+extern int hsfs_init_icache(struct hsfs_super *sb);
 
 /**
  * @brief Lookup the inode cache with ino

@@ -563,6 +563,10 @@ static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 	if (ret)
 		goto out;
 
+	ret = hsfs_init_icache(super);
+	if (ret)
+		goto out;
+
 	root = hsi_nfs3_alloc_node(super, fh, FUSE_ROOT_ID, NULL);
 	if (root == NULL) {
 		ret = ENOMEM;

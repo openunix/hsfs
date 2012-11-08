@@ -1,3 +1,3 @@
 include $(top_srcdir)/Makefile.common
 
-SUBDIRS = hsfs nfs_common nfs3 fuse man
+SUBDIRS = nfs3 nfs_common fuse man lib 

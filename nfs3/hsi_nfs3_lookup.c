@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2012 Shou Xiaoyun, Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS.
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -54,7 +73,8 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 	pattr=&res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
 	name_fh = &res.lookup3res_u.resok.object;
         
-	*new = hsi_nfs3_ifind(parent->sb,name_fh,pattr);
+	*new = hsi_nfs_fhget(parent->sb, name_fh, pattr);
+
 	clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
 
 out:

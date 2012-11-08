@@ -18,11 +18,15 @@
  */
 
 #include <hsfs.h>
+struct hsfs_inode bad_hsfs_inode = {
+	.ino = 0,
+};
 
 int hsfs_init_icache(struct hsfs_super *sb)
 {
-	hash_init(sb->id_table, HSFS_ID_HASH_SIZE);
-	hash_init(sb->id_table, HSFS_NAME_HASH_SIZE);
+	hash_init(sb->id_table);
+	hash_init(sb->fh_table);
+	return 1;
 }
 
 struct hsfs_inode *hsfs_ilookup(struct hsfs_super *sb, uint64_t ino)

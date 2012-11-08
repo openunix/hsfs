@@ -25,13 +25,23 @@ AC_CHECK_LIB([tirpc], [clnt_create], [], AC_MSG_ERROR([You need libtirpc to run.
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h libintl.h limits.h memory.h mntent.h netdb.h netinet/in.h paths.h stdlib.h string.h sys/mount.h sys/socket.h sys/time.h syslog.h unistd.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
-AC_C_INLINE
+# Checks for types.
 AC_TYPE_INT32_T
 AC_TYPE_MODE_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
+
+AC_CHECK_TYPE([bool],
+	[AC_DEFINE([HAVE_BOOL], [1], [Define to 1 if you have the 'bool' type.])],
+	[])
+
+# Checks for structures
+AC_CHECK_MEMBERS([struct stat.st_atim])
+AC_CHECK_MEMBERS([struct stat.st_atimespec])
+
+# Check for compiler characteristics.
+AC_C_INLINE
 
 # Checks for library functions.
 AC_FUNC_CHOWN
@@ -40,9 +50,6 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([alarm gethostbyname hasmntopt inet_ntoa memset realpath socket strchr strcspn strdup strerror strrchr strstr uname])
 
-AC_CHECK_MEMBERS([struct stat.st_atim])
-AC_CHECK_MEMBERS([struct stat.st_atimespec])
-
 # Check for system service
 AC_SYS_LARGEFILE
 
@@ -50,7 +57,7 @@ AC_CONFIG_FILES([Makefile
                  fuse/Makefile
                  nfs3/Makefile
                  man/Makefile
-		 hsfs/Makefile
+		 lib/Makefile
 		 nfs_common/Makefile
 		])
 AC_OUTPUT

@@ -6,7 +6,9 @@
   See the file COPYING.LIB
 */
 
-#include "config.h"
+/* I have to clone it here because this is a private header in fuse. */
+#include <hsfs_config.h>
+
 #include <pthread.h>
 
 #ifndef USE_UCLIBC

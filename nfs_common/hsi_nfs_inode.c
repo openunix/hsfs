@@ -1,4 +1,23 @@
 /*
+ * Copyright (C) 2012 Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS and based on linux/fs/nfs/inode.c
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  *  linux/fs/nfs/inode.c
  *
  *  Copyright (C) 1992  Rick Sladkey
@@ -12,6 +31,10 @@
  *  J.S.Peatfield@damtp.cam.ac.uk
  *
  */
+#include <hsfs_err.h>
+#include <hsi_nfs.h>
+
+#ifdef __UNUSED__
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -180,6 +203,7 @@ static void nfs_invalidate_inode(struct inode *inode)
 	set_bit(NFS_INO_STALE, &NFS_FLAGS(inode));
 	nfs_zap_caches_locked(inode);
 }
+#endif	/* __UNUSED__ */
 
 struct nfs_find_desc {
 	struct nfs_fh		*fh;
@@ -193,7 +217,7 @@ struct nfs_find_desc {
  * i_ino.
  */
 static int
-nfs_find_actor(struct inode *inode, void *opaque)
+nfs_find_actor(struct hsfs_inode *inode, void *opaque)
 {
 	struct nfs_find_desc	*desc = (struct nfs_find_desc *)opaque;
 	struct nfs_fh		*fh = desc->fh;
@@ -209,12 +233,12 @@ nfs_find_actor(struct inode *inode, void *opaque)
 }
 
 static int
-nfs_init_locked(struct inode *inode, void *opaque)
+nfs_init_locked(struct hsfs_inode *inode, void *opaque)
 {
 	struct nfs_find_desc	*desc = (struct nfs_find_desc *)opaque;
 	struct nfs_fattr	*fattr = desc->fattr;
 
-	NFS_FILEID(inode) = fattr->fileid;
+	set_nfs_fileid(inode, fattr->fileid);
 	nfs_copy_fh(NFS_FH(inode), desc->fh);
 	return 0;
 }
@@ -226,29 +250,29 @@ nfs_init_locked(struct inode *inode, void *opaque)
  * This is our front-end to iget that looks up inodes by file handle
  * instead of inode number.
  */
-struct inode *
-nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
+struct hsfs_inode *
+hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 {
 	struct nfs_find_desc desc = {
 		.fh	= fh,
 		.fattr	= fattr
 	};
-	struct inode *inode = ERR_PTR(-ENOENT);
+	struct hsfs_inode *inode = ERR_PTR(-ENOENT);
 	unsigned long hash;
 
 	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
 		goto out_no_inode;
 
 	if (!fattr->nlink) {
-		printk("NFS: Buggy server - nlink == 0!\n");
+		ERR("NFS: Buggy server - nlink == 0!\n");
 		goto out_no_inode;
 	}
 
 	hash = fattr->fileid;
-	if (sizeof(hash) < sizeof(u64))
-		hash ^= fattr->fileid >> (sizeof(u64) - sizeof(ino_t)) * 8;
+	if (sizeof(hash) < sizeof(uint64_t))
+		hash ^= fattr->fileid >> (sizeof(uint64_t) - sizeof(ino_t)) * 8;
 
-	inode = iget5_locked(sb, hash, nfs_find_actor, nfs_init_locked, &desc);
+	inode = hsfs_iget5_locked(sb, hash, nfs_find_actor, nfs_init_locked, &desc);
 	if (inode == NULL) {
 		inode = ERR_PTR(-ENOMEM);
 		goto out_no_inode;
@@ -260,11 +284,12 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		/* We set i_ino for the few things that still rely on it, such
 		 * as printing messages; stat and filldir use the fileid
 		 * directly since i_ino may not be large enough */
-		inode->i_ino = fattr->fileid;
+		set_nfs_fileid(inode, fattr->fileid);
 
 		/* We can't support update_atime(), since the server will reset it */
-		inode->i_flags |= S_NOATIME|S_NOCMTIME|S_NOATTRKILL;
+//		inode->i_flags |= S_NOATIME|S_NOCMTIME|S_NOATTRKILL;
 		inode->i_mode = fattr->mode;
+#if __UNUSED__
 		/* Why so? Because we want revalidate for devices/FIFOs, and
 		 * that's precisely what we have in nfs_file_inode_operations.
 		 */
@@ -295,15 +320,19 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 
 		nfsi->read_cache_jiffies = fattr->time_start;
 		nfsi->last_updated = jiffies;
+#endif
 		inode->i_atime = fattr->atime;
 		inode->i_mtime = fattr->mtime;
 		inode->i_ctime = fattr->ctime;
+#ifdef CONFIG_NFS_V4
 		if (fattr->valid & NFS_ATTR_FATTR_V4)
 			nfsi->change_attr = fattr->change_attr;
-		inode->i_size = nfs_size_to_loff_t(fattr->size);
+#endif
+		inode->i_size = nfs_size_to_off_t(fattr->size);
 		inode->i_nlink = fattr->nlink;
 		inode->i_uid = fattr->uid;
 		inode->i_gid = fattr->gid;
+#if 0
 		if (fattr->valid & (NFS_ATTR_FATTR_V3 | NFS_ATTR_FATTR_V4)) {
 			/*
 			 * report the blocks in 512byte units
@@ -318,7 +347,6 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		nfsi->access_cache = RB_ROOT;
 
 		nfs_fscache_init_cookie(inode);
-
 		unlock_new_inode(inode);
 	} else
 		nfs_refresh_inode(inode, fattr);
@@ -326,14 +354,17 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		inode->i_sb->s_id,
 		(long long)NFS_FILEID(inode),
 		atomic_read(&inode->i_count));
-
+#endif
+}
 out:
 	return inode;
 
 out_no_inode:
-	dprintk("nfs_fhget: iget failed with error %ld\n", PTR_ERR(inode));
+//dprintk("nfs_fhget: iget failed with error %ld\n", PTR_ERR(inode));
 	goto out;
 }
+
+#ifdef __UNUSED__
 
 #define NFS_VALID_ATTRS (ATTR_MODE|ATTR_UID|ATTR_GID|ATTR_SIZE|ATTR_ATIME|ATTR_ATIME_SET|ATTR_MTIME|ATTR_MTIME_SET)
 
@@ -1058,15 +1089,15 @@ void nfs4_clear_inode(struct inode *inode)
 }
 #endif
 
-struct inode *nfs_alloc_inode(struct super_block *sb)
+struct hsfs_inode *nfs_alloc_inode(struct hsfs_super *sb)
 {
 	struct nfs_inode *nfsi;
-	nfsi = (struct nfs_inode *)kmem_cache_alloc(nfs_inode_cachep, SLAB_KERNEL);
+
+	nfsi = (struct nfs_inode *)malloc(sizeof(struct nfs_inode));
 	if (!nfsi)
 		return NULL;
-	nfsi->flags = 0UL;
-	nfsi->cache_validity = 0UL;
-	nfsi->cache_change_attribute = jiffies;
+	bzero(nfsi, sizeof(struct nfs_inode));
+
 #ifdef CONFIG_NFS_V3_ACL
 	nfsi->acl_access = ERR_PTR(-EAGAIN);
 	nfsi->acl_default = ERR_PTR(-EAGAIN);
@@ -1219,3 +1250,4 @@ module_param(enable_ino64, bool, 0644);
 
 module_init(init_nfs_fs)
 module_exit(exit_nfs_fs)
+#endif	/* __UNUSED__ */

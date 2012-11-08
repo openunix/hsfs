@@ -6,7 +6,16 @@
 #ifndef _LINUX_HASHTABLE_H
 #define _LINUX_HASHTABLE_H
 
-#include <list.h>
+#if defined(CONFIG_TREE_RCU) || defined(CONFIG_PREEMPT_RCU)
+# define __HAVE_RCU__
+#include <linux/list.h>
+#include <linux/types.h>
+#include <linux/kernel.h>
+#include <linux/hash.h>
+#include <linux/rculist.h>
+#else
+# include <list.h>
+#endif
 
 #define DEFINE_HASHTABLE(name, bits)						\
 	struct hlist_head name[1 << (bits)] =					\
@@ -15,7 +24,10 @@
 #define DECLARE_HASHTABLE(name, bits)                                   	\
 	struct hlist_head name[1 << (bits)]
 
-#ifdef __KERNEL__
+#ifndef ARRAY_SIZE
+# define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#endif	/* ARRAY_SIZE */
+
 #define HASH_SIZE(name) (ARRAY_SIZE(name))
 #define HASH_BITS(name) ilog2(HASH_SIZE(name))
 
@@ -26,7 +38,6 @@
 	hash_32(val, bits) :							\
 	hash_long(val, bits);							\
 })
-#endif
 
 static inline void __hash_init(struct hlist_head *ht, unsigned int sz)
 {
@@ -57,6 +68,7 @@ static inline void __hash_init(struct hlist_head *ht, unsigned int sz)
 #define hash_add(hashtable, node, key)						\
 	hlist_add_head(node, &hashtable[hash_min(key, HASH_BITS(hashtable))])
 
+#ifdef __HAVE_RCU__
 /**
  * hash_add_rcu - add an object to a rcu enabled hashtable
  * @hashtable: hashtable to add to
@@ -65,6 +77,7 @@ static inline void __hash_init(struct hlist_head *ht, unsigned int sz)
  */
 #define hash_add_rcu(hashtable, node, key)					\
 	hlist_add_head_rcu(node, &hashtable[hash_min(key, HASH_BITS(hashtable))])
+#endif	/* __HAVE_RCU__ */
 
 /**
  * hash_hashed - check whether an object is in any hashtable
@@ -104,6 +117,7 @@ static inline void hash_del(struct hlist_node *node)
 	hlist_del_init(node);
 }
 
+#ifdef __HAVE_RCU__
 /**
  * hash_del_rcu - remove an object from a rcu enabled hashtable
  * @node: &struct hlist_node of the object to remove
@@ -112,6 +126,7 @@ static inline void hash_del_rcu(struct hlist_node *node)
 {
 	hlist_del_init_rcu(node);
 }
+#endif	/* __HAVE_RCU__ */
 
 /**
  * hash_for_each - iterate over a hashtable
@@ -125,6 +140,7 @@ static inline void hash_del_rcu(struct hlist_node *node)
 	for ((bkt) = 0, node = NULL; node == NULL && (bkt) < HASH_SIZE(name); (bkt)++)\
 		hlist_for_each_entry(obj, node, &name[bkt], member)
 
+#ifdef __HAVE_RCU__
 /**
  * hash_for_each_rcu - iterate over a rcu enabled hashtable
  * @name: hashtable to iterate
@@ -136,6 +152,7 @@ static inline void hash_del_rcu(struct hlist_node *node)
 #define hash_for_each_rcu(name, bkt, node, obj, member)				\
 	for ((bkt) = 0, node = NULL; node == NULL && (bkt) < HASH_SIZE(name); (bkt)++)\
 		hlist_for_each_entry_rcu(obj, node, &name[bkt], member)
+#endif	/* __HAVE_RCU__ */
 
 /**
  * hash_for_each_safe - iterate over a hashtable safe against removal of
@@ -163,6 +180,7 @@ static inline void hash_del_rcu(struct hlist_node *node)
 #define hash_for_each_possible(name, obj, node, member, key)			\
 	hlist_for_each_entry(obj, node,	&name[hash_min(key, HASH_BITS(name))], member)
 
+#ifdef __HAVE_RCU__
 /**
  * hash_for_each_possible_rcu - iterate over all possible objects hashing to the
  * same bucket in an rcu enabled hashtable
@@ -175,6 +193,7 @@ static inline void hash_del_rcu(struct hlist_node *node)
  */
 #define hash_for_each_possible_rcu(name, obj, node, member, key)		\
 	hlist_for_each_entry_rcu(obj, node, &name[hash_min(key, HASH_BITS(name))], member)
+#endif	/* __HAVE_RCU__ */
 
 /**
  * hash_for_each_possible_safe - iterate over all possible objects hashing to the
