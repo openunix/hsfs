@@ -38,10 +38,8 @@
 
 /* A define for big endian and little endian we just use the type define  */
 typedef unsigned short __le16;
-typedef unsigned short __u16;
 
 typedef unsigned int  __le32;
-typedef unsigned int  __u32;
 #if 0
 #ifdef __CHECKER__
 #define __bitwise__ __attribute__((bitwise))

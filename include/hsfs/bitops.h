@@ -1,6 +1,7 @@
 #ifndef _LINUX_BITOPS_H
 #define _LINUX_BITOPS_H
-#include <asm/types.h>
+
+#include <hsfs/types.h>
 
 #ifdef	__KERNEL__
 #define BIT(nr)			(1UL << (nr))
@@ -19,7 +20,7 @@ extern unsigned long __sw_hweight64(__u64 w);
  * Include this here because some architectures need generic_ffs/fls in
  * scope
  */
-#include <asm/bitops.h>
+#include <hsfs/compiler.h>
 
 #define for_each_set_bit(bit, addr, size) \
 	for ((bit) = find_first_bit((addr), (size)); \
@@ -43,12 +44,12 @@ static __inline__ int get_count_order(unsigned int count)
 		order++;
 	return order;
 }
-
+#if 0
 static inline unsigned long hweight_long(unsigned long w)
 {
 	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
 }
-
+#endif
 /**
  * rol64 - rotate a 64-bit value left
  * @word: value to rotate

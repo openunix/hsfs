@@ -47,5 +47,14 @@
 /* #endif	/\* HAVE_BOOL *\/ */
 typedef uint64_t u64;
 typedef uint32_t u32;
+typedef uint16_t u16;
+typedef uint8_t u8, __u8;
+
+typedef int32_t __s32;
+
+#define __u64 u64
+#define __u32 u32
+#define __u16 u16
+
 
 #endif	/* _HSFS_TYPES_H_ */
