@@ -16,7 +16,7 @@
 #include "nfs3.h"
 #include "log.h"
 
-#include "hashtable.h"
+#include "hsfs/hashtable.h"
 
 #define HSFS_TYPE "hsfs"
 
@@ -86,6 +86,8 @@ struct hsfs_inode
 	unsigned int i_state;
 	unsigned int i_nlink;
 	uint64_t i_blocks;
+	struct hlist_node fh_hash;
+	struct hlist_node id_hash;
 
   uint64_t          ino;
   unsigned long     generation;
@@ -127,14 +129,14 @@ struct  hsfs_table
   size_t  size;
 };
 
-#define HSFS_NAME_HASH_BITS 10
-#define HSFS_NAME_HASH_SIZE (1 << HSFS_NAME_HASH_BITS)
+#define HSFS_FH_HASH_BITS 10
+#define HSFS_FH_HASH_SIZE (1 << HSFS_NAME_HASH_BITS)
 #define HSFS_ID_HASH_BITS 10
 #define HSFS_ID_HASH_SIZE (1 << HSFS_ID_HASH_BITS)
 
 struct hsfs_super
 {
-	DECLARE_HASHTABLE(fh_table, HSFS_NAME_HASH_BITS); /* For HSFS iget5 */
+	DECLARE_HASHTABLE(fh_table, HSFS_FH_HASH_BITS); /* For HSFS iget5 */
 	DECLARE_HASHTABLE(id_table, HSFS_ID_HASH_BITS);	/* For HSFS iget/ilookup */
 
 	/* XXX Should put them into nfs_super */

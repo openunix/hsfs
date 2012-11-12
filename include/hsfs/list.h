@@ -17,6 +17,9 @@
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 
+static inline void prefetch(void *x __attribute__((unused))) {}
+
+
 /**
  * @name from other kernel headers
  */

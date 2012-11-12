@@ -31,8 +31,8 @@
  *  J.S.Peatfield@damtp.cam.ac.uk
  *
  */
-#include <hsfs_err.h>
-#include <hsi_nfs.h>
+#include <hsfs/err.h>
+#include <hsfs/hsi_nfs.h>
 
 #ifdef __UNUSED__
 

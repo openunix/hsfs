@@ -62,7 +62,7 @@ enum nfs3_stable_how {
 };
 
 /* For containerof..... */
-#include <list.h>
+#include <hsfs/list.h>
 
 struct nfs_fsid {
 	uint64_t major;

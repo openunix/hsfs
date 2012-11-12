@@ -14,7 +14,8 @@
 #include <linux/hash.h>
 #include <linux/rculist.h>
 #else
-# include <list.h>
+# include <hsfs/list.h>
+# include <hsfs/hash.h>
 #endif
 
 #define DEFINE_HASHTABLE(name, bits)						\

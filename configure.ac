@@ -23,6 +23,13 @@ AC_CHECK_LIB([tirpc], [clnt_create], [], AC_MSG_ERROR([You need libtirpc to run.
 
 
 # Checks for header files.
+AC_HEADER_ASSERT
+AC_HEADER_DIRENT
+AC_HEADER_MAJOR
+AC_HEADER_RESOLV
+AC_HEADER_STAT
+AC_HEADER_STDBOOL
+
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h libintl.h limits.h memory.h mntent.h netdb.h netinet/in.h paths.h stdlib.h string.h sys/mount.h sys/socket.h sys/time.h syslog.h unistd.h])
 
 # Checks for types.
