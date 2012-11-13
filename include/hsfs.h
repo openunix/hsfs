@@ -134,10 +134,17 @@ struct  hsfs_table
 #define HSFS_ID_HASH_BITS 10
 #define HSFS_ID_HASH_SIZE (1 << HSFS_ID_HASH_BITS)
 
+struct hsfs_super_ops
+{
+	struct hsfs_inode *(*alloc_inode)(struct hsfs_super *sb);
+	void (*destroy_inode)(struct hsfs_inode *);
+};
+
 struct hsfs_super
 {
 	DECLARE_HASHTABLE(fh_table, HSFS_FH_HASH_BITS); /* For HSFS iget5 */
 	DECLARE_HASHTABLE(id_table, HSFS_ID_HASH_BITS);	/* For HSFS iget/ilookup */
+	struct hsfs_super_ops *sop;
 
 	/* XXX Should put them into nfs_super */
   CLIENT *clntp;

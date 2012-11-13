@@ -79,8 +79,8 @@ static struct hsfs_inode *alloc_inode(struct hsfs_super *sb)
 {
 	struct hsfs_inode *inode;
 
-	if(sb->s_op->alloc_inode)
-		inode = sb->s_op->alloc_inode(sb);
+	if(sb->sop->alloc_inode)
+		inode = sb->sop->alloc_inode(sb);
 	else
 		inode = malloc(sizeof(struct hsfs_inode));
 
@@ -88,8 +88,8 @@ static struct hsfs_inode *alloc_inode(struct hsfs_super *sb)
 		return NULL;
 
 	if (inode_init_always(sb, inode)) {
-		if (inode->i_sb->s_op->destropy_inode)
-			inode->i_sb->s_op->destropy_inode(inode);
+		if (inode->sb->sop->destroy_inode)
+			inode->sb->sop->destroy_inode(inode);
 		else
 			free(inode);
 		return NULL;
