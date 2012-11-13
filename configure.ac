@@ -2,12 +2,12 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.60])
-AC_INIT([hsfs], [0.1], [steve.shuo.feng@gmail.com])
+AC_INIT([hsfs], [0.2], [steve.shuo.feng@gmail.com])
 AC_CONFIG_SRCDIR([fuse/hsfs_main.c])
 AC_CONFIG_HEADERS([include/config.h])
 
 AM_INIT_AUTOMAKE
-AM_SILENT_RULES([yes])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CC
