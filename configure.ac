@@ -7,6 +7,7 @@ AC_CONFIG_SRCDIR([fuse/hsfs_main.c])
 AC_CONFIG_HEADERS([include/config.h])
 
 AM_INIT_AUTOMAKE
+AM_SILENT_RULES([yes])
 
 # Checks for programs.
 AC_PROG_CC

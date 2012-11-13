@@ -7,7 +7,7 @@
 */
 
 /* I have to clone it here because this is a private header in fuse. */
-#include <hsfs_config.h>
+#include <hsfs/types.h>
 
 #include <pthread.h>
 

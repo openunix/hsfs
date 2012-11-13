@@ -2,7 +2,7 @@
 #ifndef __HSFS_H__
 #define __HSFS_H__
 
-#include <hsfs_config.h>
+#include <hsfs/types.h>
 
 #ifndef FUSE_USE_VERSION
 #define FUSE_USE_VERSION 26
