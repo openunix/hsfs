@@ -3,6 +3,7 @@
 #define __HSFS_H__
 
 #include <hsfs/types.h>
+#include <assert.h>
 
 #ifndef FUSE_USE_VERSION
 #define FUSE_USE_VERSION 26
@@ -145,6 +146,9 @@ struct hsfs_super
 	DECLARE_HASHTABLE(fh_table, HSFS_FH_HASH_BITS); /* For HSFS iget5 */
 	DECLARE_HASHTABLE(id_table, HSFS_ID_HASH_BITS);	/* For HSFS iget/ilookup */
 	struct hsfs_super_ops *sop;
+
+	/* XXX need protected by mutex */
+	uint64_t curr_id;
 
 	/* XXX Should put them into nfs_super */
   CLIENT *clntp;

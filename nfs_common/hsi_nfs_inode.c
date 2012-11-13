@@ -258,7 +258,7 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		.fattr	= fattr
 	};
 	struct hsfs_inode *inode = ERR_PTR(-ENOENT);
-	unsigned long hash;
+	uint64_t hash;
 
 	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
 		goto out_no_inode;
@@ -269,6 +269,7 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 	}
 
 	hash = fattr->fileid;
+	/* Do we still need this? */
 	if (sizeof(hash) < sizeof(uint64_t))
 		hash ^= fattr->fileid >> (sizeof(uint64_t) - sizeof(ino_t)) * 8;
 
