@@ -281,7 +281,7 @@ extern int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx
  *
  * @return errno number as Linux system
  */
-extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode);
+extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode, struct nfs_fattr *attr);
 
 /**
  * @brief Retrieve POSIX information of NFS
@@ -336,4 +336,19 @@ extern int  hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 
 extern int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 				size_t size);
+
+/**
+ * @brief Convert nfstime3 to timespec
+ *
+ * @param f[in]		The struct nfstime3
+ * @param t[out]	The struct timespec
+ */
+static inline void hsi_nfs3_time2spec(struct nfstime3 *f, struct timespec *t)
+{
+	t->tv_sec = f->seconds;
+	t->tv_nsec = f->nseconds;
+}
+
+extern void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t);
+
 #endif

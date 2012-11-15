@@ -47,6 +47,12 @@ static inline void nfs_copy_fh(struct nfs_fh *target, const struct nfs_fh *sourc
 	memcpy(target->data, source->data, source->size);
 }
 
+/* The nfs_copy_fh to work with rpc_gen style */
+static inline void nfs_copy_fh3(struct nfs_fh *target, int len, const char *source)
+{
+	target->size = len;
+	memcpy(target->data, source, len);
+}
 
 /*
  * This is really a general kernel constant, but since nothing like
