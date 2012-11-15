@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-#include <sys/user.h>
 
 #include "hsi_nfs3.h"
 #include "log.h"

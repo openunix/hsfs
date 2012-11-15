@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <linux/fs.h>
 #include <errno.h>
 
 #include "log.h"
@@ -29,22 +28,22 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 		goto out;
 	}
 
-	if (mask & MAY_READ) {
+	if (mask & R_OK) {
 		mode |= ACCESS3_READ;
 	}
 	if (S_ISDIR(hi->attr.type)) {
-		if (mask & MAY_WRITE) {
+		if (mask & W_OK) {
 			mode |= ACCESS3_MODIFY | ACCESS3_EXTEND 
 				| ACCESS3_DELETE;
 		}
-		if (mask & MAY_EXEC) {
+		if (mask & X_OK) {
 			mode |= ACCESS3_LOOKUP;
 		}
 	} else {
-		if (mask & MAY_WRITE) {
+		if (mask & W_OK) {
 			mode |= ACCESS3_MODIFY | ACCESS3_EXTEND;
 		}
-		if (mask & MAY_EXEC) {
+		if (mask & X_OK) {
 			mode |= ACCESS3_EXECUTE;
 		}
 	}

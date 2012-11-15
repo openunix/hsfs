@@ -126,7 +126,6 @@ out:
 	return err;	
 }
 #else 
-#include <linux/kdev_t.h>
 #include <errno.h>
 #include "hsi_nfs3.h"
 #endif /*#ifdef HSFS_NFS3_TEST*/
@@ -173,8 +172,8 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **new,
 			args.what.type=NF3BLK;
 sattrs:
 			args.what.mknoddata3_u.device.dev_attributes.mode.set=1;
-			args.what.mknoddata3_u.device.spec.major=MAJOR(rdev);
-			args.what.mknoddata3_u.device.spec.minor=MINOR(rdev);
+			args.what.mknoddata3_u.device.spec.major=major(rdev);
+			args.what.mknoddata3_u.device.spec.minor=minor(rdev);
 			args.what.mknoddata3_u.device.dev_attributes.mode.
 						set_uint32_u.val=mode & 0xfff;
 
