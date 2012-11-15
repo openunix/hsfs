@@ -20,7 +20,7 @@
 #include <hsfs.h>
 
 
-int HSFS_PAGE_SIZE;
+unsigned int HSFS_PAGE_SIZE;
 int hsfs_init()
 {
 	HSFS_PAGE_SIZE = sysconf(_SC_PAGE_SIZE);

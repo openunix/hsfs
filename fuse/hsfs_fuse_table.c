@@ -9,30 +9,6 @@
 #define  HSFS_TABLE_SIZE  4096
 
 /**
- * hsx_fuse_itable_init:	initialize the Hash Table
- *
- * @param sb[IN]:	the information of the superblock
- * 
- * @return:	0 if successfull, other values show an error
- *
- * */
-int  hsx_fuse_itable_init(struct hsfs_super *sb)
-{
-	sb->hsfs_fuse_ht.size =  HSFS_TABLE_SIZE ;
-	sb->hsfs_fuse_ht.array = (struct hsfs_inode **) calloc(1, 
-				sizeof(struct hsfs_inode *) * HSFS_TABLE_SIZE);
-	if (sb->hsfs_fuse_ht.array == NULL)
-	{
-		ERR("hsfs: memory allocation failed.");
-		return ENOMEM ;
-	}
-	sb->hsfs_fuse_ht.use = 0;
-
-	return 0;
-
-}
-
-/**
  * hsfs_ino_hash:	hash function
  *
  * @param sb[IN]:	the information of the superblock

@@ -147,7 +147,10 @@ struct nfs_fattr {
 #define NFS_ATTR_FATTR_V4 (NFS_ATTR_FATTR \
 	| NFS_ATTR_FATTR_SPACE_USED \
 			   | NFS_ATTR_FATTR_CHANGE)
-
+static inline void nfs_init_fattr(struct nfs_fattr *attr)
+{
+	attr->valid = 0;	/* This seems enough already */
+}
 
 struct nfs_inode{
 	uint64_t fileid;
@@ -193,14 +196,24 @@ static inline int NFS_STALE(const struct hsfs_inode *inode)
 	return NFS_INO_STALE & NFS_I(inode)->flags;
 }
 
+/*
+ * Calculate the number of 512byte blocks used.
+ */
+static inline blkcnt_t nfs_calc_block_size(uint64_t tsize)
+{
+	blkcnt_t used = (tsize + 511) >> 9;
+	return (used > ULONG_MAX) ? ULONG_MAX : used;
+}
 
 static inline off_t nfs_size_to_off_t(uint64_t size)
 {
-	assert(sizeof(off_t) >= sizeof(size));
+	if (size > (__u64) LLONG_MAX - 1)
+		return LLONG_MAX - 1;
 	return (off_t) size;
 }
 
 struct hsfs_inode *
 hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr);
+
 
 #endif	/* _HSI_NFS_H_ */

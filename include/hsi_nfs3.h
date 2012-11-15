@@ -281,7 +281,7 @@ extern int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx
  *
  * @return errno number as Linux system
  */
-extern int hsi_nfs3_fsinfo(struct hsfs_inode *inode, struct nfs_fattr *attr);
+extern int hsi_nfs3_fsinfo(struct hsfs_super *sb, struct nfs_fh3 *fh, struct nfs_fattr *attr);
 
 /**
  * @brief Retrieve POSIX information of NFS

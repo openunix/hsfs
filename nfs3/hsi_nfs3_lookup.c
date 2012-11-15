@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+
 #include "hsi_nfs3.h"
 
 #ifdef HSFS_NFS3_TEST
@@ -29,14 +30,72 @@ struct hsfs_super s;
 struct hsfs_super *sb=&s;
 #endif /* HSFS_NFS3_TEST */
 
+/*
+ * Map file type to S_IFMT bits
+ */
+static const mode_t nfs_type2fmt[] = {
+	[NF3REG] = S_IFREG,
+	[NF3DIR] = S_IFDIR,
+	[NF3BLK] = S_IFBLK,
+	[NF3CHR] = S_IFCHR,
+	[NF3LNK] = S_IFLNK,
+	[NF3SOCK] = S_IFSOCK,
+	[NF3FIFO] = S_IFIFO,
+};
+
+void hsi_nfs3_attr2fattr(struct fattr3 *f, struct nfs_fattr *t)
+{
+	unsigned int type, minor, major;
+	mode_t fmode;
+	
+	if(f->type > NF3FIFO)
+		type = 0;
+	fmode = nfs_type2fmt[type];
+	
+	t->mode = (f->mode & ~S_IFMT) | fmode;
+	t->nlink = f->nlink;
+	t->uid = f->uid;
+	t->gid = f->gid;
+	t->size = f->size;
+	t->du.nfs3.used = f->used;
+	
+	major = f->rdev.major;
+	minor = f->rdev.minor;
+	t->rdev = makedev(major, minor);
+	if (major(t->rdev) < 0 || (unsigned int)major(t->rdev) != major ||
+	    minor(t->rdev) < 0 || (unsigned int)minor(t->rdev) != minor)
+		t->rdev = 0;
+	
+	t->fsid.major = f->fsid;
+	t->fsid.minor = 0;
+	t->fileid = f->fileid;
+	
+	hsi_nfs3_time2spec(&(f->atime), &(t->atime));
+	hsi_nfs3_time2spec(&(f->mtime), &(t->mtime));
+	hsi_nfs3_time2spec(&(f->ctime), &(t->ctime));
+	
+	t->valid |= NFS_ATTR_FATTR_V3;
+}
+
+void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t)
+{
+	if (p->present)
+		hsi_nfs3_attr2fattr(&(p->post_op_attr_u.attributes), t);
+	else
+		WARNING("Weak NFS server without post op attr");
+}
+
+
 int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new, 
-		const char *name)
+		    const char *name)
 {
 	struct hsfs_super *sb = parent->sb;
 	struct diropargs3 args;
 	struct lookup3res res;
-	struct fattr3 *pattr = NULL;
-	nfs_fh3	*name_fh;
+
+	struct nfs_fattr fattr;
+	struct nfs_fh name_fh;
+	
 	int st = 0, err = 0;
 
 	memset(&args, 0, sizeof(args));
@@ -52,9 +111,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 	if (err) 
 		goto out;
 
-	st = res.status;
-	if (NFS3_OK != st) 
-	{
+	if (NFS3_OK != st){
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).",name,st);
 		err = hsi_nfs3_stat_to_errno(st);
@@ -62,25 +119,19 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 			(char *)&res);
 		goto out;
 	}
-	if (! res.lookup3res_u.resok.obj_attributes.present)
-	{
-		ERR("Acquired property is invalid !");
-		err = EINVAL;
-		clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
-		goto out;
-	}
+
+	nfs_init_fattr(&fattr);
+	hsi_nfs3_post2fattr(&res.lookup3res_u.resok.obj_attributes, &fattr);
+	nfs_copy_fh3(&name_fh, res.lookup3res_u.resok.object.data.data_len,
+		     res.lookup3res_u.resok.object.data.data_val);
 	
-	pattr=&res.lookup3res_u.resok.obj_attributes.post_op_attr_u.attributes;
-	name_fh = &res.lookup3res_u.resok.object;
-        
-	*new = hsi_nfs_fhget(parent->sb, name_fh, pattr);
+	*new = hsi_nfs_fhget(parent->sb, &name_fh, &fattr);
 
 	clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
-
 out:
 	DEBUG_OUT(" with errno %d",err);
-	return(err);
 
+	return(err);
 }
 
 #ifdef HSFS_NFS3_TEST

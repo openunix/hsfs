@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.common
+
 HSFS_NFS3_X = nfs3.x
 HSFS_NFS3_H = $(top_builddir)/include/nfs3.h
 HSFS_NFS3_XDR = nfs3xdr.c

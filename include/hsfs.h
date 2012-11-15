@@ -57,7 +57,7 @@ extern int fg;
 extern int hsfs_init();
 
 /* Macros or fake-macros.... */
-extern int HSFS_PAGE_SIZE;
+extern unsigned int HSFS_PAGE_SIZE;
 
 /*
  * To change the maximum rsize and wsize supported by the NFS client, adjust
@@ -160,8 +160,8 @@ struct hsfs_super
   CLIENT *acl_clntp;
   int    flags;
   /* for read/write */
-  int    rsize;
-  int	 wsize;
+  unsigned int    rsize;
+  unsigned int	 wsize;
   /* For all clnt_call timeout,
    * as deciseconds (tenths of a second)
    */
@@ -175,7 +175,7 @@ struct hsfs_super
   /* for statfs */
   int	 namlen;
   /* Readdir size */
-  int	 dtsize;
+  unsigned int	 dtsize;
   unsigned int	    bsize;
   unsigned char	    bsize_bits;
   struct hsfs_inode *root;
@@ -274,7 +274,7 @@ extern struct hsfs_inode *hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
  *
  * Note both @test and @set are called with the inode_lock held, so can't sleep.
  */
-struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashval,
+struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, uint64_t hashval,
 				     int (*test)(struct hsfs_inode *, void *),
 				     int (*set)(struct hsfs_inode *, void *), void *data);
 #endif

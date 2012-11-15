@@ -42,18 +42,17 @@ static inline void hsi_fsinfo_to_super(struct hsfs_super *super,
 	super->properties = fsinfo->properties;
 }
 
-int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
+int hsi_nfs3_fsinfo(struct hsfs_super *sb, nfs_fh3 *fh, struct nfs_fattr *fattr)
 {
-	struct hsfs_super *sb = inode->sb;
 	CLIENT *clnt = sb->clntp;
-	fsinfo3res res = {};
-	post_op_attr *pattr = NULL;
+	fsinfo3res res;
 	int ret = 0;
 
-	DEBUG_IN("ino: %lu", inode->ino);
-
+	DEBUG_IN("ino: %p", sb);
+       
+	memset(&res, 0, sizeof(res));
 	ret = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_FSINFO,
-			(xdrproc_t)xdr_nfs_fh3, (char *)&inode->fh,
+			(xdrproc_t)xdr_nfs_fh3, (char *)fh,
 			(xdrproc_t)xdr_fsinfo3res, (char *)&res);
 
 	if (ret)
@@ -66,12 +65,8 @@ int hsi_nfs3_fsinfo(struct hsfs_inode *inode)
 	}
 
 	hsi_fsinfo_to_super(sb, &res.fsinfo3res_u.resok);
+	hsi_nfs3_post2fattr(&res.fsinfo3res_u.resok.obj_attributes, fattr);
 
-	pattr = &res.fsinfo3res_u.resok.obj_attributes;
-	if (pattr->present) {
-		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes,
-			sizeof(fattr3));
-	}
 fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_fsinfo3res, (char *)&res);
 out:

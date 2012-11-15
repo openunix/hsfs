@@ -269,9 +269,6 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 	}
 
 	hash = fattr->fileid;
-	/* Do we still need this? */
-	if (sizeof(hash) < sizeof(uint64_t))
-		hash ^= fattr->fileid >> (sizeof(uint64_t) - sizeof(ino_t)) * 8;
 
 	inode = hsfs_iget5_locked(sb, hash, nfs_find_actor, nfs_init_locked, &desc);
 	if (inode == NULL) {
@@ -333,7 +330,6 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		inode->i_nlink = fattr->nlink;
 		inode->i_uid = fattr->uid;
 		inode->i_gid = fattr->gid;
-#if 0
 		if (fattr->valid & (NFS_ATTR_FATTR_V3 | NFS_ATTR_FATTR_V4)) {
 			/*
 			 * report the blocks in 512byte units
@@ -342,6 +338,7 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		} else {
 			inode->i_blocks = fattr->du.nfs2.blocks;
 		}
+#if 0
 		nfsi->attrtimeo = NFS_MINATTRTIMEO(inode);
 		nfsi->attrtimeo_timestamp = jiffies;
 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
@@ -1113,6 +1110,11 @@ void nfs_destroy_inode(struct inode *inode)
 {
 	kmem_cache_free(nfs_inode_cachep, NFS_I(inode));
 }
+
+struct hsfs_super_ops hsi_nfs_sop = {
+	.alloc_inode = nfs_alloc_inode,
+	.destroy_inode = nfs_destroy_inode
+};
 
 static inline void nfs4_init_once(struct nfs_inode *nfsi)
 {

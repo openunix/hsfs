@@ -46,6 +46,10 @@
 # include <stdbool.h>
 #endif	/* HAVE_STDBOOL_H */
 
+#ifdef HAVE_LIMITS_H
+# include <limits.h>
+#endif
+
 #ifdef __CYGWIN__
 # include <bits/wordsize.h>
 #endif	/* __CYGWIN__ */

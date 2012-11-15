@@ -23,14 +23,18 @@
 #include "xcommon.h"
 #include "fstab.h"
 
+#include <hsfs/err.h>
+#include <hsfs/hsi_nfs.h>
+
+
 typedef dirpath mntarg_t;
 typedef dirpath umntarg_t;
 typedef struct mountres3 mntres_t;
 
 #define NFS_MOUNT_TCP		0x0001
 
-static clnt_addr_t nfs_server_bak = {};
-static clnt_addr_t acl_server_bak = {};
+static clnt_addr_t nfs_server_bak;
+static clnt_addr_t acl_server_bak;
 static int ssize_bak = 0;
 static int rsize_bak = 0;
 
@@ -554,31 +558,36 @@ void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
 	}
 }
 
+extern struct hsfs_super_ops hsi_nfs_sop;
 static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 {
 	struct hsfs_inode *root = NULL;
+	struct nfs_fattr fattr;
+	struct nfs_fh nfh;
 	int ret = 0;
-
-	ret = hsx_fuse_itable_init(super);
-	if (ret)
-		goto out;
 
 	ret = hsfs_init_icache(super);
 	if (ret)
 		goto out;
 
-	root = hsi_nfs3_alloc_node(super, fh, FUSE_ROOT_ID, NULL);
-	if (root == NULL) {
-		ret = ENOMEM;
+	super->sop = &hsi_nfs_sop;
+	super->curr_id = 0;
+	nfs_init_fattr(&fattr);
+
+	ret = hsi_nfs3_fsinfo(super, fh, &fattr);
+	if (ret)
+		goto out;
+
+	nfs_copy_fh3(&nfh, fh->data.data_len, fh->data.data_val);
+	root = hsi_nfs_fhget(super, &nfh, &fattr);
+
+	if (IS_ERR(root)) {
+		ret = PTR_ERR(root);
 		goto out;
 	}
 
 	super->root = root;
-	hsx_fuse_iadd(super, root);
-
-	ret = hsi_nfs3_fsinfo(super->root);
-	if (ret)
-		goto out;
+	assert(root->ino == 1);
 	
 	ret = hsi_nfs3_pathconf(super->root);
 	if (ret)
