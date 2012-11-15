@@ -54,6 +54,11 @@ extern int nomtab;
 extern int verbose;
 extern int fg;
 
+extern int hsfs_init();
+
+/* Macros or fake-macros.... */
+extern int HSFS_PAGE_SIZE;
+
 /*
  * To change the maximum rsize and wsize supported by the NFS client, adjust
  * NFS_MAX_FILE_IO_SIZE.  64KB is a typical maximum, but some servers can

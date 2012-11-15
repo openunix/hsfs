@@ -384,7 +384,7 @@ static int hsi_parse_cmdline(int argc, char **argv, int *flags,
 
 	/* add subtype args */
 	{
-		char subtype_opt[PAGE_SIZE] = {};
+		char subtype_opt[4096] = {};
 
 		sprintf(subtype_opt, "-osubtype=%s", progname);
 		ret = fuse_opt_add_arg(args, subtype_opt);
@@ -436,6 +436,10 @@ int main(int argc, char **argv)
 	err = hsi_parse_cmdline(argc - 2, argv + 2, &super.flags,
 				&args, &udata);
 	if (err != 0)
+		goto out;
+
+	err = hsfs_init();
+	if (err)
 		goto out;
 
 	ch = hsx_fuse_mount(mountspec, mountpoint, &args, udata, &super);

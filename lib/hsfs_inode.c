@@ -18,6 +18,16 @@
  */
 
 #include <hsfs.h>
+
+
+int HSFS_PAGE_SIZE;
+int hsfs_init()
+{
+	HSFS_PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
+
+	return 0;
+}
+
 struct hsfs_inode bad_hsfs_inode = {
 	.ino = 0,
 };

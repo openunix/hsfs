@@ -24,8 +24,8 @@ static inline void hsi_fsinfo_to_super(struct hsfs_super *super,
 		super->wsize = HSFS_MAX_FILE_IO_SIZE;
 
 	super->dtsize = hsfs_block_size(fsinfo->dtpref, NULL);
-	if (super->dtsize > PAGE_SIZE * HSFS_MAX_READDIR_PAGES)
-		super->dtsize = PAGE_SIZE * HSFS_MAX_READDIR_PAGES;
+	if (super->dtsize > HSFS_PAGE_SIZE * HSFS_MAX_READDIR_PAGES)
+		super->dtsize = HSFS_PAGE_SIZE * HSFS_MAX_READDIR_PAGES;
 
 	if (super->dtsize > super->rsize)
 		super->dtsize = super->rsize;
