@@ -44,6 +44,16 @@ static void wait_on_inode(struct hsfs_inode *inode __attribute__((unused)))
 	;
 }
 
+static void wake_up_inode(struct hsfs_inode *inode __attribute__((unused)))
+{
+	;
+}
+
+static void generic_delete_inode(struct hsfs_inode *inode __attribute__((unused)))
+{
+	;
+}
+
 static void __iget(struct hsfs_inode *inode __attribute__((unused)))
 {
 	;
@@ -120,7 +130,7 @@ static int inode_init_always(struct hsfs_super *sb, struct hsfs_inode *inode)
 {
 	inode->sb = sb;
 	inode->generation = 0;
-	inode->nlookup = 0;
+	inode->private = NULL;
 	inode->ino = 0;
 	inode->i_blocks = 0;
 	inode->i_nlink = 1;
@@ -216,3 +226,50 @@ hsfs_iget5_locked(struct hsfs_super *sb, uint64_t hashval,
 	
  	return get_new_inode(sb, hashval, test, set, data);
 }
+static void generic_forget_inode(struct hsfs_inode *inode)
+{
+#if 0
+	if (!generic_detach_inode(inode))
+		return;
+	if (inode->i_data.nrpages)
+		truncate_inode_pages(&inode->i_data, 0);
+	clear_inode(inode);
+#endif
+	wake_up_inode(inode);
+	destroy_inode(inode);
+}
+
+/*
+ * Normal UNIX filesystem behaviour: delete the
+ * inode when the usage count drops to zero, and
+ * i_nlink is zero.
+ */
+void generic_drop_inode(struct hsfs_inode *inode)
+{
+	if (!inode->i_nlink)
+		generic_delete_inode(inode);
+	else
+		generic_forget_inode(inode);
+}
+
+static inline void iput_final(struct hsfs_inode *inode)
+{
+	const struct hsfs_super_ops *op = inode->sb->sop;
+	void (*drop)(struct hsfs_inode *) = generic_drop_inode;
+
+	if (op && op->drop_inode)
+		drop = op->drop_inode;
+	drop(inode);
+}
+
+void hsfs_iput(struct hsfs_inode *inode)
+{
+	if (inode) {
+		/* BUG_ON(inode->i_state == I_CLEAR); */
+		inode->i_count--;
+		/* if (atomic_dec_and_lock(&inode->i_count, &inode_lock)) */
+		if (!inode->i_count)
+			iput_final(inode);
+	}
+}
+

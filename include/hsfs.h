@@ -94,11 +94,12 @@ struct hsfs_inode
 	uint64_t i_blocks;
 	struct hlist_node fh_hash;
 	struct hlist_node id_hash;
+	void * private;
+	int i_count;
 
   uint64_t          ino;
   unsigned long     generation;
   nfs_fh3           fh;
-  unsigned long     nlookup;
   fattr3            attr;
   struct hsfs_super *sb;
   struct hsfs_inode *next;
@@ -144,6 +145,7 @@ struct hsfs_super_ops
 {
 	struct hsfs_inode *(*alloc_inode)(struct hsfs_super *sb);
 	void (*destroy_inode)(struct hsfs_inode *);
+	void (*drop_inode) (struct hsfs_inode *);
 };
 
 struct hsfs_super
@@ -277,4 +279,14 @@ extern struct hsfs_inode *hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
 struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, uint64_t hashval,
 				     int (*test)(struct hsfs_inode *, void *),
 				     int (*set)(struct hsfs_inode *, void *), void *data);
+/**
+ *iput- put an inode
+ *@inode: inode to put
+ *
+ *Puts an inode, dropping its usage count. If the inode use count hits
+ *zero, the inode is then freed and may also be destroyed.
+ *
+ *Consequently, iput() can sleep.
+ */
+void hsfs_iput(struct hsfs_inode *inode);
 #endif
