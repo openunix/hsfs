@@ -7,7 +7,19 @@ AC_CONFIG_SRCDIR([fuse/hsfs_main.c])
 AC_CONFIG_HEADERS([include/config.h])
 
 AM_INIT_AUTOMAKE
+
+# SLES 11SP2 (automake-1.10.1) doesn't have this
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+# Cygwin put tirpc into /usr/include/tirpc.
+AC_SUBST([TIRPC_HEADERS])
+AC_ARG_WITH([tirpc-headers],
+	[AC_HELP_STRING([--with-tirpc-headers=<path>], [Alternative path to tirpc headers])],
+	[TIRPC_HEADERS="-I $withval"
+	case $BWLABELDIR in
+     	     /*) ;;
+     	     *) BWLABELDIR="`pwd`/$BWLABELDIR" ;;
+	esac])
 
 # Checks for programs.
 AC_PROG_CC
@@ -20,8 +32,7 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([fuse], [fuse_lowlevel_new], [], AC_MSG_ERROR([You need libfuse to run.]))
-AC_CHECK_LIB([tirpc], [clnt_create], [], AC_MSG_ERROR([You need libtirpc to run.]))
-
+AC_CHECK_LIB([tirpc], [clnt_tp_create], [], AC_MSG_ERROR([You need libtirpc to run.]))
 
 # Checks for header files.
 AC_HEADER_ASSERT
@@ -40,9 +51,6 @@ AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
 
-AC_CHECK_TYPE([bool],
-	[AC_DEFINE([HAVE_BOOL], [1], [Define to 1 if you have the 'bool' type.])],
-	[])
 
 # Checks for structures
 AC_CHECK_MEMBERS([struct stat.st_atim])

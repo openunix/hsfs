@@ -33,9 +33,22 @@
 # include <stdint.h>
 #endif	/* HAVE_STDINT_H */
 
+/* We need this for mode_t and others */
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
 #ifdef HAVE_STDBOOL_H
 # include <stdbool.h>
 #endif	/* HAVE_STDBOOL_H */
+
+#ifdef __CYGWIN__
+# include <bits/wordsize.h>
+#endif	/* __CYGWIN__ */
 
 #define BITS_PER_LONG __WORDSIZE
 
@@ -55,6 +68,13 @@ typedef int32_t __s32;
 #define __u64 u64
 #define __u32 u32
 #define __u16 u16
+
+#if defined MAJOR_IN_MKDEV
+# include <sys/mkdev.h>
+#elif defined MAJOR_IN_SYSMACROS
+# include <sys/sysmacros.h>
+#endif
+
 
 
 #endif	/* _HSFS_TYPES_H_ */

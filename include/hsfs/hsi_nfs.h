@@ -194,4 +194,7 @@ static inline off_t nfs_size_to_off_t(uint64_t size)
 	return (off_t) size;
 }
 
+struct hsfs_inode *
+hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr);
+
 #endif	/* _HSI_NFS_H_ */

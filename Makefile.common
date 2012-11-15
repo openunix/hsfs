@@ -1,3 +1,3 @@
 # This is the must have feature that fuse needed.
-AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64
+AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64 $(TIRPC_HEADERS)
 AM_CFLAGS = -Wall -Wextra

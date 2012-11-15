@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/mount.h>
-#include <sys/user.h>
 #include <mntent.h>
 #include <pwd.h>
 #include <libgen.h>
