@@ -111,9 +111,12 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 		err = hsi_nfs3_stat_to_errno(st);
 		goto out1;
 	}
-	*new = hsi_nfs3_ifind(parent->sb, 
-	&(res.diropres3_u.resok.obj.post_op_fh3_u.handle),
-	&(res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
+
+	*new = hsi_nfs3_handle_create(sb, &res.diropres3_u.resok);
+	if(IS_ERR(*new)){
+		*new = NULL;
+		err = PTR_ERR(*new);
+	}
 out1:
 	clnt_freeres(sb->clntp, (xdrproc_t)xdr_diropres3, (char*)&res);
 out2:

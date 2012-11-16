@@ -15,9 +15,10 @@
 
 #define FULL_MODE (S_IRWXU | S_IRWXG | S_IRWXO)
 
-int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
+int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **new,
 		const char *name, mode_t mode)
 {
+	struct hsfs_super *sb = hi->sb;
 	struct create3args args;
 	struct diropres3 res;
 	mode_t cmode = mode & 0xF0000;
@@ -32,7 +33,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	
 	args.where.dir = hi->fh;
 	args.where.name = (char *)name;
-	clntp = hi->sb->clntp;
+	clntp = sb->clntp;
 	args.how.mode = cmode >> 16;
 	if (EXCLUSIVE == args.how.mode) {
 		memcpy(args.how.createhow3_u.verf, &hi->ino, NFS3_CREATEVERFSIZE);
@@ -58,25 +59,22 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **newhi,
 	if (status)
 		goto out;
 
-	if (NFS3_OK == res.status) {
-		status = res.status;
-
-		*newhi = hsi_nfs3_ifind(hi->sb, 
-			&res.diropres3_u.resok.obj.post_op_fh3_u.handle, 
-			&res.diropres3_u.resok.
-			obj_attributes.post_op_attr_u.attributes);
-	
-		if (EXCLUSIVE == args.how.mode) {
-			struct hsfs_iattr sattr = {};
-			sattr.mode = fmode;
-			S_SETMODE(&sattr);
-			status = hsi_nfs3_setattr(*newhi, &sattr);
-			if (status) {
-				WARNING("Setattr failed after create: %d", status);
-			}
-		}
-	} else {
+	if (NFS3_OK != res.status) {
 		status = hsi_nfs3_stat_to_errno(res.status);
+		goto out;
+	}
+
+	*new = hsi_nfs3_handle_create(sb, &res.diropres3_u.resok);
+	if(IS_ERR(*new)){
+		*new = NULL;
+		status = PTR_ERR(*new);
+	}
+
+	if (EXCLUSIVE == args.how.mode) {
+		struct hsfs_iattr sattr = (*new)->iattr;
+		sattr.mode = fmode;
+		S_SETMODE(&sattr);
+		status = hsi_nfs3_setattr(*new, &sattr);
 	}
 
 out:

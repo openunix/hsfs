@@ -159,13 +159,12 @@ extern	int hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode
  *
  * @param inode[in] the inode of the file
  * @param newparent[in] the inode of the new parent
- * @param new[out] the inode of the linked file
  * @param name[in] the name to of the link to create
  * 
  * @return error number
  */
 extern 	int hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent, 
-			struct hsfs_inode **new ,  const char *name);
+			  const char *name);
 
 /**
  * @brief Look up a directory entry by name
@@ -350,5 +349,6 @@ static inline void hsi_nfs3_time2spec(struct nfstime3 *f, struct timespec *t)
 }
 
 extern void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t);
+struct hsfs_inode *hsi_nfs3_handle_create(struct hsfs_super *sb, struct diropres3ok *dir);
 
 #endif

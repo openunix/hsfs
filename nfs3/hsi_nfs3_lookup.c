@@ -62,8 +62,8 @@ void hsi_nfs3_attr2fattr(struct fattr3 *f, struct nfs_fattr *t)
 	major = f->rdev.major;
 	minor = f->rdev.minor;
 	t->rdev = makedev(major, minor);
-	if (major(t->rdev) < 0 || (unsigned int)major(t->rdev) != major ||
-	    minor(t->rdev) < 0 || (unsigned int)minor(t->rdev) != minor)
+	if ((unsigned)major(t->rdev) != major ||
+	    (unsigned)minor(t->rdev) != minor)
 		t->rdev = 0;
 	
 	t->fsid.major = f->fsid;

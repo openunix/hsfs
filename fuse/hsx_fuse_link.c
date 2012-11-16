@@ -27,8 +27,7 @@ hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
 		goto out;
 	}
 
-	struct hsfs_inode *newinode=NULL;
-	err= hsi_nfs3_link(inop, parent, &newinode, newname);
+	err= hsi_nfs3_link(inop, parent, newname);
 
 	if(!err){
 		e=(struct fuse_entry_param *)malloc(sizeof(struct 
@@ -39,7 +38,7 @@ hsx_fuse_link(fuse_req_t req, fuse_ino_t ino, fuse_ino_t newparent,
 			goto out;
 		}
 		else{
-			hsx_fuse_fill_reply(newinode,e);
+			hsx_fuse_fill_reply(inop,e);
 			fuse_reply_entry(req, e);
 			free(e);
 			goto out;

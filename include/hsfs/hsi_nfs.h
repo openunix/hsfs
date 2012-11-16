@@ -21,6 +21,7 @@
 #define _HSI_NFS_H_
 
 #include <hsfs.h>
+#include <hsfs/err.h>
 
 /*
  * This is the kernel NFS client file handle representation
@@ -196,15 +197,10 @@ static inline int NFS_STALE(const struct hsfs_inode *inode)
 	return NFS_INO_STALE & NFS_I(inode)->flags;
 }
 
-/*
- * Calculate the number of 512byte blocks used.
+/* 
+ * Be aware that the following two functions are only right with
+ * -D_FILE_OFFSET_BITS=64
  */
-static inline blkcnt_t nfs_calc_block_size(uint64_t tsize)
-{
-	blkcnt_t used = (tsize + 511) >> 9;
-	return (used > ULONG_MAX) ? ULONG_MAX : used;
-}
-
 static inline off_t nfs_size_to_off_t(uint64_t size)
 {
 	if (size > (__u64) LLONG_MAX - 1)
@@ -212,8 +208,17 @@ static inline off_t nfs_size_to_off_t(uint64_t size)
 	return (off_t) size;
 }
 
+/*
+ * Calculate the number of 512byte blocks used.
+ */
+static inline blkcnt_t nfs_calc_block_size(uint64_t tsize)
+{
+	blkcnt_t used = (tsize + 511) >> 9;
+	return (used > LLONG_MAX) ? LLONG_MAX : used;
+}
+
 struct hsfs_inode *
 hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr);
 
-
+extern struct hsfs_super_ops hsi_nfs_sop;
 #endif	/* _HSI_NFS_H_ */

@@ -1,3 +1,4 @@
+#include <hsfs/err.h>
 #include "hsi_nfs3.h"
 #ifdef HSFS_NFS3_TEST
 #include "hsi_nfs3.h"
@@ -13,13 +14,32 @@
 #include <string.h>
 #endif
 
+struct hsfs_inode *hsi_nfs3_handle_create(struct hsfs_super *sb, struct diropres3ok *dir)
+{
+	struct nfs_fattr fattr;
+	struct nfs_fh fh;
+	struct nfs_fh3 *nfh;
+	
+	nfs_init_fattr(&fattr);
+	hsi_nfs3_post2fattr(&(dir->obj_attributes), &fattr);
+
+	/* Actually, we should do lookup here..... */
+	if (!dir->obj.present)
+		return ERR_PTR(ENOENT);
+	
+	nfh = &(dir->obj.post_op_fh3_u.handle);
+	nfs_copy_fh3(&fh, nfh->data.data_len, nfh->data.data_val);
+
+	return hsi_nfs_fhget(sb, &fh, &fattr);
+}
+
 int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 	       		const char *name, mode_t mode)
 {
 	struct hsfs_super *sb = parent->sb;
 	int err = 0;
 	mkdir3args argp;
-	diropres3 clnt_res;	
+	diropres3 clnt_res;
 	
 	DEBUG_IN(" ino: %lu.\n", parent->ino);
 	memset(&argp, 0, sizeof(mkdir3args));
@@ -42,11 +62,11 @@ int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 		err = hsi_nfs3_stat_to_errno(clnt_res.status);
 		goto outfree;
 	}
-	*new = hsi_nfs3_ifind (parent->sb,
-			&(clnt_res.diropres3_u.resok.obj.post_op_fh3_u.handle),
-	&(clnt_res.diropres3_u.resok.obj_attributes.post_op_attr_u.attributes));
-	if(NULL == *new) {
-		ERR("Error in create inode.\n");
+
+	*new = hsi_nfs3_handle_create(sb, &clnt_res.diropres3_u.resok);
+	if(IS_ERR(*new)){
+		*new = NULL;
+		err = PTR_ERR(*new);
 	}
 
 outfree:

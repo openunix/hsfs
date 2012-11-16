@@ -134,13 +134,14 @@ int
 hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **new,
                const char *name,mode_t mode, dev_t rdev)
 {
+	struct hsfs_super *sb = parent->sb;
 	int err=0;
 	CLIENT *nfs_client=NULL;
 	struct mknod3args args;
 	struct diropres3 res;
 
-	DEBUG_IN("the parent ino (%lu),the nlookup is (%lu)",parent->ino,
-                                                        parent->nlookup);
+	DEBUG_IN("the parent ino (%lu),the nlookup is (%lu)",
+		 parent->ino, (unsigned long)parent->private);
 
 	memset(&args, 0 , sizeof(struct mknod3args));
 	memset(&res, 0 , sizeof(struct diropres3));	
@@ -213,19 +214,12 @@ pipe_sattrs:
 		err=hsi_nfs3_stat_to_errno(res.status);
 		goto out1;
 	}
-	if(res.diropres3_u.resok.dir_wcc.after.present){
-		memcpy(&(parent->attr), &res.diropres3_u.resok.dir_wcc.after.
-                                        post_op_attr_u.attributes,
-                                        sizeof(fattr3));
+
+	*new = hsi_nfs3_handle_create(sb, &res.diropres3_u.resok);
+	if(IS_ERR(*new)){
+		*new = NULL;
+		err = PTR_ERR(*new);
 	}
-
-	*new=hsi_nfs3_ifind(parent->sb,&res.diropres3_u.resok.obj.
-				post_op_fh3_u.handle,&res.diropres3_u.
-			 	resok.obj_attributes.post_op_attr_u.
-                                attributes);
-	ERR("the new made node ino (%lu),the nlookup (%lu)",(*new)->ino,
-                                                      (*new)->nlookup);
-
 out1:
 	clnt_freeres(nfs_client,(xdrproc_t)xdr_diropres3,(char *)&res);
 out2:
