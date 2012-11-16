@@ -36,7 +36,7 @@ int hsfs_init_icache(struct hsfs_super *sb)
 {
 	hash_init(sb->id_table);
 	hash_init(sb->fh_table);
-	return 1;
+	return 0;
 }
 
 static void wait_on_inode(struct hsfs_inode *inode __attribute__((unused)))

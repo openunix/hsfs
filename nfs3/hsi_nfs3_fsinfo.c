@@ -66,11 +66,13 @@ int hsi_nfs3_fsinfo(struct hsfs_super *sb, nfs_fh3 *fh, struct nfs_fattr *fattr)
 
 	hsi_fsinfo_to_super(sb, &res.fsinfo3res_u.resok);
 	hsi_nfs3_post2fattr(&res.fsinfo3res_u.resok.obj_attributes, fattr);
+	if (!fattr->valide & NFS_ATTR_FATTR)
+		ret = 
 
 fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_fsinfo3res, (char *)&res);
 out:
-	DEBUG_OUT("%s", ".");
+	DEBUG_OUT("(%d)", ret);
 
 	return ret;
 }

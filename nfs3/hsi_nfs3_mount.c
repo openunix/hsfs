@@ -176,7 +176,7 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 
 	hsi_mnt_closeclnt(clnt);
 
-	DEBUG_OUT("%s", ".");
+	DEBUG_OUT("(%d)", ret);
 out:
 	return ret;
 }
@@ -566,6 +566,8 @@ static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 	struct nfs_fh nfh;
 	int ret = 0;
 
+	DEBUG_IN("(%p, %p)", super, fh);
+
 	ret = hsfs_init_icache(super);
 	if (ret)
 		goto out;
@@ -593,6 +595,7 @@ static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 	if (ret)
 		goto out;
 out:
+	DEBUG_OUT("(%d)", ret);
 	return ret;
 }
 
@@ -624,6 +627,8 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 	int retry = 0, ret = 0;
 	char *s = NULL;
 	time_t timeout, t;
+
+	DEBUG_IN("(%s, %s, %s)", spec, point, udata);
 
 	if (strlen(spec) >= sizeof(hostdir)) {
 		ERR("%s: excessively long host:dir argument.", progname);
