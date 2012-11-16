@@ -17,7 +17,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	CLIENT *acl_clntp = NULL;
 	int error = 0;
 	int mask = 0;
-	int i = 0;
+	unsigned int i = 0;
 
 	DEBUG_IN("in ino: %lu, mask %d\n", inode->ino, mask);
 
@@ -25,12 +25,12 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	if (!acl_clntp)
 		return ENOTSUP;
 
-	if (type == ACL_TYPE_ACCESS)
+	if (type == ACL_TYPE_ACCESS){
 		mask |= NA_ACLCNT | NA_ACL;	
 		DEBUG("in hsi_nfs3_setxattr mask:%u,NFS_ACL %u..........", mask,
 			NFS_ACL);
-
-	if(inode->attr.type == 2) {
+	}
+	if(S_ISDIR(inode->i_mode)) {
 		mask |= NA_DFACLCNT | NA_DFACL;
 		DEBUG("in hsi_nfs3_setxattr mask:%u,NFS_ACL %u..........", mask,
 			NFS_ACL);
@@ -40,11 +40,11 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 	memset (&clnt_res, 0, sizeof(SETACL3res));
 	
 	acl = posix_acl_from_xattr(value, size);
-	args.fh.data.data_len = inode->fh.data.data_len;
-	args.fh.data.data_val = inode->fh.data.data_val;
+
+	hsi_nfs3_getfh3(inode, &args.fh);
 	args.acl.mask = NFS_ACL;
 
-	if(inode->attr.type == NFS3_DIR) {
+	if(S_ISDIR(inode->i_mode)) {
 		args.acl.mask |= NFS_DFACL;
 		switch(type) {
 			case ACL_TYPE_ACCESS:
@@ -69,7 +69,7 @@ int hsi_nfs3_setxattr(struct hsfs_inode *inode, const char *value, int type,
 			goto fail;;
 	
 	if (acl == NULL) {
-		alloc = acl = posix_acl_from_mode(inode->attr.mode);
+		alloc = acl = posix_acl_from_mode(inode->i_mode);
 		if (!alloc) {
 			DEBUG("error in acl from mode\n");
 			goto fail;

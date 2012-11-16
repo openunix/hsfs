@@ -96,7 +96,7 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 	memset(&res, 0, sizeof(res));
 	memset(&args, 0, sizeof(args));
 
-	hsi_nfs3_getfh(parent, &args.where.dir);
+	hsi_nfs3_getfh3(parent, &args.where.dir);
 	args.where.name = (char *)name;
 
 	args.symlink.symlink_data = (char *)link;

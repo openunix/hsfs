@@ -101,7 +101,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 
 	DEBUG_IN("%s","");
 
-	hsi_nfs3_getfh(parent, &args.dir);
+	hsi_nfs3_getfh3(parent, &args.dir);
 
 	args.name = (char *)name;
 	err=hsi_nfs3_clnt_call(sb, sb->clntp, NFSPROC3_LOOKUP,

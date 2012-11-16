@@ -18,7 +18,7 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
-	hsi_nfs3_getfh(rinfo->inode, &args.file);
+	hsi_nfs3_getfh3(rinfo->inode, &args.file);
 
 	args.offset = rinfo->rw_off;
 	args.count = rinfo->rw_size;

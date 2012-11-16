@@ -7,7 +7,6 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 	struct hsfs_super *sb = inode->sb;
 	CLIENT *clnt = sb->clntp;
 	pathconf3res res;
-	post_op_attr *pattr = NULL;
 	int ret = 0;
 	struct nfs_fh3 fh;
 
@@ -15,7 +14,7 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 
 	memset(&res, 0, sizeof(res));
 
-	hsi_nfs3_getfh(inode, &fh);
+	hsi_nfs3_getfh3(inode, &fh);
 	ret = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_PATHCONF,
 			(xdrproc_t)xdr_nfs_fh3, (char *)&fh,
 			(xdrproc_t)xdr_pathconf3res, (char *)&res);
@@ -31,11 +30,13 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 
 	sb->namlen = res.pathconf3res_u.resok.name_max;
 
-	pattr = &res.pathconf3res_u.resok.obj_attributes;
-	if (pattr->present) {
-/* 		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes, */
-/* 			sizeof(fattr3)); */
-	}
+	/* We don't need to update inode here */
+
+/* 	pattr = &res.pathconf3res_u.resok.obj_attributes; */
+/* 	if (pattr->present) { */
+/* /\* 		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes, *\/ */
+/* /\* 			sizeof(fattr3)); *\/ */
+/* 	} */
 fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_pathconf3res, (char *)&res);
 out:

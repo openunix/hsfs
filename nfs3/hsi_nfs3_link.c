@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2012 Sun Xiaobin, Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS.
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #ifdef HSFS_NFS3_TEST
 
 #include <string.h>
@@ -109,6 +127,7 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	int err=0;
 	struct link3args args;
 	struct link3res res;
+	struct nfs_fattr fattr;
 
 	DEBUG_IN("Link from (%lu:%lu) to (%lu:%lu)", inode->ino,
 		 (unsigned long)inode->private, newparent->ino,
@@ -121,8 +140,10 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 		err=ENAMETOOLONG;
 		goto out2;
 	}
-	args.file.data=inode->fh.data;
-	args.link.dir.data=newparent->fh.data;
+
+	hsi_nfs3_getfh3(inode, &args.file);
+	hsi_nfs3_getfh3(newparent, &args.link.dir);
+
 	args.link.name=(char *)malloc(NAME_MAX * sizeof(char));
 
 	if(!args.link.name){
@@ -139,21 +160,19 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	if(err)
 		goto out2;
 
-	if(res.link3res_u.res.linkdir_wcc.after.present){
-			memcpy(&(newparent->attr), &res.link3res_u.
-                                                   res.linkdir_wcc.
-                                                   after.post_op_attr_u
-                                                   .attributes,
-                                                   sizeof(fattr3));
-	}
-
 	if(res.status){
 		ERR("Call NFS3 Server Failure (%d) \n", res.status);
 		err=hsi_nfs3_stat_to_errno(res.status);
 		goto out1;
 	}
 
-	/* TODO: Update inode here! */
+	nfs_init_fattr(&fattr);
+	hsi_nfs3_post2fattr(&res.link3res_u.res.file_attributes, &fattr);
+
+	if (!(fattr.valid & NFS_ATTR_FATTR))
+		err = hsi_nfs3_getattr(inode);
+	else
+		err = nfs_refresh_inode(inode, &fattr);
 
 out1:
 	clnt_freeres(clntp,(xdrproc_t)xdr_link3res,(char *)&res);

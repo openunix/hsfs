@@ -43,8 +43,8 @@ int hsi_nfs3_rename(struct hsfs_inode *parent, const char *name,
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
-	hsi_nfs3_getfh(parent, &args.from.dir);
-	hsi_nfs3_getfh(newparent, &args.to.dir);
+	hsi_nfs3_getfh3(parent, &args.from.dir);
+	hsi_nfs3_getfh3(newparent, &args.to.dir);
 
 	args.from.name = (char *)name;
 	args.to.name = (char *)newname;
@@ -61,16 +61,16 @@ int hsi_nfs3_rename(struct hsfs_inode *parent, const char *name,
 		err = hsi_nfs3_stat_to_errno(ret);
 		goto out2;
 	}
-	if(res.rename3res_u.res.fromdir_wcc.after.present) {
+	/* if(res.rename3res_u.res.fromdir_wcc.after.present) { */
 /* 		memcpy(&(parent->attr), &res.rename3res_u.res.fromdir_wcc. */
 /* 				after.post_op_attr_u.attributes, */
 /* 				sizeof(fattr3)); */
-	}
-	if(res.rename3res_u.res.todir_wcc.after.present) {
+	/* } */
+	/* if(res.rename3res_u.res.todir_wcc.after.present) { */
 /* 		memcpy(&(newparent->attr), &res.rename3res_u.res.todir_wcc. */
 /* 				after.post_op_attr_u.attributes, */
 /* 				sizeof(fattr3)); */
-	}
+	/* } */
 out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_rename3res, (char *)&res);
 out1:

@@ -20,8 +20,8 @@
 int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 {
 
-	struct access3args args = {};
-	struct access3res res = {};
+	struct access3args args;
+	struct access3res res;
 	CLIENT *clntp = NULL;
 	int status = 0;
 
@@ -30,7 +30,8 @@ int hsi_nfs3_access(struct hsfs_inode *hi, int mask)
 	memset(&args, 0, sizeof(struct access3args));
 	memset(&res, 0, sizeof(struct access3res));
 
-	args.object = hi->fh;
+	hsi_nfs3_getfh3(hi, &args.object);
+
 	args.access = mask & FULL_ACCESS;
 	clntp = hi->sb->clntp;
 	

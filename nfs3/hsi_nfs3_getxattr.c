@@ -14,14 +14,14 @@ int hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 	struct secattr *acl = NULL;
 	size_t real_size = 0;
 
-	enum clnt_stat	st;
-	int i,err = 0;
+	unsigned int i;
+	int err = 0;
 
 	DEBUG_IN("%s","");
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
-	args.fh = inode->fh;
+	hsi_nfs3_getfh3(inode, &args.fh);
 	args.mask = mask;
 
 	acl_clntp = inode->sb->acl_clntp;
@@ -36,11 +36,11 @@ int hsi_nfs3_getxattr(struct hsfs_inode *inode, u_int mask,
 		ERR("Call acl rpc failed  ");
 		goto out;
         }
-	st = res.status;
-        if (NFS3_OK != st)
+	
+        if (NFS3_OK != res.status)
 	{
-		ERR("Obtain extern attribute failure : (%d) !", st);
-		err = hsi_nfs3_stat_to_errno(st);
+		ERR("Obtain extern attribute failure : (%d) !", res.status);
+		err = hsi_nfs3_stat_to_errno(res.status);
 		clnt_freeres(acl_clntp, (xdrproc_t)xdr_GETACL3res, (char *)&res);
 		goto out;
         }

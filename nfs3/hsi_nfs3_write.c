@@ -18,7 +18,7 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
-	hsi_nfs3_getfh(winfo->inode, &args.file);
+	hsi_nfs3_getfh3(winfo->inode, &args.file);
 	
 	args.data.data_len = winfo->data.data_len;
 	args.data.data_val = winfo->data.data_val;

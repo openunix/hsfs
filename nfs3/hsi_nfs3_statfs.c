@@ -12,7 +12,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	memset (&fh, 0, sizeof(fh));
 	memset (&resok, 0, sizeof(resok));
 
-	hsi_nfs3_getfh(inode, &fh);
+	hsi_nfs3_getfh3(inode, &fh);
 
 	DEBUG_IN (" fh:%s",fh.data.data_val);
 

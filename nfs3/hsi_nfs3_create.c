@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2012 Shao Bingyang, Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS.
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifdef HSFS_NFS3_TEST
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,9 +49,10 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **new,
 	
 	memset(&args, 0, sizeof(struct create3args));
 	memset(&res, 0, sizeof(struct diropres3));
-	
-	args.where.dir = hi->fh;
+
+	hsi_nfs3_getfh3(hi, &args.where.dir);
 	args.where.name = (char *)name;
+
 	clntp = sb->clntp;
 	args.how.mode = cmode >> 16;
 	if (EXCLUSIVE == args.how.mode) {
@@ -43,9 +63,9 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **new,
 		sattr.mode.set = 1;
 		sattr.mode.set_uint32_u.val = fmode;
 		sattr.uid.set = 1;
-		sattr.uid.set_uint32_u.val = hi->attr.uid;
+		sattr.uid.set_uint32_u.val = hi->i_uid;
 		sattr.gid.set = 1;
-		sattr.gid.set_uint32_u.val = hi->attr.gid;
+		sattr.gid.set_uint32_u.val = hi->i_gid;
 		sattr.size.set = 0;
 		sattr.atime.set = SET_TO_SERVER_TIME;
 		sattr.mtime.set	= SET_TO_SERVER_TIME;
@@ -61,13 +81,14 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **new,
 
 	if (NFS3_OK != res.status) {
 		status = hsi_nfs3_stat_to_errno(res.status);
-		goto out;
+		goto out_free;
 	}
 
 	*new = hsi_nfs3_handle_create(sb, &res.diropres3_u.resok);
 	if(IS_ERR(*new)){
-		*new = NULL;
 		status = PTR_ERR(*new);
+		*new = NULL;
+		goto out_free;
 	}
 
 	if (EXCLUSIVE == args.how.mode) {
@@ -77,8 +98,9 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **new,
 		status = hsi_nfs3_setattr(*new, &sattr);
 	}
 
-out:
+out_free:
 	clnt_freeres(clntp, (xdrproc_t)xdr_diropres3, (caddr_t)&res);
+out:
 	DEBUG_OUT("Out of hsi_nfs3_create, with STATUS = %d", status);
 	return status;
 	

@@ -25,7 +25,7 @@ int hsi_nfs3_rmdir (struct hsfs_inode *parent, const char *name)
 	memset (&argp, 0, sizeof(diropargs3));
 	memset (&clnt_res, 0, sizeof(wccstat3));
 	
-	hsi_nfs3_getfh(parent, &argp.dir);
+	hsi_nfs3_getfh3(parent, &argp.dir);
 
 	argp.name = (char *) name;
 		

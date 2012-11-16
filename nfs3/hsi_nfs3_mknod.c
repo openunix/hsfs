@@ -152,7 +152,7 @@ hsi_nfs3_mknod(struct hsfs_inode *parent, struct hsfs_inode **new,
 		goto out2;
 	}
 	// get the fh
-	args.where.dir.data=parent->fh.data;
+	hsi_nfs3_getfh3(parent, &args.where.dir);
 	// alloc memory for name
 	args.where.name=(char *)malloc(NAME_MAX * sizeof(char));
 
@@ -204,13 +204,6 @@ pipe_sattrs:
 
 	if(res.status){
 		ERR("Call NFS3 Server Failure:(%d).\n",res.status);
-		if(res.diropres3_u.resfail.after.present){
-			memcpy(&(parent->attr), &res.diropres3_u.      
-                                                resfail.after.
-                                                post_op_attr_u.
-                                                attributes,
-                                                sizeof(fattr3));
-		}
 		err=hsi_nfs3_stat_to_errno(res.status);
 		goto out1;
 	}
