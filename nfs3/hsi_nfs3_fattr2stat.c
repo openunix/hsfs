@@ -1,5 +1,25 @@
+/*
+ * Copyright (C) 2012 Zhao Yan, Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS.
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <errno.h>
 #include "hsi_nfs3.h"
+#include "../fuse/fuse_misc.h"
 
 int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
 {
@@ -48,15 +68,11 @@ int hsi_nfs3_fattr2stat(struct fattr3 *attr, struct stat *st)
 	st->st_atime = (time_t) (attr->atime.seconds);
 	st->st_mtime = (time_t) (attr->mtime.seconds);
 	st->st_ctime = (time_t) (attr->ctime.seconds);
-#if defined __USE_MISC || defined __USE_XOPEN2K8
-	st->st_atim.tv_nsec = attr->atime.nseconds; 
-	st->st_mtim.tv_nsec = attr->mtime.nseconds;  
-	st->st_ctim.tv_nsec = attr->ctime.nseconds;  
-#else
-	st->st_atimensec = attr->atime.nseconds;  
-	st->st_mtimensec = attr->mtime.nseconds;  
-	st->st_ctimensec = attr->ctime.nseconds;  
-#endif
+
+	ST_ATIM_NSEC_SET(st, attr->atime.nseconds);
+	ST_MTIM_NSEC_SET(st, attr->atime.nseconds);
+	/* Don't we need ctime? */
+
  out:
 	DEBUG_OUT("with errno %d.\n", err);
 	return err;

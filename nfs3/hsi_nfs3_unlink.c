@@ -105,7 +105,7 @@ int hsi_nfs3_unlink(struct hsfs_inode *parent, const char *name)
 	
 	args.name = (char *)name;
 
-	hsi_nfs3_getfh(parent, &args.dir);
+	hsi_nfs3_getfh3(parent, &args.dir);
 
 	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_REMOVE,
 			(xdrproc_t)xdr_diropargs3,	(caddr_t)&args,
