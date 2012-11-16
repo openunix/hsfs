@@ -31,7 +31,7 @@ void hsx_fuse_access(fuse_req_t req, fuse_ino_t ino, int mask)
 	if (mask & R_OK) {
 		mode |= ACCESS3_READ;
 	}
-	if (S_ISDIR(hi->attr.type)) {
+	if (S_ISDIR(hi->i_mode)) {
 		if (mask & W_OK) {
 			mode |= ACCESS3_MODIFY | ACCESS3_EXTEND 
 				| ACCESS3_DELETE;

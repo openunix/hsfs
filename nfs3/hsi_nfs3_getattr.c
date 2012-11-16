@@ -19,13 +19,14 @@
 
 #include "hsi_nfs3.h"
 
-int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh, struct nfs_fattr *fattr)
+int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh,
+			struct nfs_fattr *fattr, struct stat *st)
 {
 	struct getattr3res res;
 	struct fattr3 *attr = NULL;
 	int err;
 	
-	DEBUG_IN("(%p, %p, %p)", sb, fh, fattr);
+	DEBUG_IN("(%p, %p, %p, %p)", sb, fh, fattr, st);
 
 	memset(&res, 0, sizeof(res));
 	err = hsi_nfs3_clnt_call(sb, sb->clntp, NFSPROC3_GETATTR,
@@ -41,7 +42,10 @@ int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh, struct nfs_fa
 	}
 	
 	attr = &res.getattr3res_u.attributes;
-	hsi_nfs3_attr2fattr(attr, fattr);
+	if (fattr)
+		hsi_nfs3_fattr2fattr(attr, fattr);
+	if (st)
+		hsi_nfs3_fattr2stat(attr, st);
 	
  out:
 	clnt_freeres(sb->clntp, (xdrproc_t)xdr_getattr3res, (char *)&res);
@@ -50,7 +54,7 @@ int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh, struct nfs_fa
 	return err;
 }
 
-int hsi_nfs3_getattr(struct hsfs_inode *inode)
+int hsi_nfs3_getattr(struct hsfs_inode *inode, struct stat *st)
 {
 	int err = 0;
 	nfs_fh3 fh;
@@ -58,9 +62,9 @@ int hsi_nfs3_getattr(struct hsfs_inode *inode)
 	
 	DEBUG_IN("(%p)", inode);
 
-	hsi_nfs3_getfh(inode, &fh);
+	hsi_nfs3_getfh3(inode, &fh);
 	nfs_init_fattr(&fattr);
-	err = hsi_nfs3_do_getattr(inode->sb, &fh, &fattr);
+	err = hsi_nfs3_do_getattr(inode->sb, &fh, &fattr, st);
 	if (err)
 		goto out;
 

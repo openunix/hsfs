@@ -210,7 +210,7 @@ extern struct hsfs_inode *hsi_nfs3_ifind(struct hsfs_super *sb, nfs_fh3 *fh,
  * 
  * @return error number
  */
-extern int hsi_nfs3_getattr(struct hsfs_inode *inode);
+extern int hsi_nfs3_getattr(struct hsfs_inode *inode, struct stat *st);
 
 /**
  * @brief Convert struct fattr3 to struct stat
@@ -357,6 +357,8 @@ static inline void hsi_nfs3_getfh3(struct hsfs_inode *inode, struct nfs_fh3 *fh)
 	fh->data.data_len = NFS_FH(inode)->size;
 	fh->data.data_val = (char *)NFS_FH(inode)->data;
 }
-int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh, struct nfs_fattr *fattr);
+int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh,
+			struct nfs_fattr *fattr, struct stat *st);
+extern void hsi_nfs3_fattr2fattr(struct fattr3 *f, struct nfs_fattr *t);
 
 #endif

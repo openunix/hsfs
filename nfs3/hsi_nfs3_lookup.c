@@ -43,7 +43,7 @@ static const mode_t nfs_type2fmt[] = {
 	[NF3FIFO] = S_IFIFO,
 };
 
-void hsi_nfs3_attr2fattr(struct fattr3 *f, struct nfs_fattr *t)
+void hsi_nfs3_fattr2fattr(struct fattr3 *f, struct nfs_fattr *t)
 {
 	unsigned int type, minor, major;
 	mode_t fmode;
@@ -80,7 +80,7 @@ void hsi_nfs3_attr2fattr(struct fattr3 *f, struct nfs_fattr *t)
 void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t)
 {
 	if (p->present)
-		hsi_nfs3_attr2fattr(&(p->post_op_attr_u.attributes), t);
+		hsi_nfs3_fattr2fattr(&(p->post_op_attr_u.attributes), t);
 }
 
 

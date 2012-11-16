@@ -170,7 +170,7 @@ hsi_nfs3_link(struct hsfs_inode *inode, struct hsfs_inode *newparent,
 	hsi_nfs3_post2fattr(&res.link3res_u.res.file_attributes, &fattr);
 
 	if (!(fattr.valid & NFS_ATTR_FATTR))
-		err = hsi_nfs3_getattr(inode);
+		err = hsi_nfs3_getattr(inode, NULL);
 	else
 		err = nfs_refresh_inode(inode, &fattr);
 

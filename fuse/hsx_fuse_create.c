@@ -11,7 +11,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct hsfs_inode *newhi = NULL;
 	struct hsfs_super *hs = NULL;
 	struct fuse_ctx * fc = NULL;
-	struct fuse_entry_param e = {};
+	struct fuse_entry_param e;
 	int mymode = 0;
 	int err =0;
 	
@@ -35,8 +35,8 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 		goto out;
 	}
 
-	hi->attr.uid = fc->uid;
-	hi->attr.gid = fc->gid;
+	hi->i_uid = fc->uid;
+	hi->i_gid = fc->gid;
 	mymode = (mode & S_IRWXO) | ((mode & S_IRWXG)) 
 			| (mode & S_IRWXU);//identify the file mode
 	if (fi->flags & O_EXCL) {

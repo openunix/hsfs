@@ -52,15 +52,13 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 	if (err)
 		goto out;
 
-	/* XXX Review to here! */
-	memset(&st, 0, sizeof(st));
-	err = hsi_nfs3_fattr2stat(&inode->attr, &st);
+	hsfs_generic_fillattr(inode, &st);
  out:
 	DEBUG_OUT("ino : %lu with errno : %d.\n", inode->ino, err);
 	if (err)
 		fuse_reply_err(req, err);	
 	else {
-		to = inode->attr.type == NF3DIR ? sb->acdirmin : sb->acregmin;
+		to = S_ISDIR(inode->i_mode) ? sb->acdirmin : sb->acregmin;
 		fuse_reply_attr(req, &st, to);
 	}
 }

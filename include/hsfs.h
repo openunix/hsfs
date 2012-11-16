@@ -96,8 +96,10 @@ struct hsfs_inode
 	struct hlist_node id_hash;
 	void * private;
 	int i_count;
-
-  uint64_t          ino;
+	unsigned long real_ino;
+	unsigned int i_blkbits;
+	uint64_t          ino;
+	dev_t i_rdev;
   unsigned long     generation;
   
   
@@ -289,4 +291,6 @@ struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashva
  *Consequently, iput() can sleep.
  */
 void hsfs_iput(struct hsfs_inode *inode);
+void hsfs_generic_fillattr(struct hsfs_inode *, struct stat *);
+
 #endif

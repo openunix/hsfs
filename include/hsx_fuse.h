@@ -41,7 +41,7 @@ extern void hsx_fuse_rmdir(fuse_req_t req, fuse_ino_t parent, const char *name);
  *
  * @return the error number of the function
  **/
-extern int hsx_fuse_fill_reply(struct hsfs_inode *inode,
+extern void hsx_fuse_fill_reply(struct hsfs_inode *inode,
 	       	struct fuse_entry_param *e);
 			
 /**

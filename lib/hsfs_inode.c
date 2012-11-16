@@ -19,6 +19,32 @@
 
 #include <hsfs.h>
 
+void hsfs_generic_fillattr(struct hsfs_inode *inode, struct stat *stat)
+{
+	stat->st_ino = inode->real_ino;
+	stat->st_mode = inode->i_mode;
+	stat->st_nlink = inode->i_nlink;
+	stat->st_uid = inode->i_uid;
+	stat->st_gid = inode->i_gid;
+	stat->st_rdev = inode->i_rdev;
+#if defined(HAVE_STRUCT_STAT_ST_ATIM)
+	stat->st_atim = inode->i_atime;
+	stat->st_mtim = inode->i_mtime;
+	stat->st_ctim = inode->i_ctime;
+#elif defined(HAVE_STRUCT_STAT_ST_ATIMESPEC)
+	stat->st_atimespec = inode->i_atime;
+	stat->st_mtimespec = inode->i_mtime;
+	stat->st_ctimespec = inode->i_ctime;
+#else
+	stat->st_atime = inode->i_atime.tv_sec;
+	stat->st_mtime = inode->i_mtime.tv_sec;
+	stat->st_ctime = inode->i_ctime.tv_sec;
+#endif
+	stat->st_size = inode->i_size;
+	stat->st_blocks = inode->i_blocks;
+	stat->st_blksize = (1 << inode->i_blkbits);
+}
+
 
 unsigned int HSFS_PAGE_SIZE;
 int hsfs_init()
@@ -139,7 +165,7 @@ static int inode_init_always(struct hsfs_super *sb, struct hsfs_inode *inode)
 	inode->ino = 0;
 	inode->i_blocks = 0;
 	inode->i_nlink = 1;
-
+	inode->i_blkbits = sb->bsize_bits;
 
 	return 0;
 }
