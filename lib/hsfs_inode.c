@@ -78,13 +78,15 @@ static struct hsfs_inode *__id_ifind(struct hsfs_super *sb, uint64_t key)
 
 /* This is just the same as ifind() of Linux kernel */
 static struct hsfs_inode *
-__fh_ifind(struct hsfs_super *sb, uint64_t key,
+__fh_ifind(struct hsfs_super *sb, unsigned long key,
 	   int (*test)(struct hsfs_inode *, void *),
 	   void *data, const int wait)
 {
 	struct hsfs_inode *inode = NULL;
 	struct hlist_node *node = NULL;
 	
+	DEBUG_IN("(%p, %lu, %p)", sb, key, data);
+
 	/* XXX LOCK */
 	hash_for_each_possible(sb->fh_table, inode, node, fh_hash, key){
 		if (!test(inode, data))
@@ -97,9 +99,12 @@ __fh_ifind(struct hsfs_super *sb, uint64_t key,
 		/* UNLOCK */
 		if (wait)
 			wait_on_inode(inode);
+		DEBUG_OUT("(%p)", inode);
 		return inode;
 	}
 	/* UNLOCK */
+
+	DEBUG_OUT("(%p)", inode);
 	return NULL;
 }
 
@@ -167,12 +172,10 @@ static struct hsfs_inode *alloc_inode(struct hsfs_super *sb)
 static inline void
 __inode_add_to_lists(struct hsfs_super *sb, uint64_t key, struct hsfs_inode *inode)
 {
-	
 	do {
 		sb->curr_id++;
 		if (!sb->curr_id)
 			sb->curr_id = 2;
-		assert(sb->curr_id != 1);
 	} while (__id_ifind(sb, sb->curr_id) != NULL);
 	inode->ino = sb->curr_id;
 
@@ -182,13 +185,14 @@ __inode_add_to_lists(struct hsfs_super *sb, uint64_t key, struct hsfs_inode *ino
 
 /* Linux: get_new_inode() */
 static struct hsfs_inode *
-get_new_inode(struct hsfs_super *sb, uint64_t key,
+get_new_inode(struct hsfs_super *sb, unsigned long key,
 	      int (*test)(struct hsfs_inode *, void *) __attribute__((unused)),
 	      int (*set)(struct hsfs_inode *, void *),
 	      void *data)
 {
 	struct hsfs_inode *inode;
 	
+	DEBUG_IN("(SB:%p:%lu, KEY:%lu, P:%p)", sb, sb->curr_id, key, data);
 	inode = alloc_inode(sb);
 	if (inode) {
 		struct hsfs_inode *old = NULL;
@@ -205,16 +209,19 @@ get_new_inode(struct hsfs_super *sb, uint64_t key,
 		}
 		/* XXX Need more checks if there are locks.... */		
 	}
+
+	DEBUG_OUT("HSFS Inode(%p)", inode);
 	return inode;
 
 set_failed:
 	destroy_inode(inode);
+	DEBUG_OUT("(%p)", NULL);
 	return NULL;
 }
 
 /* Linux: iget5_locked() */
 struct hsfs_inode *
-hsfs_iget5_locked(struct hsfs_super *sb, uint64_t hashval,
+hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashval,
 		  int (*test)(struct hsfs_inode *, void *),
 		  int (*set)(struct hsfs_inode *, void *), void *data)
 {

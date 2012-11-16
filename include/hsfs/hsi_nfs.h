@@ -221,4 +221,6 @@ struct hsfs_inode *
 hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr);
 
 extern struct hsfs_super_ops hsi_nfs_sop;
+extern void hsi_nfs3_attr2fattr(struct fattr3 *f, struct nfs_fattr *t);
+extern int nfs_refresh_inode(struct hsfs_inode *inode, struct nfs_fattr *fattr);
 #endif	/* _HSI_NFS_H_ */

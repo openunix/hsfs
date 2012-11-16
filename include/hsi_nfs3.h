@@ -351,4 +351,11 @@ static inline void hsi_nfs3_time2spec(struct nfstime3 *f, struct timespec *t)
 extern void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t);
 struct hsfs_inode *hsi_nfs3_handle_create(struct hsfs_super *sb, struct diropres3ok *dir);
 
+static inline void hsi_nfs3_getfh(struct hsfs_inode *inode, struct nfs_fh3 *fh)
+{
+	fh->data.data_len = NFS_I(inode)->fh.size;
+	fh->data.data_val = (char *)NFS_I(inode)->fh.data;
+}
+int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh, struct nfs_fattr *fattr);
+
 #endif

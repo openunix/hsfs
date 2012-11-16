@@ -102,8 +102,10 @@ int hsi_nfs3_unlink(struct hsfs_inode *parent, const char *name)
 
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.dir = parent->fh;
+	
 	args.name = (char *)name;
+
+	hsi_nfs3_getfh(parent, &args.dir);
 
 	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_REMOVE,
 			(xdrproc_t)xdr_diropargs3,	(caddr_t)&args,
@@ -118,9 +120,9 @@ int hsi_nfs3_unlink(struct hsfs_inode *parent, const char *name)
 		goto out2;
 	}
 	if (res.wccstat3_u.wcc.after.present) {
-		memcpy(&(parent->attr), &res.wccstat3_u.wcc.
-				after.post_op_attr_u.attributes,
-				sizeof(fattr3));
+/* 		memcpy(&(parent->attr), &res.wccstat3_u.wcc. */
+/* 				after.post_op_attr_u.attributes, */
+/* 				sizeof(fattr3)); */
 	}
 out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);

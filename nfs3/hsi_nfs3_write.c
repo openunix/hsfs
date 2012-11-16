@@ -17,8 +17,9 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 		(unsigned int)winfo->rw_size);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.file.data.data_len = winfo->inode->fh.data.data_len;
-	args.file.data.data_val = winfo->inode->fh.data.data_val;
+
+	hsi_nfs3_getfh(winfo->inode, &args.file);
+	
 	args.data.data_len = winfo->data.data_len;
 	args.data.data_val = winfo->data.data_val;
 	args.offset = winfo->rw_off;
@@ -42,18 +43,18 @@ int hsi_nfs3_write(struct hsfs_rw_info* winfo)
 		DEBUG("hsi_nfs3_write 0x%x done", resok->count);
 		DEBUG("resok->file_wcc.after.present: %d", 
 			resok->file_wcc.after.present);
-		if(resok->file_wcc.after.present)
-			memcpy(&winfo->inode->attr,
-				&resok->file_wcc.after.post_op_attr_u.attributes,
-				sizeof(fattr3));
+/* 		if(resok->file_wcc.after.present) */
+/* 			memcpy(&winfo->inode->attr, */
+/* 				&resok->file_wcc.after.post_op_attr_u.attributes, */
+/* 				sizeof(fattr3)); */
 	}else{
 		ERR("hsi_nfs3_write failure: %d", err);
 		DEBUG("res.write3res_u.resfail.after.present: %d", 
 			res.write3res_u.resfail.after.present);
-		if(res.write3res_u.resfail.after.present)
-			memcpy(&winfo->inode->attr,
-				&res.write3res_u.resfail.after.post_op_attr_u.attributes,
-				sizeof(fattr3));
+/* 		if(res.write3res_u.resfail.after.present) */
+/* 			memcpy(&winfo->inode->attr, */
+/* 				&res.write3res_u.resfail.after.post_op_attr_u.attributes, */
+/* 				sizeof(fattr3)); */
 	}
 
 	clnt_freeres(clnt, (xdrproc_t)xdr_write3res, (char *)&res);

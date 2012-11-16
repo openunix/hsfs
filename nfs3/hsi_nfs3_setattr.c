@@ -32,8 +32,9 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr)
 
 	clntp= inode->sb->clntp;
 	memset(&args, 0, sizeof(args));
-	args.object.data.data_len = inode->fh.data.data_len;
-	args.object.data.data_val = inode->fh.data.data_val;
+	
+	hsi_nfs3_getfh(inode, &args.object);
+
 	if (S_ISSETMODE(attr->valid)) {
 		args.new_attributes.mode.set = TRUE;
 		args.new_attributes.mode.set_uint32_u.val = attr->mode;

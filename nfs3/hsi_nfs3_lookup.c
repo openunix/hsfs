@@ -81,8 +81,6 @@ void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t)
 {
 	if (p->present)
 		hsi_nfs3_attr2fattr(&(p->post_op_attr_u.attributes), t);
-	else
-		WARNING("Weak NFS server without post op attr");
 }
 
 
@@ -102,7 +100,9 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 	memset(&res, 0, sizeof(res));
 
 	DEBUG_IN("%s","");
-	args.dir = parent->fh;
+
+	hsi_nfs3_getfh(parent, &args.dir);
+
 	args.name = (char *)name;
 	err=hsi_nfs3_clnt_call(sb, sb->clntp, NFSPROC3_LOOKUP,
 			(xdrproc_t)xdr_diropargs3,(caddr_t)&args,

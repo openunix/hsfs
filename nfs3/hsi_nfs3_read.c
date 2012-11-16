@@ -17,8 +17,9 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 		(unsigned int)rinfo->rw_size);
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
-	args.file.data.data_len = rinfo->inode->fh.data.data_len;
-	args.file.data.data_val = rinfo->inode->fh.data.data_val;
+
+	hsi_nfs3_getfh(rinfo->inode, &args.file);
+
 	args.offset = rinfo->rw_off;
 	args.count = rinfo->rw_size;
 
@@ -44,16 +45,16 @@ int hsi_nfs3_read(struct hsfs_rw_info* rinfo)
 		rinfo->eof = resok->eof;
 		DEBUG("resok->file_attributes.present: %d",
 			resok->file_attributes.present);
-		if(resok->file_attributes.present)
-			memcpy(&rinfo->inode->attr,
-				&resok->file_attributes.post_op_attr_u.attributes,
-				sizeof(fattr3));
+/* 		if(resok->file_attributes.present) */
+/* 			memcpy(&rinfo->inode->attr, */
+/* 				&resok->file_attributes.post_op_attr_u.attributes, */
+/* 				sizeof(fattr3)); */
 	}else{
 		ERR("hsi_nfs3_read failure: %d", err);
-		if(res.read3res_u.resfail.present)
-			memcpy(&rinfo->inode->attr,
-				&res.read3res_u.resfail.post_op_attr_u.attributes,
-				sizeof(fattr3));
+/* 		if(res.read3res_u.resfail.present) */
+/* 			memcpy(&rinfo->inode->attr, */
+/* 				&res.read3res_u.resfail.post_op_attr_u.attributes, */
+/* 				sizeof(fattr3)); */
 	}
 	
 	clnt_freeres(clnt, (xdrproc_t)xdr_read3res, (char *)&res);

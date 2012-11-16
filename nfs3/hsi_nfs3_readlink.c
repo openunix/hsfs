@@ -92,7 +92,9 @@ int hsi_nfs3_readlink(struct hsfs_inode *inode, char **link)
 
 	memset(&res, 0, sizeof(res));
 	memset(&fh_readlink, 0, sizeof(fh_readlink));
-	fh_readlink = inode->fh;
+
+	hsi_nfs3_getfh(inode, &fh_readlink);
+
 	clntp = inode->sb->clntp;
 	DEBUG_IN("%s\n", "hsi_nfs3_readlink");
 

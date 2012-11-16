@@ -79,8 +79,9 @@
 static int enable_ino64 = NFS_64_BIT_INODE_NUMBERS_ENABLED;
 
 static void nfs_invalidate_inode(struct inode *);
-static int nfs_update_inode(struct inode *, struct nfs_fattr *);
-
+#endif
+static int nfs_update_inode(struct hsfs_inode *, struct nfs_fattr *);
+#if 0
 static void nfs_zap_acl_cache(struct inode *);
 
 static kmem_cache_t * nfs_inode_cachep;
@@ -229,6 +230,9 @@ nfs_find_actor(struct hsfs_inode *inode, void *opaque)
 		return 0;
 	if (is_bad_inode(inode) || NFS_STALE(inode))
 		return 0;
+
+	DEBUG("NFS Find HSFS Inode(%p) with (ID:%llu, FH:%p)", inode,
+	      (unsigned long long)fattr->fileid, desc->fh);
 	return 1;
 }
 
@@ -240,6 +244,9 @@ nfs_init_locked(struct hsfs_inode *inode, void *opaque)
 
 	set_nfs_fileid(inode, fattr->fileid);
 	nfs_copy_fh(NFS_FH(inode), desc->fh);
+
+	DEBUG("NFS Init HSFS Inode(%p) with (ID:%llu, FH:%p)", inode, 
+	      (unsigned long long)fattr->fileid, desc->fh);
 	return 0;
 }
 
@@ -262,6 +269,8 @@ struct hsfs_inode *nfs_alloc_inode(struct hsfs_super *sb)
 #ifdef CONFIG_NFS_V4
 	nfsi->nfs4_acl = NULL;
 #endif /* CONFIG_NFS_V4 */
+	
+	DEBUG("Alloc NFS Inode at %p, HSFS at %p", nfsi, &nfsi->hsfs_inode);
 	return &nfsi->hsfs_inode;
 }
 
@@ -289,6 +298,8 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 	struct hsfs_inode *inode = ERR_PTR(-ENOENT);
 	uint64_t hash;
 
+	DEBUG_IN("(%p, %p, %p)", sb, fh, fattr);
+	
 	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
 		goto out_no_inode;
 
@@ -384,6 +395,7 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 #endif
 }
 out:
+DEBUG_OUT("(%p)", inode);
 	return inode;
 
 out_no_inode:
@@ -861,6 +873,7 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
 	nfsi->read_cache_jiffies = fattr->time_start;
 	return 0;
 }
+#endif
 
 /**
  * nfs_refresh_inode - try to update the inode attribute cache
@@ -872,23 +885,27 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
  * safe to do a full update of the inode attributes, or whether just to
  * call nfs_check_inode_attributes.
  */
-int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
+int nfs_refresh_inode(struct hsfs_inode *inode, struct nfs_fattr *fattr)
 {
 	struct nfs_inode *nfsi = NFS_I(inode);
 	int status;
 
 	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
 		return 0;
+#if 0
 	spin_lock(&inode->i_lock);
 	if (time_after(fattr->time_start, nfsi->last_updated))
+#endif
 		status = nfs_update_inode(inode, fattr);
+#if 0
 	else
 		status = nfs_check_inode_attributes(inode, fattr);
 
 	spin_unlock(&inode->i_lock);
+#endif
 	return status;
 }
-
+#if 0
 /**
  * nfs_post_op_update_inode - try to update the inode attribute cache
  * @inode - pointer to inode
@@ -945,7 +962,7 @@ int nfs_post_op_update_inode_force_wcc(struct inode *inode, struct nfs_fattr *fa
 	}
 	return nfs_post_op_update_inode(inode, fattr);
 }
-
+#endif
 /*
  * Many nfs protocol calls return the new file attributes after
  * an operation.  Here we update the inode to reflect the state
@@ -958,16 +975,16 @@ int nfs_post_op_update_inode_force_wcc(struct inode *inode, struct nfs_fattr *fa
  *
  * A very similar scenario holds for the dir cache.
  */
-static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+static int nfs_update_inode(struct hsfs_inode *inode, struct nfs_fattr *fattr)
 {
-	struct nfs_server *server;
+/* 	struct nfs_server *server; */
 	struct nfs_inode *nfsi = NFS_I(inode);
-	loff_t cur_isize, new_isize;
+	off_t cur_isize, new_isize;
 	unsigned int	invalid = 0;
 
-	dfprintk(VFS, "NFS: %s(%s/%ld ct=%d info=0x%x)\n",
-			__FUNCTION__, inode->i_sb->s_id, inode->i_ino,
-			atomic_read(&inode->i_count), fattr->valid);
+/* 	DEBUG_IN("NFS: %s(%s/%ld ct=%d info=0x%x)\n", */
+/* 		 __FUNCTION__, inode->i_sb->s_id, inode->i_ino, */
+/* 		 atomic_read(&inode->i_count), fattr->valid); */
 
 	if (nfsi->fileid != fattr->fileid)
 		goto out_fileid;
@@ -977,7 +994,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 	 */
 	if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
 		goto out_changed;
-
+#if 0
 	server = NFS_SERVER(inode);
 	/* Update the fsid? */
 	if (S_ISDIR(inode->i_mode) &&
@@ -1015,32 +1032,36 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA|NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
 		nfsi->cache_change_attribute = jiffies;
 	}
-
+#endif
 	/* Check if our cached file size is stale */
- 	new_isize = nfs_size_to_loff_t(fattr->size);
+ 	new_isize = nfs_size_to_off_t(fattr->size);
+#if 0
 	cur_isize = i_size_read(inode);
 	if (new_isize != cur_isize) {
 		/* Do we perhaps have any outstanding writes, or has
 		 * the file grown beyond our last write? */
 		if (nfsi->npages == 0 || new_isize > cur_isize) {
+#endif
 			inode->i_size = new_isize;
+#if 0
 			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
 			nfs_fscache_set_size(inode);
 		}
 		dprintk("NFS: isize change on server for file %s/%ld\n",
 				inode->i_sb->s_id, inode->i_ino);
 	}
-
+#endif
 	memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
 	memcpy(&inode->i_ctime, &fattr->ctime, sizeof(inode->i_ctime));
 	memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));
+#if 0
 	nfsi->change_attr = fattr->change_attr;
 
 	if ((inode->i_mode & S_IALLUGO) != (fattr->mode & S_IALLUGO) ||
 	    inode->i_uid != fattr->uid ||
 	    inode->i_gid != fattr->gid)
 		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
-
+#endif
 	inode->i_mode = fattr->mode;
 	inode->i_nlink = fattr->nlink;
 	inode->i_uid = fattr->uid;
@@ -1054,7 +1075,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
  	} else {
  		inode->i_blocks = fattr->du.nfs2.blocks;
  	}
-
+#if 0
 	/* Update attrtimeo value if we're out of the unstable period */
 	if (invalid & NFS_INO_INVALID_ATTR) {
 		nfs_inc_stats(inode, NFSIOS_ATTRINVALIDATE);
@@ -1072,7 +1093,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 		invalid &= ~NFS_INO_INVALID_DATA;
 	if (!nfs_have_delegation(inode, FMODE_READ))
 		nfsi->cache_validity |= invalid;
-
+#endif
 	return 0;
  out_changed:
 	/*
@@ -1088,14 +1109,14 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
 	 * lookup validation will know that the inode is bad.
 	 * (But we fall through to invalidate the caches.)
 	 */
-	nfs_invalidate_inode(inode);
+/* 	nfs_invalidate_inode(inode); */
 	return -ESTALE;
 
  out_fileid:
-	printk(KERN_ERR "NFS: server %s error: fileid changed\n"
-		"fsid %s: expected fileid 0x%Lx, got 0x%Lx\n",
-		NFS_SERVER(inode)->nfs_client->cl_hostname, inode->i_sb->s_id,
-		(long long)nfsi->fileid, (long long)fattr->fileid);
+/* 	printk(KERN_ERR "NFS: server %s error: fileid changed\n" */
+/* 		"fsid %s: expected fileid 0x%Lx, got 0x%Lx\n", */
+/* 		NFS_SERVER(inode)->nfs_client->cl_hostname, inode->i_sb->s_id, */
+/* 		(long long)nfsi->fileid, (long long)fattr->fileid); */
 	goto out_err;
 }
 
@@ -1116,7 +1137,7 @@ void nfs4_clear_inode(struct inode *inode)
 }
 #endif
 
-
+#if 0
 static inline void nfs4_init_once(struct nfs_inode *nfsi)
 {
 #ifdef CONFIG_NFS_V4

@@ -99,8 +99,8 @@ struct hsfs_inode
 
   uint64_t          ino;
   unsigned long     generation;
-  nfs_fh3           fh;
-  fattr3            attr;
+  
+  
   struct hsfs_super *sb;
   struct hsfs_inode *next;
 };
@@ -155,7 +155,7 @@ struct hsfs_super
 	struct hsfs_super_ops *sop;
 
 	/* XXX need protected by mutex */
-	uint64_t curr_id;
+	unsigned long curr_id;
 
 	/* XXX Should put them into nfs_super */
   CLIENT *clntp;
@@ -276,7 +276,7 @@ extern struct hsfs_inode *hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
  *
  * Note both @test and @set are called with the inode_lock held, so can't sleep.
  */
-struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, uint64_t hashval,
+struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashval,
 				     int (*test)(struct hsfs_inode *, void *),
 				     int (*set)(struct hsfs_inode *, void *), void *data);
 /**

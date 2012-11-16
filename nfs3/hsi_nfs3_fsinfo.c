@@ -48,7 +48,7 @@ int hsi_nfs3_fsinfo(struct hsfs_super *sb, nfs_fh3 *fh, struct nfs_fattr *fattr)
 	fsinfo3res res;
 	int ret = 0;
 
-	DEBUG_IN("ino: %p", sb);
+	DEBUG_IN("(%p, %p, %p)", sb, fh, fattr);
        
 	memset(&res, 0, sizeof(res));
 	ret = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_FSINFO,
@@ -66,8 +66,8 @@ int hsi_nfs3_fsinfo(struct hsfs_super *sb, nfs_fh3 *fh, struct nfs_fattr *fattr)
 
 	hsi_fsinfo_to_super(sb, &res.fsinfo3res_u.resok);
 	hsi_nfs3_post2fattr(&res.fsinfo3res_u.resok.obj_attributes, fattr);
-	if (!fattr->valide & NFS_ATTR_FATTR)
-		ret = 
+	if (!fattr->valid & NFS_ATTR_FATTR)
+		ret = hsi_nfs3_do_getattr(sb, fh, fattr);
 
 fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_fsinfo3res, (char *)&res);

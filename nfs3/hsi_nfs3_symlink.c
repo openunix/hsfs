@@ -84,7 +84,7 @@ out:
 #include "hsi_nfs3.h"
 
 int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
-			const char *link, const char *name)
+		     const char *link, const char *name)
 {
 	struct hsfs_super *sb = parent->sb;
 	struct symlink3args args;
@@ -95,8 +95,10 @@ int hsi_nfs3_symlink(struct hsfs_inode *parent, struct hsfs_inode **new,
 
 	memset(&res, 0, sizeof(res));
 	memset(&args, 0, sizeof(args));
-	args.where.dir = parent->fh;
+
+	hsi_nfs3_getfh(parent, &args.where.dir);
 	args.where.name = (char *)name;
+
 	args.symlink.symlink_data = (char *)link;
 
 	err = hsi_nfs3_clnt_call(sb, sb->clntp, NFSPROC3_SYMLINK,

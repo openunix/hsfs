@@ -44,8 +44,9 @@ int hsi_nfs3_mkdir (struct hsfs_inode *parent, struct hsfs_inode **new,
 	DEBUG_IN(" ino: %lu.\n", parent->ino);
 	memset(&argp, 0, sizeof(mkdir3args));
 	memset(&clnt_res, 0, sizeof(diropres3));
-	argp.where.dir.data.data_len = parent->fh.data.data_len;
-	argp.where.dir.data.data_val = parent->fh.data.data_val;
+
+	hsi_nfs3_getfh(parent, &argp.where.dir);
+
 	argp.where.name = (char *)name;
 	argp.attributes.mode.set = 1;
 	argp.attributes.mode.set_uint32_u.val = mode&0xfff;

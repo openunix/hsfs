@@ -11,8 +11,8 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	memset (&res, 0, sizeof(res));
 	memset (&fh, 0, sizeof(fh));
 	memset (&resok, 0, sizeof(resok));
-	fh.data.data_len=inode->fh.data.data_len;
-	fh.data.data_val=inode->fh.data.data_val;
+
+	hsi_nfs3_getfh(inode, &fh);
 
 	DEBUG_IN (" fh:%s",fh.data.data_val);
 

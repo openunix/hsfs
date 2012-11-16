@@ -28,8 +28,8 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc,
 	memset(&res, 0, sizeof(res));
 	args.cookie = hrc->off;
 	memcpy(args.cookieverf, hrc->cookieverf, NFS3_COOKIEVERFSIZE);
-	args.dir.data.data_val = parent->fh.data.data_val;
-	args.dir.data.data_len = parent->fh.data.data_len;
+	hsi_nfs3_getfh(parent, &args.dir);
+		
 	args.maxcount = maxcount;
 	dircount = (size_t *)&(args.dircount);
 	temp_hrc1 = hrc;

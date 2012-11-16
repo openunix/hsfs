@@ -6,14 +6,18 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 {
 	struct hsfs_super *sb = inode->sb;
 	CLIENT *clnt = sb->clntp;
-	pathconf3res res = {};
+	pathconf3res res;
 	post_op_attr *pattr = NULL;
 	int ret = 0;
+	struct nfs_fh3 fh;
 
 	DEBUG_IN("ino: %lu.", inode->ino);
 
+	memset(&res, 0, sizeof(res));
+
+	hsi_nfs3_getfh(inode, &fh);
 	ret = hsi_nfs3_clnt_call(sb, clnt, NFSPROC3_PATHCONF,
-			(xdrproc_t)xdr_nfs_fh3, (char *)&inode->fh,
+			(xdrproc_t)xdr_nfs_fh3, (char *)&fh,
 			(xdrproc_t)xdr_pathconf3res, (char *)&res);
 
 	if (ret)
@@ -29,8 +33,8 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 
 	pattr = &res.pathconf3res_u.resok.obj_attributes;
 	if (pattr->present) {
-		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes,
-			sizeof(fattr3));
+/* 		memcpy(&sb->root->attr, &pattr->post_op_attr_u.attributes, */
+/* 			sizeof(fattr3)); */
 	}
 fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_pathconf3res, (char *)&res);
