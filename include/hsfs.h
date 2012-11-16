@@ -88,6 +88,7 @@ struct hsfs_iattr{
 
 struct hsfs_inode
 {
+	struct hsfs_super *sb;
 	struct hsfs_iattr iattr;
 	unsigned int i_state;
 	unsigned int i_nlink;
@@ -100,11 +101,8 @@ struct hsfs_inode
 	unsigned int i_blkbits;
 	uint64_t          ino;
 	dev_t i_rdev;
-  unsigned long     generation;
+	unsigned long     generation;
   
-  
-  struct hsfs_super *sb;
-  struct hsfs_inode *next;
 };
 
 /* All the i_ except i_state is actually in hsfs_iattr */
@@ -183,7 +181,6 @@ struct hsfs_super
   unsigned int	    bsize;
   unsigned char	    bsize_bits;
   struct hsfs_inode *root;
-  struct hsfs_table hsfs_fuse_ht;
   /* Copy from FSINFO result directly, be careful */
   uint32_t	    rtmax;
   uint32_t	    rtpref;
@@ -233,17 +230,6 @@ struct hsfs_readdir_ctx{
 /* for nfs3 */
 unsigned long hsfs_block_bits(unsigned long bsize, unsigned char *nrbitsp);
 unsigned long hsfs_block_size(unsigned long bsize, unsigned char *nrbitsp);
-
-
-/* table function declaration */
-extern	int hsx_fuse_itable_init(struct hsfs_super *sb);
-extern	void hsx_fuse_iadd(struct hsfs_super *sb, struct hsfs_inode *hsfs_node);
-extern	int hsx_fuse_idel(struct hsfs_super *sb, struct hsfs_inode *hs_node);
-extern	int hsx_fuse_itable_del(struct hsfs_super *sb);
-
-/* XXX This should be used internally but keep it here to avoid
- * changing too much code */
-extern struct hsfs_inode *__hsfs_ilookup(struct hsfs_super *sb, uint64_t ino);
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 extern int hsfs_init_icache(struct hsfs_super *sb);
