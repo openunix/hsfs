@@ -21,7 +21,7 @@ libhsx_fuse_a_SOURCES = hsx_fuse_getattr.c hsx_fuse_statfs.c \
 			hsx_fuse_unlink.c hsx_fuse_rename.c hsx_fuse_readdir.c \
 			hsx_fuse_opendir.c hsx_fuse_setxattr.c \
 			hsx_fuse_mknod.c hsx_fuse_link.c hsx_fuse_create.c \
-			hsx_fuse_access.c hsx_fuse_getxattr.c
+			hsx_fuse_access.c hsx_fuse_getxattr.c hsx_fuse_stat2iattr.c
 
 MOUNT_HSFS = mount.hsfs
 install:

@@ -25,7 +25,7 @@ libhsi_nfs3_a_SOURCES = $(HSFS_NFS3_XDR) $(HSFS_MNT_XDR) $(HSFS_ACL3_XDR) \
 			hsi_nfs3_fattr2stat.c hsi_nfs3_unlink.c hsi_nfs3_getattr.c \
 			hsi_nfs3_fsinfo.c hsi_nfs3_pathconf.c hsi_nfs3_statfs.c\
 			hsi_nfs3_lookup.c hsi_nfs3_mkdir.c hsi_nfs3_read.c \
-			hsi_nfs3_write.c hsi_nfs3_stat2iattr.c hsi_nfs3_setattr.c \
+			hsi_nfs3_write.c hsi_nfs3_setattr.c \
 			hsi_nfs3_rmdir.c hsi_nfs3_readlink.c hsi_nfs3_symlink.c \
 			hsi_nfs3_rename.c hsi_nfs3_readdir.c \
 			hsi_nfs3_mknod.c  hsi_nfs3_link.c hsi_nfs3_create.c \

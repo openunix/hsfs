@@ -114,6 +114,10 @@ struct hsfs_inode
 #define i_uid iattr.uid
 #define i_gid iattr.gid
 
+static inline off_t i_size_read(const struct hsfs_inode *inode)
+{
+	return (inode->i_size);
+}
 
 #define I_NEW (1UL << 3)
 
