@@ -4,7 +4,7 @@
 #include "hsi_nfs3.h"
 
 void hsx_fuse_read (fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
-                         struct fuse_file_info *fi)
+		    struct fuse_file_info *fi __attribute__((unused)))
 {
 	struct hsfs_rw_info rinfo;
 	struct hsfs_super * sb = (struct hsfs_super *)fuse_req_userdata(req);

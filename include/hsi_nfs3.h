@@ -241,7 +241,7 @@ extern int hsi_nfs3_stat2iattr(struct stat *st, int to_set,
  *
  * @return error number
  */
-extern int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr);
+extern int hsi_nfs3_setattr(struct hsfs_inode *, struct nfs_fattr *, struct hsfs_iattr *attr);
 
 /**
  * @brief Get Dynamic file system information
@@ -348,7 +348,7 @@ static inline void hsi_nfs3_time2spec(struct nfstime3 *f, struct timespec *t)
 	t->tv_nsec = f->nseconds;
 }
 
-extern void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t);
+extern int hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t);
 struct hsfs_inode *hsi_nfs3_handle_create(struct hsfs_super *sb, struct diropres3ok *dir);
 
 /* The same as NFS_FH() but return nfs_fh3 */

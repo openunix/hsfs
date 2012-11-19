@@ -306,3 +306,9 @@ void hsfs_iput(struct hsfs_inode *inode)
 	}
 }
 
+/* In future, we should put this into VFS_OPS */
+extern int hsi_nfs_setattr(struct hsfs_inode *inode, struct hsfs_iattr *sattr);
+int hsfs_ll_setattr(struct hsfs_inode *inode, struct hsfs_iattr *sattr)
+{
+	return hsi_nfs_setattr(inode, sattr);
+} 

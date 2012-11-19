@@ -18,10 +18,10 @@
  */
 
 #include <errno.h>
-#include "hsi_nfs3.h"
+#include "hsx_fuse.h"
 
 void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr, 
-		      int to_set, struct fuse_file_info *fi)
+		      int to_set, struct fuse_file_info *fi __attribute__((unused)))
 {
   	int err = 0;
 	double to = 0;
@@ -45,10 +45,10 @@ void hsx_fuse_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
 		ERR("ino :%lu is invalid.\n", ino);
 		goto out;
 	}
-	err = hsi_nfs3_stat2iattr(attr, to_set, &sattr);
-	if (err)
-		goto out;
-	err = hsi_nfs3_setattr(inode, &sattr);
+
+	hsx_fuse_stat2iattr(attr, to_set, &sattr);
+
+	err = hsfs_ll_setattr(inode, &sattr);
 	if (err)
 		goto out;
 

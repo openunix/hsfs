@@ -18,41 +18,54 @@
  */
 
 #include <errno.h>
-#include "hsi_nfs3.h"
 
-/* XXX Should move to hsfs/ or remove it at all */
-#include "../fuse/fuse_misc.h"
+#include "hsx_fuse.h"
+#include "fuse_misc.h"
 
-int hsi_nfs3_stat2iattr(struct stat *st, int to_set, struct hsfs_iattr *attr)
+void hsx_fuse_stat2iattr(struct stat *st, int to_set, struct hsfs_iattr *attr)
 {
-  	int err = 0;
-  	
-	DEBUG_IN("%s", "\n");
+	DEBUG_IN("(ST:%p, SET:%x, IATTR:%p)", st, to_set, attr);
 
-	if (!st) {
-		err = EINVAL; 
-		ERR("hsi_nfs3_stat2sattr func 1st input param invalid.\n");
-		goto out;
+	attr->valid = 0;
+	if (to_set & FUSE_SET_ATTR_MODE){
+		attr->valid |= HSFS_ATTR_MODE;
+		attr->mode = st->st_mode & ~S_IFMT; /* Do we need this? */
 	}
-	if (!attr) {
-		err = EINVAL; 
-		ERR("hsi_nfs3_stat2sattr func 2nd input param invalid.\n");
-		goto out;
+	if (to_set & FUSE_SET_ATTR_UID){
+		attr->valid |= HSFS_ATTR_UID;
+		attr->uid = st->st_uid;
 	}
-	attr->valid = to_set & 0x0fff; /* may have some problems */
-	attr->mode = st->st_mode & 0777777;
-	attr->uid = st->st_uid;
-	attr->gid = st->st_gid;
-	attr->size = st->st_size;
+	if (to_set & FUSE_SET_ATTR_GID){
+		attr->valid |= HSFS_ATTR_GID;
+		attr->gid = st->st_gid;
+	}
+	if (to_set & FUSE_SET_ATTR_SIZE){
+		attr->valid |= HSFS_ATTR_SIZE;
+		attr->size = st->st_size;
+	}
 
-	attr->atime.tv_sec = st->st_atime;
-	attr->mtime.tv_sec = st->st_mtime;
+	/* 
+	 * The following is most weird part......
+	 */
+	if (to_set & FUSE_SET_ATTR_ATIME){
+		attr->atime.tv_sec = st->st_atime;
+		attr->atime.tv_nsec = ST_ATIM_NSEC(st);
+		attr->valid |= HSFS_ATTR_ATIME;
+		if (!(to_set & FUSE_SET_ATTR_ATIME_NOW))
+			attr->valid |= HSFS_ATTR_ATIME_SET; 
+	}
+	if (to_set & FUSE_SET_ATTR_MTIME){
+		attr->mtime.tv_sec = st->st_mtime;
+		attr->mtime.tv_nsec = ST_MTIM_NSEC(st);
+		attr->valid |= HSFS_ATTR_MTIME;
+		if (!(to_set & FUSE_SET_ATTR_MTIME_NOW))
+			attr->valid |= HSFS_ATTR_MTIME_SET; 
+	}
+#if 0
+	/* Do we have ctime? */
 	attr->ctime.tv_sec = st->st_ctime;
-	attr->atime.tv_nsec = ST_ATIM_NSEC(st);
-	attr->mtime.tv_nsec = ST_MTIM_NSEC(st);
 	attr->ctime.tv_nsec = ST_CTIM_NSEC(st);
+#endif
 
- out:
-	DEBUG_OUT("with errno : %d.\n", err);
-	return err;
+	DEBUG_OUT("(iattr->valid:%x)", attr->valid);
 }

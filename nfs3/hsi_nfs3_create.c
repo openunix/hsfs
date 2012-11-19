@@ -95,7 +95,7 @@ int hsi_nfs3_create(struct hsfs_inode *hi, struct hsfs_inode **new,
 		struct hsfs_iattr sattr = (*new)->iattr;
 		sattr.mode = fmode;
 		S_SETMODE(&sattr);
-		status = hsi_nfs3_setattr(*new, &sattr);
+		status = hsi_nfs_setattr(*new, &sattr);
 	}
 
 out_free:

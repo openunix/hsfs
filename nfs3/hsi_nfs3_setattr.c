@@ -20,20 +20,24 @@
 #include <errno.h>
 #include "hsi_nfs3.h"
 
-int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr)
+int hsi_nfs3_wcc2fattr(struct wcc_data *wcc, struct nfs_fattr *fattr)
+{
+	return hsi_nfs3_post2fattr(&(wcc->after), fattr);
+}
+
+int hsi_nfs3_setattr(struct hsfs_inode *inode, struct nfs_fattr *fattr, struct hsfs_iattr *attr)
 {
 	int err = 0;
 	CLIENT *clntp = NULL;
 	struct setattr3args args;
 	struct wccstat3 res;
-	struct fattr3 *fattr = NULL;
 	
 	DEBUG_IN("%s", "\n");
 
 	clntp= inode->sb->clntp;
 	memset(&args, 0, sizeof(args));
 	
-	hsi_nfs3_getfh(inode, &args.object);
+	hsi_nfs3_getfh3(inode, &args.object);
 
 	if (S_ISSETMODE(attr->valid)) {
 		args.new_attributes.mode.set = TRUE;
@@ -98,32 +102,14 @@ int hsi_nfs3_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr)
 		ERR("RPC Server returns failed status : %d.\n", err);
 		goto out;
 	}
-	if (!res.wccstat3_u.wcc.after.present) {
+
+	nfs_init_fattr(fattr);
+	if (!hsi_nfs3_wcc2fattr(&res.wccstat3_u.wcc, fattr)){
 		err = EAGAIN;
 		ERR("Try again to set file attributes.\n");
 		goto out;
 	}
 
-	/* XXX Use a shared WCC handler routine here */
-	fattr = &res.wccstat3_u.wcc.after.post_op_attr_u.attributes;
-	inode->attr.type = fattr->type;
-	inode->attr.mode = fattr->mode;
-	inode->attr.nlink = fattr->nlink;
-	inode->attr.uid = fattr->uid;
-	inode->attr.gid = fattr->gid;
-	inode->attr.size = fattr->size;
-	inode->attr.used = fattr->used;
-	inode->attr.rdev.major = fattr->rdev.major;
-	inode->attr.rdev.minor = fattr->rdev.minor;
-	inode->attr.fsid = fattr->fsid;
-	inode->attr.fileid = fattr->fileid;
- 
-	inode->attr.atime.seconds = fattr->atime.seconds;
-	inode->attr.atime.nseconds = fattr->atime.nseconds;
-	inode->attr.mtime.seconds = fattr->mtime.seconds;
-	inode->attr.mtime.nseconds = fattr->mtime.nseconds;
-	inode->attr.ctime.seconds = fattr->ctime.seconds;
-	inode->attr.ctime.nseconds = fattr->ctime.nseconds;
  out:
 	clnt_freeres(clntp, (xdrproc_t)xdr_wccstat3, (char *)&res);
  out_no_free:

@@ -30,23 +30,23 @@
 # define FUSE_SET_ATTR_MTIME_NOW	(1 << 8)
 #endif /* FUSE_SET_ATTR_MTIME_NOW */
 
-#define S_ISSETMODE(to_set)       ((to_set) & FUSE_SET_ATTR_MODE)
-#define S_ISSETUID(to_set)        ((to_set) & FUSE_SET_ATTR_UID)
-#define S_ISSETGID(to_set)        ((to_set) & FUSE_SET_ATTR_GID)
-#define S_ISSETSIZE(to_set)       ((to_set) & FUSE_SET_ATTR_SIZE)
-#define S_ISSETATIME(to_set)      ((to_set) & FUSE_SET_ATTR_ATIME)
-#define S_ISSETMTIME(to_set)      ((to_set) & FUSE_SET_ATTR_MTIME)
-#define S_ISSETATIMENOW(to_set)   ((to_set) & FUSE_SET_ATTR_ATIME_NOW)
-#define S_ISSETMTIMENOW(to_set)   ((to_set) & FUSE_SET_ATTR_MTIME_NOW)
+#define S_ISSETMODE(to_set)       ((to_set) & HSFS_ATTR_MODE)
+#define S_ISSETUID(to_set)        ((to_set) & HSFS_ATTR_UID)
+#define S_ISSETGID(to_set)        ((to_set) & HSFS_ATTR_GID)
+#define S_ISSETSIZE(to_set)       ((to_set) & HSFS_ATTR_SIZE)
+#define S_ISSETATIME(to_set)      ((to_set) & HSFS_ATTR_ATIME_SET)
+#define S_ISSETMTIME(to_set)      ((to_set) & HSFS_ATTR_MTIME_SET)
+#define S_ISSETATIMENOW(to_set)   ((to_set) & HSFS_ATTR_ATIME)
+#define S_ISSETMTIMENOW(to_set)   ((to_set) & HSFS_ATTR_MTIME)
 
-#define S_SETMODE(sattr)          ((sattr)->valid |= FUSE_SET_ATTR_MODE)
-#define S_SETUID(sattr)           ((sattr)->valid |= FUSE_SET_ATTR_UID)
-#define S_SETGID(sattr)           ((sattr)->valid |= FUSE_SET_ATTR_GID)
-#define S_SETSIZE(sattr)          ((sattr)->valid |= FUSE_SET_ATTR_SIZE)
-#define S_SETATIME(sattr)         ((sattr)->valid |= FUSE_SET_ATTR_ATIME)
-#define S_SETATIMENOW(sattr)      ((sattr)->valid |= FUSE_SET_ATTR_ATIME_NOW)
-#define S_SETMTIME(sattr)         ((sattr)->valid |= FUSE_SET_ATTR_MTIME)
-#define S_SETMTIMENOW(sattr)      ((sattr)->valid |= FUSE_SET_ATTR_MTIME_NOW)
+#define S_SETMODE(sattr)          ((sattr)->valid |= HSFS_ATTR_MODE)
+#define S_SETUID(sattr)           ((sattr)->valid |= HSFS_ATTR_UID)
+#define S_SETGID(sattr)           ((sattr)->valid |= HSFS_ATTR_GID)
+#define S_SETSIZE(sattr)          ((sattr)->valid |= HSFS_ATTR_SIZE)
+#define S_SETATIME(sattr)         ((sattr)->valid |= HSFS_ATTR_ATIME)
+#define S_SETATIMENOW(sattr)      ((sattr)->valid |= HSFS_ATTR_ATIME_NOW)
+#define S_SETMTIME(sattr)         ((sattr)->valid |= HSFS_ATTR_MTIME)
+#define S_SETMTIMENOW(sattr)      ((sattr)->valid |= HSFS_ATTR_MTIME_NOW)
 
 
 extern char *progname;
@@ -76,7 +76,7 @@ extern unsigned int HSFS_PAGE_SIZE;
 #define HSFS_MAX_READDIR_PAGES 8
 
 struct hsfs_iattr{
-	unsigned int	valid;
+	unsigned int valid;	/* See below */
 	mode_t           mode;
 	uid_t	         uid;
 	gid_t	         gid;
@@ -85,6 +85,18 @@ struct hsfs_iattr{
 	struct timespec  mtime;
 	struct timespec ctime;
 };
+
+/* For hsfs_iattr.valid */
+#define HSFS_ATTR_MODE	(1 << 0)
+#define HSFS_ATTR_UID	(1 << 1)
+#define HSFS_ATTR_GID	(1 << 2)
+#define HSFS_ATTR_SIZE	(1 << 3)
+#define HSFS_ATTR_ATIME (1 << 4)
+#define HSFS_ATTR_MTIME (1 << 5)
+#define HSFS_ATTR_CTIME (1 << 6)
+#define HSFS_ATTR_ATIME_SET (1 << 7)
+#define HSFS_ATTR_MTIME_SET (1 << 8)
+
 
 struct hsfs_inode
 {
@@ -282,5 +294,5 @@ struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashva
  */
 void hsfs_iput(struct hsfs_inode *inode);
 void hsfs_generic_fillattr(struct hsfs_inode *, struct stat *);
-
+int hsfs_ll_setattr(struct hsfs_inode *inode, struct hsfs_iattr *sattr); 
 #endif

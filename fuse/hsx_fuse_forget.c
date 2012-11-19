@@ -34,7 +34,7 @@ void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
 	assert(hsfs_node != NULL);
 
 	ilookup = (unsigned long)hsfs_node->private;
-	DEBUG("FUSE Inode(%lu) nlookup %lu to forget %lu.", ilookup, nlookup);
+	DEBUG("FUSE Inode(%lu) nlookup %lu to forget %lu.", ino, ilookup, nlookup);
 	assert(ilookup >= nlookup);
 
 	ilookup -= nlookup;

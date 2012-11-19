@@ -31,10 +31,18 @@
  *  J.S.Peatfield@damtp.cam.ac.uk
  *
  */
+#ifndef __KERNEL__
+
 #include <hsfs/err.h>
 #include <hsfs/hsi_nfs.h>
 
-#ifdef __UNUSED__
+#define S_IRWXUGO (S_IRWXU|S_IRWXG|S_IRWXO)
+#define S_IALLUGO (S_ISUID|S_ISGID|S_ISVTX|S_IRWXUGO)
+#define S_IRUGO (S_IRUSR|S_IRGRP|S_IROTH)
+#define S_IWUGO (S_IWUSR|S_IWGRP|S_IWOTH)
+#define S_IXUGO (S_IXUSR|S_IXGRP|S_IXOTH)
+
+#else
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -403,29 +411,31 @@ out_no_inode:
 	goto out;
 }
 
-#ifdef __UNUSED__
+extern int hsi_nfs3_setattr(struct hsfs_inode *, struct nfs_fattr *, struct hsfs_iattr *attr);
+#define nfs_inc_stats(x, y) do {} while (0)
 
-#define NFS_VALID_ATTRS (ATTR_MODE|ATTR_UID|ATTR_GID|ATTR_SIZE|ATTR_ATIME|ATTR_ATIME_SET|ATTR_MTIME|ATTR_MTIME_SET)
+#define NFS_VALID_ATTRS (HSFS_ATTR_MODE|HSFS_ATTR_UID|HSFS_ATTR_GID| \
+			 HSFS_ATTR_SIZE|HSFS_ATTR_ATIME|HSFS_ATTR_ATIME_SET| \
+			 HSFS_ATTR_MTIME|HSFS_ATTR_MTIME_SET)
 
 int
-nfs_setattr(struct dentry *dentry, struct iattr *attr)
+hsi_nfs_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr)
 {
-	struct inode *inode = dentry->d_inode;
 	struct nfs_fattr fattr;
 	int error;
 
 	nfs_inc_stats(inode, NFSIOS_VFSSETATTR);
 
-	if (attr->ia_valid & ATTR_SIZE) {
-		if (!S_ISREG(inode->i_mode) || attr->ia_size == i_size_read(inode))
-			attr->ia_valid &= ~ATTR_SIZE;
+	if (attr->valid & HSFS_ATTR_SIZE) {
+		if (!S_ISREG(inode->i_mode) || attr->size == i_size_read(inode))
+			attr->valid &= ~HSFS_ATTR_SIZE;
 	}
 
 	/* Optimization: if the end result is no change, don't RPC */
-	attr->ia_valid &= NFS_VALID_ATTRS;
-	if (attr->ia_valid == 0)
+	attr->valid &= NFS_VALID_ATTRS;
+	if (attr->valid == 0)
 		return 0;
-
+#if 0
 	lock_kernel();
 	/* Write all dirty data */
 	filemap_write_and_wait(inode->i_mapping);
@@ -436,9 +446,14 @@ nfs_setattr(struct dentry *dentry, struct iattr *attr)
 	if ((attr->ia_valid & (ATTR_MODE|ATTR_UID|ATTR_GID)) != 0)
 		nfs_inode_return_delegation(inode);
 	error = NFS_PROTO(inode)->setattr(dentry, &fattr, attr);
+#endif
+	/* XXX need to change this with NFSv2/v4 supports */
+	error = hsi_nfs3_setattr(inode, &fattr, attr);
 	if (error == 0)
 		nfs_refresh_inode(inode, &fattr);
+#if 0
 	unlock_kernel();
+#endif
 	return error;
 }
 
@@ -450,30 +465,34 @@ nfs_setattr(struct dentry *dentry, struct iattr *attr)
  * Note: we do this in the *proc.c in order to ensure that
  *       it works for things like exclusive creates too.
  */
-void nfs_setattr_update_inode(struct inode *inode, struct iattr *attr)
+void nfs_setattr_update_inode(struct hsfs_inode *inode, struct hsfs_iattr *attr)
 {
-	if ((attr->ia_valid & (ATTR_MODE|ATTR_UID|ATTR_GID)) != 0) {
-		if ((attr->ia_valid & ATTR_MODE) != 0) {
-			int mode = attr->ia_mode & S_IALLUGO;
+	if ((attr->valid & (HSFS_ATTR_MODE|HSFS_ATTR_UID|HSFS_ATTR_GID)) != 0) {
+		if ((attr->valid & HSFS_ATTR_MODE) != 0) {
+			int mode = attr->mode & S_IALLUGO;
 			mode |= inode->i_mode & ~S_IALLUGO;
 			inode->i_mode = mode;
 		}
-		if ((attr->ia_valid & ATTR_UID) != 0)
-			inode->i_uid = attr->ia_uid;
-		if ((attr->ia_valid & ATTR_GID) != 0)
-			inode->i_gid = attr->ia_gid;
+		if ((attr->valid & HSFS_ATTR_UID) != 0)
+			inode->i_uid = attr->uid;
+		if ((attr->valid & HSFS_ATTR_GID) != 0)
+			inode->i_gid = attr->gid;
+#if 0
 		spin_lock(&inode->i_lock);
 		NFS_I(inode)->cache_validity |= NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
 		spin_unlock(&inode->i_lock);
+#endif
 	}
-	if ((attr->ia_valid & ATTR_SIZE) != 0) {
+	if ((attr->valid & HSFS_ATTR_SIZE) != 0) {
 		nfs_inc_stats(inode, NFSIOS_SETATTRTRUNC);
-		inode->i_size = attr->ia_size;
+		inode->i_size = attr->size;
+#if 0
 		nfs_fscache_set_size(inode);
 		vmtruncate(inode, attr->ia_size);
+#endif
 	}
 }
-
+#if 0
 static int nfs_wait_schedule(void *word)
 {
 	if (signal_pending(current))

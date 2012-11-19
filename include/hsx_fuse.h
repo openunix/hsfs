@@ -3,6 +3,7 @@
 #define __HSX_FUSE_H__ 
 
 #include <sys/stat.h>
+#include <hsfs.h>
 
 extern void hsx_fuse_init(void *data, struct fuse_conn_info *conn);
 
@@ -365,5 +366,6 @@ extern void hsx_fuse_getxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
 
 extern void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
 				const char *value, size_t size, int flags );
+void hsx_fuse_stat2iattr(struct stat *st, int to_set, struct hsfs_iattr *attr);
 
 #endif

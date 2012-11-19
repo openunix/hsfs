@@ -2,7 +2,7 @@
 #include "hsi_nfs3.h"
 #include "hsx_fuse.h"
 
-void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino)
+void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino __attribute__((unused)))
 {
 	struct statvfs stbuf;
 	struct hsfs_super *super = NULL;

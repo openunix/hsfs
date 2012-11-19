@@ -77,10 +77,12 @@ void hsi_nfs3_fattr2fattr(struct fattr3 *f, struct nfs_fattr *t)
 	t->valid |= NFS_ATTR_FATTR_V3;
 }
 
-void hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t)
+int hsi_nfs3_post2fattr(struct post_op_attr *p, struct nfs_fattr *t)
 {
 	if (p->present)
 		hsi_nfs3_fattr2fattr(&(p->post_op_attr_u.attributes), t);
+	
+	return p->present;
 }
 
 
