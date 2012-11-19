@@ -28,7 +28,7 @@ int posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size)
 {
 	posix_acl_xattr_header *ext_acl = NULL;
 	posix_acl_xattr_entry *ext_entry = NULL;
-	int real_size, n;
+	unsigned int real_size, n;
 
 	real_size = posix_acl_xattr_size(acl->a_count);
 	if (!buffer)

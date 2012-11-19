@@ -48,7 +48,7 @@ static int hsi_gethostbyname(const char *hostname, struct sockaddr_in *saddr)
 			ERR("mount: can't get address for %s.", hostname);
 			return errno;
 		} else {
-			if (hp->h_length > sizeof(*saddr)) {
+			if (hp->h_length > (int)sizeof(*saddr)) {
 				ERR("mount: got bad hp->h_length.");
 				hp->h_length = sizeof(*saddr);
 			}
@@ -136,7 +136,7 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 				mntarg_t *mntarg, mntres_t *mntres)
 {
 	struct pmap *msp = &mnt_server->pmap;
-	mntres_t tres = {};
+	mntres_t tres;
 	char *tmp = NULL;
 	fhandle3 *fh = NULL; 
 	CLIENT *clnt = NULL;
@@ -152,6 +152,7 @@ static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 		goto out;
 	}
 
+	memset(&tres, 0, sizeof(tres));
 	ret = clnt_call(clnt, MOUNTPROC3_MNT,
 			 (xdrproc_t) xdr_dirpath, (caddr_t) mntarg,
 			 (xdrproc_t) xdr_mountres3, (caddr_t) &tres,
@@ -307,7 +308,7 @@ static int hsi_nfs3_parse_options(char *old_opts, struct hsfs_super *super,
 
 		if (strlen(opt) >= sizeof(cbuf))
 			goto bad_parameter;
-		if ((opteq = strchr(opt, '=')) && isdigit(opteq[1])) {
+		if ((opteq = strchr(opt, '=')) && isdigit((int)opteq[1])) {
 			int val = atoi(opteq + 1);	
 			*opteq = '\0';
 			if (!strcmp(opt, "rsize"))
@@ -558,7 +559,12 @@ void hsi_validate_mount_data(struct hsfs_super *super, clnt_addr_t *ms,
 	}
 }
 
-extern struct hsfs_super_ops hsi_nfs_sop;
+struct hsfs_super_ops hsi_nfs_sop = {
+	.alloc_inode = nfs_alloc_inode,
+	.destroy_inode = nfs_destroy_inode,
+	.setattr = hsi_nfs3_setattr
+};
+
 static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 {
 	struct hsfs_inode *root = NULL;
@@ -622,7 +628,7 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 		     *nfs_pmap = &nfs_server.pmap;
 	struct pmap  save_mnt, save_nfs;
 
-	mntres_t mntres = {};
+	mntres_t mntres;
 	
 	int retry = 0, ret = 0;
 	char *s = NULL;
@@ -630,6 +636,7 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 
 	DEBUG_IN("(%s, %s, %s)", spec, point, udata);
 
+	memset(&mntres, 0, sizeof(mntres));
 	if (strlen(spec) >= sizeof(hostdir)) {
 		ERR("%s: excessively long host:dir argument.", progname);
 		goto fail;

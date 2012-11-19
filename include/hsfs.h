@@ -157,11 +157,13 @@ struct  hsfs_table
 #define HSFS_ID_HASH_BITS 10
 #define HSFS_ID_HASH_SIZE (1 << HSFS_ID_HASH_BITS)
 
+struct nfs_fattr;
 struct hsfs_super_ops
 {
 	struct hsfs_inode *(*alloc_inode)(struct hsfs_super *sb);
 	void (*destroy_inode)(struct hsfs_inode *);
 	void (*drop_inode) (struct hsfs_inode *);
+	int (*setattr)(struct hsfs_inode *, struct nfs_fattr *, struct hsfs_iattr *);
 };
 
 struct hsfs_super

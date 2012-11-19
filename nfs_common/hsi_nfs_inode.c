@@ -287,11 +287,6 @@ void nfs_destroy_inode(struct hsfs_inode *inode)
 	free(NFS_I(inode));
 }
 
-struct hsfs_super_ops hsi_nfs_sop = {
-	.alloc_inode = nfs_alloc_inode,
-	.destroy_inode = nfs_destroy_inode
-};
-
 /*
  * This is our front-end to iget that looks up inodes by file handle
  * instead of inode number.
@@ -448,7 +443,7 @@ hsi_nfs_setattr(struct hsfs_inode *inode, struct hsfs_iattr *attr)
 	error = NFS_PROTO(inode)->setattr(dentry, &fattr, attr);
 #endif
 	/* XXX need to change this with NFSv2/v4 supports */
-	error = hsi_nfs3_setattr(inode, &fattr, attr);
+	error = inode->sb->sop->setattr(inode, &fattr, attr);
 	if (error == 0)
 		nfs_refresh_inode(inode, &fattr);
 #if 0
