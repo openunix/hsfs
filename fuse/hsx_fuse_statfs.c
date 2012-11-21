@@ -9,9 +9,11 @@ void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino __attribute__((unused)))
 	struct hsfs_inode *root = NULL;
 	struct hsfs_super *sp = NULL;
 	int err=0;
-	DEBUG_IN(" err:%d", err);
 
 	super = fuse_req_userdata(req);
+
+	DEBUG_IN("SB(%p)", super);
+
 	root = super->root;
 	sp = root->sb;
 	err = hsi_nfs3_statfs(root);
@@ -27,7 +29,7 @@ void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino __attribute__((unused)))
 	}
 	fuse_reply_statfs (req, &stbuf);
 out:
-	DEBUG_OUT (" err:%d",err);
+	DEBUG_OUT ("(%d)", err);
 	return;
 
 }

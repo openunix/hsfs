@@ -50,6 +50,8 @@ void hsi_nfs3_fattr2fattr(struct fattr3 *f, struct nfs_fattr *t)
 	
 	if(f->type > NF3FIFO)
 		type = 0;
+	else
+		type = f->type;
 	fmode = nfs_type2fmt[type];
 	
 	t->mode = (f->mode & ~S_IFMT) | fmode;
@@ -101,7 +103,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 	memset(&args, 0, sizeof(args));
 	memset(&res, 0, sizeof(res));
 
-	DEBUG_IN("%s","");
+	DEBUG_IN("P_I(%p:%llu)", parent, parent->ino);
 
 	hsi_nfs3_getfh3(parent, &args.dir);
 
@@ -113,6 +115,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 	if (err) 
 		goto out;
 
+	st = res.status;
 	if (NFS3_OK != st){
 		ERR("Path (%s) on Server is not "
 			"accessible: (%d).",name,st);
@@ -131,7 +134,7 @@ int hsi_nfs3_lookup(struct hsfs_inode *parent,struct hsfs_inode **new,
 
 	clnt_freeres(sb->clntp, (xdrproc_t)xdr_lookup3res, (char *)&res);
 out:
-	DEBUG_OUT(" with errno %d",err);
+	DEBUG_OUT("with %d, New inode at %p", err, *new);
 
 	return(err);
 }

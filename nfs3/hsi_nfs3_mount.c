@@ -572,7 +572,7 @@ static int hsi_fill_super(struct hsfs_super *super, nfs_fh3 *fh)
 	struct nfs_fh nfh;
 	int ret = 0;
 
-	DEBUG_IN("(%p, %p)", super, fh);
+	DEBUG_IN("(SB:%p, FH:%p)", super, fh);
 
 	ret = hsfs_init_icache(super);
 	if (ret)
@@ -776,6 +776,7 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 		goto fmnt_fail;
 	}
 
+	DEBUG_OUT("Success with FUSE channel at %p", ch);
 	return ch;
 
 umnt_fail:
@@ -787,6 +788,7 @@ fmnt_fail:
 	clnt_destroy(super->clntp);
 	hsi_nfs3_unmount(&mnt_server, &dirname);
 fail:
+	DEBUG_OUT("Failed with FUSE chanel at %p", NULL);
 	return NULL;
 }
 

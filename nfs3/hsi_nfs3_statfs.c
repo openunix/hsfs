@@ -14,7 +14,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 
 	hsi_nfs3_getfh3(inode, &fh);
 
-	DEBUG_IN (" fh:%s",fh.data.data_val);
+	DEBUG_IN("I(%p:%lu)", inode, inode->ino);
 
 	st = hsi_nfs3_clnt_call (sb, sb->clntp, NFSPROC3_FSSTAT,
 			(xdrproc_t)xdr_nfs_fh3, (caddr_t)&fh, 
@@ -39,7 +39,7 @@ int hsi_nfs3_statfs (struct hsfs_inode *inode)
 	inode->sb->afiles = resok.afiles;
 	clnt_freeres (sb->clntp, (xdrproc_t)xdr_fsstat3res,(char *)&res);
 out:	
-	DEBUG_OUT (" err:%d",st);
+	DEBUG_OUT ("(%d)",st);
 	return st;
 
 }

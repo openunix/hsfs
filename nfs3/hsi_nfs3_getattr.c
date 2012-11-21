@@ -42,8 +42,11 @@ int hsi_nfs3_do_getattr(struct hsfs_super *sb, struct nfs_fh3 *fh,
 	}
 	
 	attr = &res.getattr3res_u.attributes;
-	if (fattr)
+	if (fattr){
 		hsi_nfs3_fattr2fattr(attr, fattr);
+		DEBUG("get nfs_fattr(V:%x, U:%u, G:%u, S:%llu, I:%llu)",
+		      fattr->valid, fattr->uid, fattr->gid, fattr->size, fattr->fileid);
+	}
 	if (st)
 		hsi_nfs3_fattr2stat(attr, st);
 	

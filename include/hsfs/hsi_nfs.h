@@ -190,6 +190,7 @@ static inline uint64_t NFS_FILEID(const struct hsfs_inode *inode)
 static inline void set_nfs_fileid(struct hsfs_inode *inode, uint64_t fileid)
 {
 	NFS_I(inode)->fileid = fileid;
+	inode->real_ino = fileid;
 }
 
 static inline int NFS_STALE(const struct hsfs_inode *inode)

@@ -40,7 +40,7 @@ int hsi_nfs3_pathconf(struct hsfs_inode *inode)
 fres:
 	clnt_freeres(clnt, (xdrproc_t)xdr_pathconf3res, (char *)&res);
 out:
-	DEBUG_OUT("%s", ".");
+	DEBUG_OUT("(%d, %d)", ret, sb->namlen);
 
 	return ret;
 }

@@ -231,6 +231,7 @@ get_new_inode(struct hsfs_super *sb, unsigned long key,
 			__inode_add_to_lists(sb, key, inode);
 			inode->i_state = I_NEW;
 
+			DEBUG_OUT("Inode(%p:%lu)", inode, inode->ino);
 			return inode;
 		}
 		/* XXX Need more checks if there are locks.... */		
