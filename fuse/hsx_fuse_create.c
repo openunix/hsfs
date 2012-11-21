@@ -14,6 +14,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct fuse_entry_param e;
 	int mymode = 0;
 	int err =0;
+	unsigned long ref;
 	
 	DEBUG_IN("INO = %lu, MODE = %d", parent, mode);
 	
@@ -48,12 +49,23 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 	}
 
 	err = hsi_nfs3_create(hi, &newhi, name, mymode);
-	if (0 == err) {
-		hsx_fuse_fill_reply(newhi, &e);
-		fuse_reply_create(req, &e, fi);
-	} else {
+	if (err) {
 		fuse_reply_err(req, err);
+		goto out;
 	}
+
+	if (newhi == NULL){
+		err = ENOMEM;
+		fuse_reply_err(req, err);
+		goto out;
+	}
+
+	ref = hsx_fuse_ref_xchg(newhi, 0);
+	FUSE_ASSERT(ref == 0);	/* Should be a new one... */
+
+	hsx_fuse_fill_reply(newhi, &e);
+	fuse_reply_create(req, &e, fi);
+
 out:
 	DEBUG_OUT("Out of hsx_fuse_create, With ERRNO = %d", err);
 }

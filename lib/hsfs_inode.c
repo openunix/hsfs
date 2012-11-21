@@ -161,7 +161,7 @@ static int inode_init_always(struct hsfs_super *sb, struct hsfs_inode *inode)
 {
 	inode->sb = sb;
 	inode->generation = 0;
-	inode->private = NULL;
+	inode->private = 0;
 	inode->ino = 0;
 	inode->i_blocks = 0;
 	inode->i_nlink = 1;

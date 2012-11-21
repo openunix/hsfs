@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Shou Xiaoyun, Feng Shuo <steve.shuo.feng@gmail.com>
+ * Copyright (C) 2012 Feng Shuo <steve.shuo.feng@gmail.com>
  *
  * This file is part of HSFS.
  *
@@ -16,28 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <hsx_fuse.h>
 
-#include "hsfs.h"
-#include "hsx_fuse.h"
-
-void hsx_fuse_forget(fuse_req_t req, fuse_ino_t ino, unsigned long nlookup)
+void hsx_fuse_init(void *userdata, struct fuse_conn_info *conn)
 {
-	struct hsfs_inode  *hsfs_node;
-	struct hsfs_super  *sb;
-	unsigned long ilookup;
-	
-	DEBUG_IN("(%p, %lu, %lu)", req, (unsigned long)ino, nlookup);
+	struct hsfs_super *sb = (struct hsfs_super *)userdata;
+	unsigned long ref;
 
-	sb = fuse_req_userdata(req);	
+	DEBUG_IN("SB(%p)", sb);
 
-	hsfs_node = hsfs_ilookup(sb, ino);
-	assert(hsfs_node != NULL);
+	ref = hsx_fuse_ref_xchg(sb->root, 0);
+	FUSE_ASSERT(ref == 0);
 
-	ilookup = hsx_fuse_ref_dec(hsfs_node, nlookup);
-
-	if(!ilookup)
-		hsfs_iput(hsfs_node);
-
-	DEBUG_OUT("rest lookup %lu", ilookup);
-	fuse_reply_none(req);
+	DEBUG_OUT("Success conn at %p", conn);
 }

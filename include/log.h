@@ -27,13 +27,6 @@
 #endif
 #define ERR(fmt, args...) syslog(LOG_ERR, fmt, ##args)
 #define	INFO(fmt, args...) syslog(LOG_INFO, fmt, ##args)
-#define ASSERT(exp) do {						\
-	if (unlikely(!(exp))){						\
-		struct fuse_context *fc = fuse_get_context();		\
-		ERR("Assert failed at %s:%d/%s()", __FILE__, __LINE__, __func__); \
-		fuse_exit(fc->fuse);					\
-	}								\
-	}while(0)
 
 extern int __INIT_DEBUG;
 #define DEBUG_IN(fmt, args...)						\

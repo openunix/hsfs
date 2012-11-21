@@ -107,7 +107,7 @@ struct hsfs_inode
 	uint64_t i_blocks;
 	struct hlist_node fh_hash;
 	struct hlist_node id_hash;
-	void * private;
+	unsigned long private;
 	int i_count;
 	unsigned long real_ino;
 	unsigned int i_blkbits;

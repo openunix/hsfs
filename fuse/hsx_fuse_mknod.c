@@ -9,7 +9,8 @@ hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
 {
 	DEBUG_IN("name to mknod: %s",name);
 	int err=0;
-	struct fuse_entry_param *e=NULL;
+	unsigned long ref;
+	struct fuse_entry_param e;
 	// get the super block of hsfs
 	struct hsfs_super *hsfs_sb=fuse_req_userdata(req);
 	// get the inode of parent 
@@ -21,24 +22,25 @@ hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
 	}
 	struct hsfs_inode *newinode=NULL;
 	err=hsi_nfs3_mknod(parentp,&newinode,name,mode,rdev);
-	if(!err){
-		e=(struct fuse_entry_param *)malloc(sizeof(struct
-                                               fuse_entry_param));
-		if(!e){
-			err=ENOMEM;
-			fuse_reply_err(req,err);
-			goto out;
-		}
-		else{
-			hsx_fuse_fill_reply(newinode,e);
-			fuse_reply_entry(req,e);	
-			free(e);
-			goto out;
-		}
+
+	if (err)
+		goto out;
+
+	if(newinode == NULL) {
+		err = ENOMEM;
+		goto out;
 	}
-	else
-	fuse_reply_err(req,err);
-out:
-	DEBUG_OUT(" err %d",err);
+
+	ref = hsx_fuse_ref_xchg(newinode, 0);
+	FUSE_ASSERT(ref == 0);	/* Should be a new one... */
+
+	hsx_fuse_fill_reply(newinode, &e);
+	fuse_reply_entry(req, &e);
+
+	DEBUG_OUT("New indoe at %p", newinode);
 	return;
+
+out:
+	fuse_reply_err(req,err);
+	DEBUG_OUT(" err %d",err);
 }

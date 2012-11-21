@@ -28,6 +28,7 @@ void  hsx_fuse_lookup(fuse_req_t req, fuse_ino_t ino, const char *name)
 		goto out;
 	}
 
+	hsx_fuse_ref_inc(child, 1);
 	hsx_fuse_fill_reply(child, &e);
 
 	fuse_reply_entry(req, &e);

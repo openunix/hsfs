@@ -770,7 +770,7 @@ struct fuse_chan *hsx_fuse_mount(const char *spec, const char *point,
 
 		free(mntres.mountres3_u.mountinfo.fhandle.fhandle3_val);
 	}
-
+	
 	ch = fuse_mount(point, args);
 	if (ch == NULL) {
 		goto fmnt_fail;

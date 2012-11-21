@@ -368,4 +368,25 @@ extern void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name,
 				const char *value, size_t size, int flags );
 void hsx_fuse_stat2iattr(struct stat *st, int to_set, struct hsfs_iattr *attr);
 
+#define FUSE_ASSERT(exp) do {						\
+		if (unlikely(!(exp))){					\
+			ERR("Assert failed at %s:%d/%s()", __FILE__, __LINE__, __func__); \
+		}							\
+		assert(exp);						\
+	}while(0)
+
+static inline unsigned long hsx_fuse_ref_xchg(struct hsfs_inode *inode, unsigned long val)
+{
+	return __sync_lock_test_and_set(&(inode->private), val);
+}
+static inline unsigned long hsx_fuse_ref_inc(struct hsfs_inode *inode, unsigned long val)
+{
+	return __sync_add_and_fetch(&(inode->private), val);
+}
+static inline unsigned long hsx_fuse_ref_dec(struct hsfs_inode *inode, unsigned long val)
+{
+	FUSE_ASSERT(val <= inode->private);
+	return __sync_sub_and_fetch(&(inode->private), val);
+}
+
 #endif

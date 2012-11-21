@@ -12,6 +12,8 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	struct fuse_entry_param e;
 	struct hsfs_super *sb = NULL;
 	const char *dirname = name;
+	unsigned long ref;
+
 	DEBUG_IN("ino:%lu.\n", parent);
 
 	memset(&e, 0, sizeof(struct fuse_entry_param));
@@ -33,11 +35,19 @@ void hsx_fuse_mkdir(fuse_req_t req, fuse_ino_t parent, const char *name,
 	if(0 != err ) {
 		fuse_reply_err(req, err);
 		goto out;
-	}else {
-		hsx_fuse_fill_reply(new, &e);
-		fuse_reply_entry(req, &e);
+	}
+
+	if(new == NULL) {
+		err = ENOMEM;
+		fuse_reply_err(req, err);
 		goto out;
 	}
+
+	ref = hsx_fuse_ref_xchg(new, 0);
+	FUSE_ASSERT(ref == 0);	/* Should be a new one... */
+	
+	hsx_fuse_fill_reply(new, &e);
+	fuse_reply_entry(req, &e);
 out:
 	DEBUG_OUT(" out errno is: %d\n", err);
 	return;

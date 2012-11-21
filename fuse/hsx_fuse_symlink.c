@@ -13,7 +13,7 @@
 void hsx_fuse_symlink(fuse_req_t req, const char *link,
 			fuse_ino_t parent, const char *name)
 {
-	int st = 0;
+	unsigned long ref = 0;
 	int err = 0;
 	struct hsfs_super *sb_parent = NULL;
 	struct hsfs_inode *nfs_parent = NULL;
@@ -36,11 +36,18 @@ void hsx_fuse_symlink(fuse_req_t req, const char *link,
 		goto out;
 	}
 
-	st = hsi_nfs3_symlink(nfs_parent, &new, link, name);
-	if(st != 0){
-		err = st;
+	err = hsi_nfs3_symlink(nfs_parent, &new, link, name);
+	if(err != 0)
+		goto out;
+
+	if(new == NULL) {
+		err = ENOMEM;
 		goto out;
 	}
+
+	ref = hsx_fuse_ref_xchg(new, 0);
+	FUSE_ASSERT(ref == 0);	/* Should be a new one... */
+
 	hsx_fuse_fill_reply(new, &e);
 	fuse_reply_entry(req, &e);
 out:
