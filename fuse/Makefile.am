@@ -1,8 +1,6 @@
 include $(top_srcdir)/Makefile.common
 
-sbindir = /sbin
-
-noinst_PROGRAMS = hsfs
+bin_PROGRAMS = hsfs
 hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			`pkg-config fuse --cflags` 
 hsfs_LDFLAGS = `pkg-config fuse --libs`
@@ -23,12 +21,3 @@ libhsx_fuse_a_SOURCES = hsx_fuse_getattr.c hsx_fuse_statfs.c hsx_fuse_init.c \
 			hsx_fuse_mknod.c hsx_fuse_link.c hsx_fuse_create.c \
 			hsx_fuse_access.c hsx_fuse_getxattr.c hsx_fuse_stat2iattr.c
 
-MOUNT_HSFS = mount.hsfs
-install:
-	@if test -e $(sbindir)/$(MOUNT_HSFS); then \
-		echo "mount.hsfs has exist, delete first.";\
-		rm $(sbindir)/$(MOUNT_HSFS) -f ;\
-	fi;
-	cp hsfs $(sbindir)/$(MOUNT_HSFS) -f
-uninstall:
-	rm $(sbindir)/$(MOUNT_HSFS) -f
