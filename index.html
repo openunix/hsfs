@@ -31,32 +31,37 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>Welcome to GitHub Pages.</h3>
+        <p>Welcome to the HSFS wiki! HSFS is an NFS client via FUSE.</p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<h1>Why?</h1>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>Yes, most OS already have strong NFS clients (and servers :-) support in their kernel, for example Linux. Comparing with those nfs implementations, HSFS is slow, week and having lots of issues. But why we still do it?</p>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<ul>
+<li>Because we believe it's a good training for newbies to understand NFS protocol and implementation - HSFS was initially a project I used to train the newbies in my team. It's really helpful.</li>
+<li>Becasee we believe it's a good platform to verify new FUSE features - NFS is a good (and real) distributed model to exam those features such as readdirplus and writeback cache.</li>
+</ul><h1>Distributions &amp; Builds</h1>
 
-<h3>Designer Templates</h3>
+<p>This software is still in alpha stage, so we strongly recommend you to hack from the git tree instead of directly install the RPM... Anyway the RPMs are still provided for the following distributions (if you know what you are doing:-).</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<ul>
+<li>RHEL/CentOS 6</li>
+<li>Fedora 16/17</li>
+<li>SuSE Linux Enterprise 11 SP1/SP2</li>
+<li>OpenSUSE 11.4/12.1/12.2</li>
+</ul><p>Please refer to <a href="wiki/RPMDistributions">RPMDistributions</a> for more detail information.</p>
 
-<h3>Rather Drive Stick?</h3>
+<h1>Performance</h1>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>Yes we have performance report (even it's slow:-). The following is the performance got from an version with GBE connection to a NAS server. You can download the full test report <a href="https://github.com/downloads/openunix/hsfs/iozone_network.xlsx">here</a>.</p>
 
-<h3>Authors and Contributors</h3>
+<h3>Read</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p><img src="https://github.com/downloads/openunix/hsfs/iozone_read.JPG" alt="iozone_read"></p>
 
-<h3>Support or Contact</h3>
+<h3>Write</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p><img src="https://github.com/downloads/openunix/hsfs/iozone_write.JPG" alt="iozone_write"></p>
       </section>
     </div>
 
