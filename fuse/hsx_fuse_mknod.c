@@ -31,7 +31,7 @@ hsx_fuse_mknod(fuse_req_t req, fuse_ino_t parent, const char *name,
 		goto out;
 	}
 
-	ref = hsx_fuse_ref_xchg(newinode, 0);
+	ref = hsx_fuse_ref_xchg(newinode, 1);
 	FUSE_ASSERT(ref == 0);	/* Should be a new one... */
 
 	hsx_fuse_fill_reply(newinode, &e);

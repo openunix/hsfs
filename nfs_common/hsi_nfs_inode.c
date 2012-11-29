@@ -388,17 +388,13 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 		nfsi->access_cache = RB_ROOT;
 
 		nfs_fscache_init_cookie(inode);
+#endif
 		unlock_new_inode(inode);
 	} else
 		nfs_refresh_inode(inode, fattr);
-	dprintk("NFS: nfs_fhget(%s/%Ld ct=%d)\n",
-		inode->i_sb->s_id,
-		(long long)NFS_FILEID(inode),
-		atomic_read(&inode->i_count));
-#endif
-}
+	DEBUG_OUT("I(%p:%lu)", inode, inode->private);
+	
 out:
-DEBUG_OUT("(%p)", inode);
 	return inode;
 
 out_no_inode:

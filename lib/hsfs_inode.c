@@ -19,6 +19,11 @@
 
 #include <hsfs.h>
 
+void unlock_new_inode(struct hsfs_inode *inode)
+{
+	inode->i_state &= ~I_NEW;
+}
+
 void hsfs_generic_fillattr(struct hsfs_inode *inode, struct stat *stat)
 {
 	stat->st_ino = inode->real_ino;

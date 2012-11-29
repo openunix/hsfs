@@ -60,7 +60,7 @@ void hsx_fuse_create(fuse_req_t req, fuse_ino_t parent, const char *name,
 		goto out;
 	}
 
-	ref = hsx_fuse_ref_xchg(newhi, 0);
+	ref = hsx_fuse_ref_xchg(newhi, 1);
 	FUSE_ASSERT(ref == 0);	/* Should be a new one... */
 
 	hsx_fuse_fill_reply(newhi, &e);

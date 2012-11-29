@@ -25,7 +25,7 @@ void hsx_fuse_init(void *userdata, struct fuse_conn_info *conn)
 
 	DEBUG_IN("SB(%p)", sb);
 
-	ref = hsx_fuse_ref_xchg(sb->root, 0);
+	ref = hsx_fuse_ref_xchg(sb->root, 1);
 	FUSE_ASSERT(ref == 0);
 
 	DEBUG_OUT("Success conn at %p", conn);
