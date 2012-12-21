@@ -7,7 +7,7 @@
 # define unlikely(x)	__builtin_expect((x),0)
 #endif	/* unlikely */
 
-#define CLNTLIB_LOGLEVEL LOG_WARNING
+#define CLNTLIB_LOGLEVEL LOG_DEBUG
 
 #if CLNTLIB_LOGLEVEL >=	LOG_DEBUG
 #  define DEBUG(fmt, args...) syslog(LOG_ERR, fmt, ##args)
