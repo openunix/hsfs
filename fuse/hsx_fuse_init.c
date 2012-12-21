@@ -21,12 +21,30 @@
 void hsx_fuse_init(void *userdata, struct fuse_conn_info *conn)
 {
 	struct hsfs_super *sb = (struct hsfs_super *)userdata;
+	char unsupported[1024] = "";
+	int len;
 	unsigned long ref;
 
-	DEBUG_IN("SB(%p)", sb);
+	DEBUG_IN("SB(%p), P_VER(%d.%d)", sb,
+		 conn->proto_major, conn->proto_minor);
 
 	ref = hsx_fuse_ref_xchg(sb->root, 0);
 	FUSE_ASSERT(ref == 0);
 
+#ifdef FUSE_CAP_BIG_WRITES
+	if (conn->capable & FUSE_CAP_BIG_WRITES)
+		conn->want |= FUSE_CAP_BIG_WRITES;
+	else
+		strcat(unsupported, "FUSE_CAP_BIG_WRITES, ");
+#endif	/* FUSE_CAP_BIG_WRITES */
+
+
+
+	len = strlen(unsupported);
+	if (len){
+		unsupported[len - 2] = '\0';
+		WARNING("Your fuse has %s builtin while your kernel not.");
+	}
+	
 	DEBUG_OUT("Success conn at %p", conn);
 }
