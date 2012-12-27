@@ -1,96 +1,114 @@
 /*
- *hsx_fuse_readdir.c
+ * Copyright (C) 2012 Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS.
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <hsx_fuse.h>
 
 #include <errno.h>
 #include "hsi_nfs3.h"
-#define RPCCOUNT 8
 
-void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
-                         struct fuse_file_info *fi)
+/* XXX This is dirty. */
+#define RPCCOUNT 4096
+
+void __hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
+			struct fuse_file_info *fi, int plus)
 {
-	struct hsfs_readdir_ctx *hrc = NULL;
-	struct hsfs_readdir_ctx *temp_ctx = NULL;
-	struct hsfs_inode *parent = NULL;
-	struct hsfs_super *sb = NULL;
-	size_t maxcount = 0;
-	size_t newlen = 0;
-	char * buf = NULL;
-	int err=0;
+	struct hsfs_readdir_ctx *saved_ctx, *ctx = NULL;
+	struct hsfs_inode *parent;
+	struct hsfs_super *sb;
+	size_t res = 0;
+	size_t len = 0;
+	char * buf;
+	int err = 0;
 
-	DEBUG_IN("The size is 0x%x, the off is 0x%x.", (unsigned int)size, 
-		 (unsigned int)off);
+	DEBUG_IN("P_I(%lu), Size(%lld), Off(%llx)", ino, size, off);
+
+	(void)fi;
+	sb = fuse_req_userdata(req);
+	FUSE_ASSERT(sb != NULL);
+
+	parent = hsfs_ilookup(sb, ino);
+	FUSE_ASSERT(parent != NULL);
+
+	err = hsi_nfs3_readdir(parent, RPCCOUNT, off, &ctx, plus);
+	if(err)
+		goto out1;
+	saved_ctx = ctx;
+
 	buf = (char *) malloc(size);
 	if( NULL == buf){
 		err = ENOMEM;
-		ERR("Buf memory leak is 0x%x.", err);
-		goto out;
+		goto out2;
+	}
+	while(ctx != NULL){
+		if (plus){
+			struct fuse_entry_param e;
+
+			hsx_fuse_fill_reply(ctx->inode, &e);
+			res = fuse_add_direntry_plus(
+				req, buf + len, size - len, ctx->name,
+				&e, ctx->off);
+		}
+		else {
+			res = fuse_add_direntry(
+				req, buf + len, size - len, ctx->name,
+				&ctx->stbuf, ctx->off);
+		}
+
+	  	if(res >= size - len)
+			break;
+		len += res;
+		ctx = ctx->next;
 	}
 
-	hrc = (struct hsfs_readdir_ctx*)malloc(sizeof(struct hsfs_readdir_ctx));
-	if( NULL == hrc){
-		err = ENOMEM;
-		ERR("hrc memory leak is 0x%x", err);
-		goto out;
+	if (!err)
+		fuse_reply_buf(req, buf, len);
+	
+	free(buf);
+out2:
+	while(saved_ctx != NULL){
+		ctx = saved_ctx;
+		saved_ctx = ctx->next;
+		if (err && ctx->inode != NULL){
+			if (!hsx_fuse_ref_dec(ctx->inode, 1))
+				hsfs_iput(ctx->inode);
+		}
+		free(ctx->name);
+		free(ctx);
 	}
-
-	sb = fuse_req_userdata(req);
-	if(!sb){
-		err = ENOENT;
-		ERR("%s gets hsfs_super fails \n", progname);
-		goto out;
-	}
-
-	memset(hrc, 0, sizeof(struct hsfs_readdir_ctx));
-	maxcount = RPCCOUNT*size;
-	hrc->off = off;
-	parent = hsfs_ilookup(sb,ino);
-	if(!parent){
-		err = ENOENT;
-		ERR("%s gets file handle fails \n", progname);
-		goto out;
-	}
-
-	err = hsi_nfs3_readdir(parent, hrc, maxcount);
+out1:
 	if(err)
-	{
-		ERR("Call hsi_nfs3_readdir failed 0x%x", err);
-		goto out;
-	}
-
-	temp_ctx = hrc;
-	temp_ctx = temp_ctx->next;
-	while(temp_ctx!=NULL){
-	  	size_t tmplen = newlen;
-	  	newlen += fuse_add_direntry(req, buf + tmplen, size -tmplen, 
-					temp_ctx->name, &temp_ctx->stbuf, 
-							temp_ctx->off);
-	  	if(newlen>size)
-	    		break;
-		  
-		temp_ctx = temp_ctx->next;
-		
-	}
-
-	fuse_reply_buf(req, buf, min(newlen, size));
-	
-
-out:	
-	if(NULL != buf)
-		free(buf);
-	while(hrc != NULL){
-		temp_ctx = hrc;
-		hrc = hrc->next;
-		free(temp_ctx->name);
-		free(temp_ctx);
-	}
-	if(err != 0){
 		fuse_reply_err(req, err);
-	}
-	
+
 	DEBUG_OUT("err is 0x%x.", err);
-		
 	return;
 }
 
 
+#ifdef FUSE_CAP_READDIR_PLUS
+void hsx_fuse_readdir_plus(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
+			   struct fuse_file_info *fi)
+{
+	__hsx_fuse_readdir(req, ino, size, off, fi, 1);
+}
+#endif
+
+void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
+		      struct fuse_file_info *fi)
+{
+	__hsx_fuse_readdir(req, ino, size, off, fi, 0);
+}

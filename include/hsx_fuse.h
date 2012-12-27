@@ -294,6 +294,7 @@ extern void hsx_fuse_statfs(fuse_req_t req, fuse_ino_t ino);
  * @param fi[in] the file information
  **/
 extern void hsx_fuse_readdir(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off_t off,  struct fuse_file_info  *fi);
+extern void hsx_fuse_readdir_plus(fuse_req_t req,  fuse_ino_t ino,  size_t size,  off_t off,  struct fuse_file_info  *fi);
 
 /**
  * @brief Open a directory
