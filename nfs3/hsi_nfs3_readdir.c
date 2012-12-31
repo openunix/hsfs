@@ -119,7 +119,19 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc,
 
 		err = resok->reply.eof;
 	}while(err == 0);
+
+	new = hsi_nfs_fhget(sb, &(ctx->fh), &(ctx->fattr));
+	if (IS_ERR(new)){
+		err = PTR_ERR(new);
+		break;
+	}
+	hsx_fuse_ref_inc(new, 1);
  
+	if (!err && (res > size - len)){
+		if (!hsx_fuse_ref_dec(new, 1))
+			hsfs_iput(new);
+	}
+	
 	err = 0;
 
 out:
