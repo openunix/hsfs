@@ -8,6 +8,44 @@
 #include "hsi_nfs3.h"
 #include "log.h"
 
+int hsi_nfs3_readdir(struct hsfs_inode *parent, size_t count, off_t off,
+		     struct hsfs_readdir_ctx *ctx, size_t count)
+{
+	struct hsfs_super *sb = parent->sb;
+	CLNT *clntp = sb->clntp;
+	struct readdir3args args;
+	struct readdir3res res;
+	struct entry3 *entry;
+	struct dirlist3 *dlist;
+	int err = 0;
+	
+	hsi_nfs3_getfh3(parent, &args.dir);
+	args.cookie = off;
+	args.cookieverf = NFS_I(parent)->cookieverf;
+	args.count = count;
+	memset(&res, 0, sizeof(res));
+
+	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_READDIR,
+				 (xdrproc_t)xdr_readdir3args, (char *)&args,
+				 (xdrproc_t)xdr_readdir3res, (char *)&res);
+	if (err)
+		goto out;
+	
+	if (NFS3_OK != res.status) {
+		ERR("Call NFS3 Server failure:(%d).\n", res.status);
+		err = hsi_nfs3_stat_to_errno(res.status);
+		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,
+			     (char *)&res);
+		goto out;
+	}
+
+	dlist = res.readdir3res_u.resok.reply;
+	
+
+out:
+	return err;
+}
+
 int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc, 
 					size_t maxcount)
 {
