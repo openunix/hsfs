@@ -1,81 +1,183 @@
-
 /*
- *hsi_nfs3_readdir.c
+ * Copyright (C) 2012 Huang Yongsheng, Feng Shuo <steve.shuo.feng@gmail.com>
+ *
+ * This file is part of HSFS.
+ *
+ * HSFS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * HSFS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with HSFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <errno.h>
+#include <hsfs/hsi_nfs.h>
 #include "hsfs.h"
 #include "hsi_nfs3.h"
 #include "log.h"
 
-int hsi_nfs3_readdir(struct hsfs_inode *parent, size_t count, off_t off,
-		     struct hsfs_readdir_ctx *ctx, size_t count)
+
+static void __get_cookie_verf(struct hsfs_inode *inode, cookieverf3 *verf)
+{
+	memcpy(verf, &(NFS_I(inode)->cookieverf), NFS3_COOKIEVERFSIZE);
+}
+
+static void __set_cookie_verf(struct hsfs_inode *inode, cookieverf3 *verf)
+{
+	memcpy(&(NFS_I(inode)->cookieverf), verf, NFS3_COOKIEVERFSIZE);
+}
+
+static int __alloc_copy_name(struct hsfs_readdir_ctx **hrc, filename3 name)
+{
+	struct hsfs_readdir_ctx *ctx;
+	int len, err = 0;
+
+	ctx = malloc(sizeof(struct hsfs_readdir_ctx));
+	if (!ctx){
+		err = ENOMEM;
+		goto out1;
+	}
+	
+	len = strnlen(name, 255);
+	ctx->name = malloc(len + 1);
+	if (ctx->name == NULL){
+		err = ENOMEM;
+		goto out2;
+	}
+
+	ctx->name[len] = '\0';
+	strncpy(ctx->name, name, len);
+
+	ctx->next = NULL;
+	ctx->inode = NULL;
+	memset(&ctx->stbuf, 0, sizeof(struct stat));
+
+	if (*hrc != NULL)
+		(*hrc)->next = ctx;
+	*hrc = ctx;
+	
+	return 0;
+
+out2:
+	free(ctx);
+out1:
+	return err;
+}
+
+static void __free_ctx(struct hsfs_readdir_ctx *ctx)
+{
+	struct hsfs_readdir_ctx *saved;
+	struct hsfs_inode *new;
+
+	while (ctx){
+		if (ctx->name)
+			free(ctx->name);
+		new = ctx->inode;
+		if (new)
+			hsfs_iput(new);
+		saved = ctx->next;
+		free(ctx);
+		ctx = saved;
+	}
+}
+
+int hsi_nfs3_readdir(struct hsfs_inode *parent, unsigned int count, uint64_t cookie,
+		     struct hsfs_readdir_ctx **ctx)
 {
 	struct hsfs_super *sb = parent->sb;
-	CLNT *clntp = sb->clntp;
+	CLIENT *clntp = sb->clntp;
 	struct readdir3args args;
 	struct readdir3res res;
 	struct entry3 *entry;
 	struct dirlist3 *dlist;
+	struct nfs_fattr fattr;
+	struct hsfs_readdir_ctx *temp_hrc = NULL;
 	int err = 0;
 	
-	hsi_nfs3_getfh3(parent, &args.dir);
-	args.cookie = off;
-	args.cookieverf = NFS_I(parent)->cookieverf;
-	args.count = count;
 	memset(&res, 0, sizeof(res));
-
+	args.cookie = cookie;
+	__get_cookie_verf(parent, &args.cookieverf);
+	args.count = count;
+	hsi_nfs3_getfh3(parent, &args.dir);
+	
 	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_READDIR,
 				 (xdrproc_t)xdr_readdir3args, (char *)&args,
 				 (xdrproc_t)xdr_readdir3res, (char *)&res);
 	if (err)
-		goto out;
+		goto out1;
 	
 	if (NFS3_OK != res.status) {
 		ERR("Call NFS3 Server failure:(%d).\n", res.status);
 		err = hsi_nfs3_stat_to_errno(res.status);
-		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,
-			     (char *)&res);
-		goto out;
+		goto out2;
 	}
 
-	dlist = res.readdir3res_u.resok.reply;
-	
+	nfs_init_fattr(&fattr);
+	hsi_nfs3_post2fattr(&res.readdir3res_u.resok.dir_attributes, &fattr);
+	err = nfs_refresh_inode(parent, &fattr);
+	if (err)
+		goto out2;
+	__set_cookie_verf(parent, &res.readdir3res_u.resok.cookieverf);
 
-out:
+	dlist = &res.readdir3res_u.resok.reply;
+	entry = dlist->entries;
+	*ctx = NULL;
+
+	while(entry) {
+		err = __alloc_copy_name(&temp_hrc, entry->name);
+		if (err)
+			goto out3;
+		if (*ctx == NULL)
+			*ctx = temp_hrc;
+		temp_hrc->stbuf.st_ino = entry->fileid;
+		temp_hrc->off = entry->cookie;
+		entry = entry->nextentry;
+	}
+	/* We ignore dlist->eof here because Fuse don't need it. */
+	clnt_freeres(clntp, (xdrproc_t)xdr_readdir3res, (char *)&res);
+	return 0;
+
+out3:
+	__free_ctx(*ctx);
+	ctx = NULL;
+out2:
+	clnt_freeres(clntp, (xdrproc_t)xdr_readdir3res, (char *)&res);
+out1:
 	return err;
 }
 
-int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc, 
-					size_t maxcount)
+int hsi_nfs3_readdir_plus(struct hsfs_inode *parent, unsigned int count,
+			  uint64_t cookie, struct hsfs_readdir_ctx **ctx, 
+			  unsigned int maxcount, int *eof)
 {
-	CLIENT *clntp = NULL;
+	struct hsfs_super *sb = parent->sb;
+	CLIENT *clntp = sb->clntp;
 	struct hsfs_readdir_ctx *temp_hrc = NULL; 
-	struct hsfs_readdir_ctx *temp_hrc1 = NULL;
-	struct readdirplus3resok *resok = NULL;
-	struct entryplus3 *temp_entry = NULL;
+	struct dirlistplus3 *dlist;
+	struct entryplus3 *entry;
 	struct readdirplus3args args;
 	struct readdirplus3res res;
-	size_t *dircount = NULL;
-	size_t dir_size = 0;
 	int err = 0;
+	struct nfs_fattr fattr;
 
-	DEBUG_IN("hrc->off: 0x%x, maxcount: 0x%x.", 
-	(unsigned int)hrc->off, (unsigned int)maxcount);
-	memset(&args, 0, sizeof(args));
+	DEBUG_IN("P_I(%p), count(%d), cookie(0x%llx)", parent, count, 
+		 cookie);
+
 	memset(&res, 0, sizeof(res));
-	args.cookie = hrc->off;
-	memcpy(args.cookieverf, hrc->cookieverf, NFS3_COOKIEVERFSIZE);
-
+	args.cookie = cookie;
+	__get_cookie_verf(parent, &args.cookieverf);
+	args.dircount = count;
 	hsi_nfs3_getfh3(parent, &args.dir);
 		
 	args.maxcount = maxcount;
-	dircount = (size_t *)&(args.dircount);
-	temp_hrc1 = hrc;
-	clntp = parent->sb->clntp;
-
-	do{		
-		err = hsi_nfs3_clnt_call(parent->sb, clntp, NFSPROC3_READDIRPLUS,
+	
+	err = hsi_nfs3_clnt_call(sb, clntp, NFSPROC3_READDIRPLUS,
 				(xdrproc_t)xdr_readdirplus3args, (char *)&args,
 				(xdrproc_t)xdr_readdirplus3res, (char *)&res);
 		if (err)
@@ -84,94 +186,59 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx *hrc,
 		if (NFS3_OK != res.status) {
 			ERR("Call NFS3 Server failure:(%d).\n", res.status);
 			err = hsi_nfs3_stat_to_errno(res.status);
-			clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,
-								(char *)&res);
-			goto out;
+			goto out2;
 		}
- 
-		resok = &res.readdirplus3res_u.resok;
-		temp_entry = resok->reply.entries;
-		while(temp_entry != NULL){
-			temp_hrc = (struct hsfs_readdir_ctx *)malloc(sizeof
-						(struct hsfs_readdir_ctx));
-			if(temp_hrc == NULL){
-				err = ENOMEM;
-				ERR("Temp_hrc memory leak: (0x%x).", err);
-				goto out;
-			}
+	nfs_init_fattr(&fattr);
+	hsi_nfs3_post2fattr(&res.readdirplus3res_u.resok.dir_attributes, &fattr);
+	err = nfs_refresh_inode(parent, &fattr);
+	if (err)
+		goto out2;
+	__set_cookie_verf(parent, &res.readdirplus3res_u.resok.cookieverf);
 
-			memset(temp_hrc, 0, sizeof(struct hsfs_readdir_ctx));
-			temp_hrc->name = (char *)malloc(strlen
-						(temp_entry->name) + 1);
-			if (temp_hrc->name == NULL) {
-				err = ENOMEM;
-				ERR("Temp_hrc->name memory leak: (0x%x).", err);
-				free(temp_hrc);
-				goto out;
-			}
+	dlist = &res.readdirplus3res_u.resok.reply;
+	entry = dlist->entries;
+	*ctx = NULL;
 
-			memcpy(temp_hrc->cookieverf, resok->cookieverf,
-						 NFS3_COOKIEVERFSIZE);
-			strcpy(temp_hrc->name, temp_entry->name);
-			temp_hrc->off = temp_entry->cookie;
-			err = resok->reply.eof;
-			if (err == 0 && temp_entry->nextentry == NULL){
-				args.cookie = temp_entry->cookie;
-				memcpy(args.cookieverf, resok->cookieverf, 
-						NFS3_COOKIEVERFSIZE);
-			}
-			 
-			err = temp_entry->name_attributes.present;
-			if (1 != err) {
-				err = resok->dir_attributes.present;
-				if (1 ==err){
-					err = hsi_nfs3_fattr2stat(&resok->
-					dir_attributes.post_op_attr_u.
-					attributes, &temp_hrc->stbuf);
-					if(err != 0){
-						ERR("stat err:(0x%x).", err);
-						goto out;
-					}
-				}
-						
-			}
+	while(entry){
+		struct nfs_fh name_fh;
+		struct nfs_fattr fattr;
+		struct hsfs_inode *new;
 
-	    		if (1 == err) {
-				err = hsi_nfs3_fattr2stat(&temp_entry->
-				name_attributes.post_op_attr_u.attributes,
-						&temp_hrc->stbuf);
-			
-				if(err != 0){
-					ERR("Get stat failure:(0x%x).", err);
-					goto out;
-				}
-			}
-			temp_hrc1->next = temp_hrc;
-			temp_hrc1 = temp_hrc;
-			temp_entry = temp_entry->nextentry;
+		err = __alloc_copy_name(&temp_hrc, entry->name);
+		if (err)
+			goto out3;
+		if(*ctx == NULL)
+			*ctx = temp_hrc;
+		temp_hrc->off = entry->cookie;
+		temp_hrc->stbuf.st_ino = entry->fileid;
+		
+		nfs_init_fattr(&fattr);
+		hsi_nfs3_post2fattr(&entry->name_attributes, &fattr);
+		/* Actually, we should do lookup here..... */
+		if (!entry->name_handle.present){
+			err = ENOENT;
+			goto out3;
 		}
+		nfs_copy_fh3(&name_fh,
+			     entry->name_handle.post_op_fh3_u.handle.data.data_len, 
+			     entry->name_handle.post_op_fh3_u.handle.data.data_val);
+		new = hsi_nfs_fhget(sb, &name_fh, &fattr);
+		if (IS_ERR(new)){
+			err = PTR_ERR(new);
+			goto out3;
+		}
+		temp_hrc->inode = new;
+
+		entry = entry->nextentry;
+	}
+	/* We ignore dlist->eof here because Fuse don't need it. */
 		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,(char*)&res);
-		dir_size += *dircount;
-		if (dir_size > maxcount)
-			break;
-
-		err = resok->reply.eof;
-	}while(err == 0);
-
-	new = hsi_nfs_fhget(sb, &(ctx->fh), &(ctx->fattr));
-	if (IS_ERR(new)){
-		err = PTR_ERR(new);
-		break;
-	}
-	hsx_fuse_ref_inc(new, 1);
- 
-	if (!err && (res > size - len)){
-		if (!hsx_fuse_ref_dec(new, 1))
-			hsfs_iput(new);
-	}
-	
-	err = 0;
-
+	return 0;
+out3:
+	__free_ctx(*ctx);
+	*ctx = NULL;
+out2:
+	clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res, (char *)&res);
 out:
 	DEBUG_OUT("err is 0x%x.", err);
 	return err;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Feng Shuo <steve.shuo.feng@gmail.com>
+ * Copyright (C) 2012 Huang Yongsheng, Feng Shuo <steve.shuo.feng@gmail.com>
  *
  * This file is part of HSFS.
  *
@@ -24,18 +24,47 @@
 /* XXX This is dirty. */
 #define RPCCOUNT 4096
 
-void __hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
-			struct fuse_file_info *fi, int plus)
+static void __free_ctx(struct hsfs_readdir_ctx *ctx,
+		       struct hsfs_readdir_ctx *free_inode_after)
+{
+	struct hsfs_readdir_ctx *saved_ctx;
+	int free_inode;
+
+	if ((free_inode_after != NULL) && (free_inode_after == ctx))
+		free_inode = 1;
+	else
+		free_inode = 0;
+
+	while(ctx != NULL){
+		if (!free_inode && free_inode_after != NULL){
+			if (ctx == free_inode_after)
+				free_inode = 1;
+		}
+		if (free_inode && (ctx->inode != NULL)){
+			if (!hsx_fuse_ref_dec(ctx->inode, 1))
+				hsfs_iput(ctx->inode);
+		}
+		if (ctx->name)
+			free(ctx->name);
+		saved_ctx = ctx->next;
+		free(ctx);
+		ctx = saved_ctx;
+	}
+
+}
+
+#ifdef FUSE_CAP_READDIR_PLUS
+void hsx_fuse_readdir_plus(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
+			   struct fuse_file_info *fi)
 {
 	struct hsfs_readdir_ctx *saved_ctx, *ctx = NULL;
 	struct hsfs_inode *parent;
 	struct hsfs_super *sb;
-	size_t res = 0;
-	size_t len = 0;
+	size_t res, len = 0;
 	char * buf;
-	int err = 0;
+	int err;
 
-	DEBUG_IN("P_I(%lu), Size(%lld), Off(%llx)", ino, size, off);
+	DEBUG_IN("P_I(%lu), Size(%lld), Off(0x%llx)", ino, size, off);
 
 	(void)fi;
 	sb = fuse_req_userdata(req);
@@ -44,7 +73,7 @@ void __hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	parent = hsfs_ilookup(sb, ino);
 	FUSE_ASSERT(parent != NULL);
 
-	err = hsi_nfs3_readdir(parent, RPCCOUNT, off, &ctx, plus);
+	err = hsi_nfs3_readdir_plus(parent, RPCCOUNT, off, &ctx, RPCCOUNT);
 	if(err)
 		goto out1;
 	saved_ctx = ctx;
@@ -55,22 +84,19 @@ void __hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		goto out2;
 	}
 	while(ctx != NULL){
-		if (plus){
-			struct fuse_entry_param e;
+		struct fuse_entry_param e;
 
-			hsx_fuse_fill_reply(ctx->inode, &e);
-			res = fuse_add_direntry_plus(
-				req, buf + len, size - len, ctx->name,
-				&e, ctx->off);
-		}
-		else {
-			res = fuse_add_direntry(
-				req, buf + len, size - len, ctx->name,
-				&ctx->stbuf, ctx->off);
-		}
-
-	  	if(res >= size - len)
+		hsx_fuse_fill_reply(ctx->inode, &e);
+		res = fuse_add_direntry_plus(req, buf + len, size - len, ctx->name,
+					     &e, ctx->off);
+	  	if(res > size - len)
 			break;
+		else if (res == size - len){
+			ctx = ctx->next;
+			break;
+		}
+
+	       	hsx_fuse_ref_inc(ctx->inode, 1);
 		len += res;
 		ctx = ctx->next;
 	}
@@ -80,16 +106,7 @@ void __hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	
 	free(buf);
 out2:
-	while(saved_ctx != NULL){
-		ctx = saved_ctx;
-		saved_ctx = ctx->next;
-		if (err && ctx->inode != NULL){
-			if (!hsx_fuse_ref_dec(ctx->inode, 1))
-				hsfs_iput(ctx->inode);
-		}
-		free(ctx->name);
-		free(ctx);
-	}
+	__free_ctx(saved_ctx, 0);
 out1:
 	if(err)
 		fuse_reply_err(req, err);
@@ -97,18 +114,57 @@ out1:
 	DEBUG_OUT("err is 0x%x.", err);
 	return;
 }
-
-
-#ifdef FUSE_CAP_READDIR_PLUS
-void hsx_fuse_readdir_plus(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
-			   struct fuse_file_info *fi)
-{
-	__hsx_fuse_readdir(req, ino, size, off, fi, 1);
-}
 #endif
 
 void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 		      struct fuse_file_info *fi)
 {
-	__hsx_fuse_readdir(req, ino, size, off, fi, 0);
+	struct hsfs_readdir_ctx *saved_ctx, *ctx = NULL;
+	struct hsfs_inode *parent;
+	struct hsfs_super *sb;
+	size_t res, len = 0;
+	char * buf;
+	int err;
+
+	DEBUG_IN("P_I(%lu), Size(%lld), Off(0x%llx)", ino, size, off);
+
+	(void)fi;
+	sb = fuse_req_userdata(req);
+	FUSE_ASSERT(sb != NULL);
+
+	parent = hsfs_ilookup(sb, ino);
+	FUSE_ASSERT(parent != NULL);
+
+	err = hsi_nfs3_readdir(parent, RPCCOUNT, off, &ctx);
+	if(err)
+		goto out1;
+	saved_ctx = ctx;
+
+	buf = (char *) malloc(size);
+	if( NULL == buf){
+		err = ENOMEM;
+		goto out2;
+	}
+	while(ctx != NULL){
+		res = fuse_add_direntry(req, buf + len, size - len, ctx->name,
+					&ctx->stbuf, ctx->off);
+		/* From fuse doc, buf is not copied if res larger than
+		 * requested */
+	  	if(res >= size - len)
+			break;
+		len += res;
+		ctx = ctx->next;
+	}
+	/* If EOF, we will return an empty buffer here. */
+	if (!err)
+		fuse_reply_buf(req, buf, len);
+	
+	free(buf);
+out2:
+	__free_ctx(saved_ctx, 0);
+out1:
+	if(err)
+		fuse_reply_err(req, err);
+
+	DEBUG_OUT("err is 0x%x.", err);
 }
