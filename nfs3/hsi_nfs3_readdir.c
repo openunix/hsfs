@@ -154,7 +154,7 @@ out1:
 
 int hsi_nfs3_readdir_plus(struct hsfs_inode *parent, unsigned int count,
 			  uint64_t cookie, struct hsfs_readdir_ctx **ctx, 
-			  unsigned int maxcount, int *eof)
+			  unsigned int maxcount)
 {
 	struct hsfs_super *sb = parent->sb;
 	CLIENT *clntp = sb->clntp;
