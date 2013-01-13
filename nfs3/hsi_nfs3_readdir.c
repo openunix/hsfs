@@ -98,7 +98,9 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, unsigned int count, uint64_t coo
 	struct dirlist3 *dlist;
 	struct nfs_fattr fattr;
 	struct hsfs_readdir_ctx *temp_hrc = NULL;
-	int err = 0;
+	int err, ecount = 0;
+
+	DEBUG_IN("(Cookie 0x%llx, Count %d)", cookie, count);
 	
 	memset(&res, 0, sizeof(res));
 	args.cookie = cookie;
@@ -138,9 +140,11 @@ int hsi_nfs3_readdir(struct hsfs_inode *parent, unsigned int count, uint64_t coo
 		temp_hrc->stbuf.st_ino = entry->fileid;
 		temp_hrc->off = entry->cookie;
 		entry = entry->nextentry;
+		ecount++;
 	}
 	/* We ignore dlist->eof here because Fuse don't need it. */
 	clnt_freeres(clntp, (xdrproc_t)xdr_readdir3res, (char *)&res);
+	DEBUG_OUT("Success with %d entries", ecount);
 	return 0;
 
 out3:
@@ -149,6 +153,7 @@ out3:
 out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_readdir3res, (char *)&res);
 out1:
+	DEBUG_OUT("Failed with error %d", err);
 	return err;
 }
 
@@ -163,7 +168,7 @@ int hsi_nfs3_readdir_plus(struct hsfs_inode *parent, unsigned int count,
 	struct entryplus3 *entry;
 	struct readdirplus3args args;
 	struct readdirplus3res res;
-	int err = 0;
+	int err, ecount = 0;
 	struct nfs_fattr fattr;
 
 	DEBUG_IN("P_I(%p), count(%d), cookie(0x%llx)", parent, count, 
@@ -228,11 +233,12 @@ int hsi_nfs3_readdir_plus(struct hsfs_inode *parent, unsigned int count,
 			goto out3;
 		}
 		temp_hrc->inode = new;
-
+		ecount++;
 		entry = entry->nextentry;
 	}
 	/* We ignore dlist->eof here because Fuse don't need it. */
 		clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res,(char*)&res);
+	DEBUG_OUT("with %d entries returned.", ecount);
 	return 0;
 out3:
 	__free_ctx(*ctx);
@@ -240,7 +246,7 @@ out3:
 out2:
 	clnt_freeres(clntp, (xdrproc_t)xdr_readdirplus3res, (char *)&res);
 out:
-	DEBUG_OUT("err is 0x%x.", err);
+	DEBUG_OUT("with error %d.", err);
 	return err;
 }
 

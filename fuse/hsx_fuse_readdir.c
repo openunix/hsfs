@@ -21,9 +21,6 @@
 #include <errno.h>
 #include "hsi_nfs3.h"
 
-/* XXX This is dirty. */
-#define RPCCOUNT 4096
-
 static void __free_ctx(struct hsfs_readdir_ctx *ctx,
 		       struct hsfs_readdir_ctx *free_inode_after)
 {
@@ -62,7 +59,7 @@ void hsx_fuse_readdir_plus(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
 	struct hsfs_super *sb;
 	size_t res, len = 0;
 	char * buf;
-	int err;
+	int err, count = 0;
 
 	DEBUG_IN("P_I(%lu), Size(%lld), Off(0x%llx)", ino, size, off);
 
@@ -73,7 +70,7 @@ void hsx_fuse_readdir_plus(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
 	parent = hsfs_ilookup(sb, ino);
 	FUSE_ASSERT(parent != NULL);
 
-	err = hsi_nfs3_readdir_plus(parent, RPCCOUNT, off, &ctx, RPCCOUNT);
+	err = hsi_nfs3_readdir_plus(parent, size, off, &ctx, size);
 	if(err)
 		goto out1;
 	saved_ctx = ctx;
@@ -95,7 +92,7 @@ void hsx_fuse_readdir_plus(fuse_req_t req, fuse_ino_t ino, size_t size, off_t of
 			ctx = ctx->next;
 			break;
 		}
-
+		count++;
 	       	hsx_fuse_ref_inc(ctx->inode, 1);
 		len += res;
 		ctx = ctx->next;
@@ -111,7 +108,7 @@ out1:
 	if(err)
 		fuse_reply_err(req, err);
 
-	DEBUG_OUT("err is 0x%x.", err);
+	DEBUG_OUT("with %d, %d entries returned", err, count);
 	return;
 }
 #endif
@@ -124,7 +121,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	struct hsfs_super *sb;
 	size_t res, len = 0;
 	char * buf;
-	int err;
+	int err, count = 0;
 
 	DEBUG_IN("P_I(%lu), Size(%lld), Off(0x%llx)", ino, size, off);
 
@@ -135,7 +132,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 	parent = hsfs_ilookup(sb, ino);
 	FUSE_ASSERT(parent != NULL);
 
-	err = hsi_nfs3_readdir(parent, RPCCOUNT, off, &ctx);
+	err = hsi_nfs3_readdir(parent, size, off, &ctx);
 	if(err)
 		goto out1;
 	saved_ctx = ctx;
@@ -154,6 +151,7 @@ void hsx_fuse_readdir(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off,
 			break;
 		len += res;
 		ctx = ctx->next;
+		count++;
 	}
 	/* If EOF, we will return an empty buffer here. */
 	if (!err)
@@ -166,5 +164,5 @@ out1:
 	if(err)
 		fuse_reply_err(req, err);
 
-	DEBUG_OUT("err is 0x%x.", err);
+	DEBUG_OUT("with %d, %d entries returned.", err, count);
 }
