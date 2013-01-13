@@ -159,6 +159,7 @@ struct nfs_inode{
 	unsigned long flags;
 	unsigned long attrtimeo;
 	struct hsfs_inode hsfs_inode;
+	uint64_t cookieverf;
 };
 
 /*

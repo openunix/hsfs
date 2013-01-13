@@ -270,8 +270,13 @@ extern int hsi_super2statvfs (struct hsfs_super *sp, struct statvfs *stbuf);
  *
  * @return error number
  * */
-extern int hsi_nfs3_readdir(struct hsfs_inode *parent, struct hsfs_readdir_ctx 
-						*hrc, size_t maxcount);
+extern int hsi_nfs3_readdir(
+	struct hsfs_inode *parent, unsigned int count, uint64_t cookie,
+	struct hsfs_readdir_ctx **hrc);
+
+extern int hsi_nfs3_readdir_plus(
+	struct hsfs_inode *parent, unsigned int count, uint64_t cookie,
+	struct hsfs_readdir_ctx **hrc, unsigned int maxcount);
 
 /**
  * @breif Get static file system information of NFS

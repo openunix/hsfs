@@ -2,8 +2,7 @@
  *hsx_fuse_opendir.c
  */
 
-#include <errno.h>
-#include <fuse/fuse_lowlevel.h>
+#include <hsx_fuse.h>
 #include "hsi_nfs3.h"
 
 void hsx_fuse_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)

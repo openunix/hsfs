@@ -103,8 +103,10 @@ static struct hsfs_inode *__id_ifind(struct hsfs_super *sb, uint64_t key)
 		/* XXX Check the indoe status? */
 		break;
 	}
-	
-	return inode;
+
+	if (node)
+		return inode;
+	return NULL;
 }
 
 /* This is just the same as ifind() of Linux kernel */
@@ -120,6 +122,7 @@ __fh_ifind(struct hsfs_super *sb, unsigned long key,
 
 	/* XXX LOCK */
 	hash_for_each_possible(sb->fh_table, inode, node, fh_hash, key){
+		DEBUG_V("Find Inode(%p:%lu)", inode, inode->private);
 		if (!test(inode, data))
 			continue;
 		/* XXX Check the indoe status? */

@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 26
+#define FUSE_USE_VERSION 30
 #endif
 
 #include <fuse/fuse_lowlevel.h>
@@ -243,6 +243,7 @@ struct hsfs_readdir_ctx{
 	char		cookieverf[NFS3_COOKIEVERFSIZE];
 	struct stat	stbuf;
 	struct hsfs_readdir_ctx *next;
+	struct hsfs_inode *inode;
 };
 
 /* for nfs3 */

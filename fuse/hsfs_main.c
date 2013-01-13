@@ -99,6 +99,9 @@ static struct fuse_lowlevel_ops hsfs_oper = {
 	.access = hsx_fuse_access,
 	.getxattr = hsx_fuse_getxattr,
 	.setxattr = hsx_fuse_setxattr,
+#if FUSE_VERSION >= 30
+	.readdir_plus = hsx_fuse_readdir_plus,
+#endif
 };
 
 /*
