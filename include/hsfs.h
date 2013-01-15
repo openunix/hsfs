@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #ifndef FUSE_USE_VERSION
-#define FUSE_USE_VERSION 30
+#define FUSE_USE_VERSION 26
 #endif
 
 #include <fuse/fuse_lowlevel.h>
