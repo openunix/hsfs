@@ -1,0 +1,32 @@
+From 268263d0d205cc32d27b0d0dbea3f96f99eca0cf Mon Sep 17 00:00:00 2001
+From: Feng Shuo <steve.shuo.feng@gmail.com>
+Date: Fri, 11 Jan 2013 16:45:49 +0800
+Subject: [PATCH V2 0/2] fuse: support readdirplus in lowlevel operations.
+
+This patch set privdes support for readdirplus FUSE user space. It
+needs kernel support of the V2 patch from Miklos:
+
+http://sourceforge.net/mailarchive/message.php?msg_id=29707811
+
+The patch set is based on Brian's [no_]auto_inval_data patch so I rebased
+it to fuse-3.0 and send it as the first patch in the sequence.
+
+Changed in V2
+ - Fix a bug in caculating readdirplus entry buffer size
+
+Feng Shuo (2):
+  Add '[no_]auto_inval_data' mount option.
+  Readdirplus support for fuse_lowlevel_ops
+
+ include/fuse_common.h   | 24 +++++++++++---------
+ include/fuse_kernel.h   | 16 ++++++++++++++
+ include/fuse_lowlevel.h | 54 ++++++++++++++++++++++++++++++++++++++++++++
+ lib/fuse_i.h            |  3 +++
+ lib/fuse_lowlevel.c     | 59 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ lib/fuse_versionscript  |  1 +
+ test/stracedecode.c     |  1 +
+ 7 files changed, 146 insertions(+), 12 deletions(-)
+
+-- 
+1.7.12.4
+

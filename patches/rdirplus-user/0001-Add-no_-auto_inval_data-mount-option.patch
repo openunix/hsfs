@@ -1,0 +1,142 @@
+From d9fd673e75ad1b89bd32005782315953f3db2e31 Mon Sep 17 00:00:00 2001
+From: Feng Shuo <steve.shuo.feng@gmail.com>
+Date: Fri, 4 Jan 2013 14:47:50 +0800
+Subject: [PATCH V2 1/2] Add '[no_]auto_inval_data' mount option.
+
+Several caching logic changes have been made on the kernel side
+to better support network-based fuse filesystems. These include
+kernel side mtime checking and read path cache revalidation. The
+new caching logic is enabled through the FUSE_AUTO_INVAL_DATA
+init flag. Export this to the user via the '[no_]auto_inval_data'
+mount option.
+
+Changed in v2
+ - Rebase to FUSE 3.0.
+
+Signed-off-by: Feng Shuo <steve.shuo.feng@gmail.com>
+---
+ include/fuse_common.h | 23 ++++++++++++-----------
+ include/fuse_kernel.h |  1 +
+ lib/fuse_i.h          |  2 ++
+ lib/fuse_lowlevel.c   | 11 +++++++++++
+ 4 files changed, 26 insertions(+), 11 deletions(-)
+
+diff --git a/include/fuse_common.h b/include/fuse_common.h
+index 0ae33a9..58458ab 100644
+--- a/include/fuse_common.h
++++ b/include/fuse_common.h
+@@ -100,17 +100,18 @@ struct fuse_file_info {
+  * FUSE_CAP_SPLICE_READ: ability to use splice() to read from the fuse device
+  * FUSE_CAP_IOCTL_DIR: ioctl support on directories
+  */
+-#define FUSE_CAP_ASYNC_READ	(1 << 0)
+-#define FUSE_CAP_POSIX_LOCKS	(1 << 1)
+-#define FUSE_CAP_ATOMIC_O_TRUNC	(1 << 3)
+-#define FUSE_CAP_EXPORT_SUPPORT	(1 << 4)
+-#define FUSE_CAP_BIG_WRITES	(1 << 5)
+-#define FUSE_CAP_DONT_MASK	(1 << 6)
+-#define FUSE_CAP_SPLICE_WRITE	(1 << 7)
+-#define FUSE_CAP_SPLICE_MOVE	(1 << 8)
+-#define FUSE_CAP_SPLICE_READ	(1 << 9)
+-#define FUSE_CAP_FLOCK_LOCKS	(1 << 10)
+-#define FUSE_CAP_IOCTL_DIR	(1 << 11)
++#define FUSE_CAP_ASYNC_READ		(1 << 0)
++#define FUSE_CAP_POSIX_LOCKS		(1 << 1)
++#define FUSE_CAP_ATOMIC_O_TRUNC		(1 << 3)
++#define FUSE_CAP_EXPORT_SUPPORT		(1 << 4)
++#define FUSE_CAP_BIG_WRITES		(1 << 5)
++#define FUSE_CAP_DONT_MASK		(1 << 6)
++#define FUSE_CAP_SPLICE_WRITE		(1 << 7)
++#define FUSE_CAP_SPLICE_MOVE		(1 << 8)
++#define FUSE_CAP_SPLICE_READ		(1 << 9)
++#define FUSE_CAP_FLOCK_LOCKS		(1 << 10)
++#define FUSE_CAP_IOCTL_DIR		(1 << 11)
++#define FUSE_CAP_AUTO_INVAL_DATA 	(1 << 12)
+ 
+ /**
+  * Ioctl flags
+diff --git a/include/fuse_kernel.h b/include/fuse_kernel.h
+index c632b58..60cd0c1 100644
+--- a/include/fuse_kernel.h
++++ b/include/fuse_kernel.h
+@@ -207,6 +207,7 @@ struct fuse_file_lock {
+ #define FUSE_BIG_WRITES		(1 << 5)
+ #define FUSE_DONT_MASK		(1 << 6)
+ #define FUSE_FLOCK_LOCKS	(1 << 10)
++#define FUSE_AUTO_INVAL_DATA	(1 << 12)
+ 
+ /**
+  * CUSE INIT request/reply flags
+diff --git a/lib/fuse_i.h b/lib/fuse_i.h
+index 1f1787e..225ff7d 100644
+--- a/lib/fuse_i.h
++++ b/lib/fuse_i.h
+@@ -71,6 +71,8 @@ struct fuse_ll {
+ 	int no_splice_write;
+ 	int no_splice_move;
+ 	int no_splice_read;
++	int auto_inval_data;
++	int no_auto_inval_data;
+ 	struct fuse_lowlevel_ops op;
+ 	int got_init;
+ 	struct cuse_data *cuse_data;
+diff --git a/lib/fuse_lowlevel.c b/lib/fuse_lowlevel.c
+index 4178d9a..4898a8a 100644
+--- a/lib/fuse_lowlevel.c
++++ b/lib/fuse_lowlevel.c
+@@ -1786,6 +1786,8 @@ static void do_init(fuse_req_t req, fuse_ino_t nodeid, const void *inarg)
+ 			f->conn.capable |= FUSE_CAP_DONT_MASK;
+ 		if (arg->flags & FUSE_FLOCK_LOCKS)
+ 			f->conn.capable |= FUSE_CAP_FLOCK_LOCKS;
++		if (arg->flags & FUSE_AUTO_INVAL_DATA)
++			f->conn.capable |= FUSE_CAP_AUTO_INVAL_DATA;
+ 	} else {
+ 		f->conn.async_read = 0;
+ 		f->conn.max_readahead = 0;
+@@ -1816,6 +1818,8 @@ static void do_init(fuse_req_t req, fuse_ino_t nodeid, const void *inarg)
+ 		f->conn.want |= FUSE_CAP_FLOCK_LOCKS;
+ 	if (f->big_writes)
+ 		f->conn.want |= FUSE_CAP_BIG_WRITES;
++	if (f->auto_inval_data)
++		f->conn.want |= FUSE_CAP_AUTO_INVAL_DATA;
+ 
+ 	if (bufsize < FUSE_MIN_READ_BUFFER) {
+ 		fprintf(stderr, "fuse: warning: buffer size too small: %zu\n",
+@@ -1837,6 +1841,8 @@ static void do_init(fuse_req_t req, fuse_ino_t nodeid, const void *inarg)
+ 		f->conn.want &= ~FUSE_CAP_SPLICE_WRITE;
+ 	if (f->no_splice_move)
+ 		f->conn.want &= ~FUSE_CAP_SPLICE_MOVE;
++	if (f->no_auto_inval_data)
++		f->conn.want &= ~FUSE_CAP_AUTO_INVAL_DATA;
+ 
+ 	if (f->conn.async_read || (f->conn.want & FUSE_CAP_ASYNC_READ))
+ 		outarg.flags |= FUSE_ASYNC_READ;
+@@ -1852,6 +1858,8 @@ static void do_init(fuse_req_t req, fuse_ino_t nodeid, const void *inarg)
+ 		outarg.flags |= FUSE_DONT_MASK;
+ 	if (f->conn.want & FUSE_CAP_FLOCK_LOCKS)
+ 		outarg.flags |= FUSE_FLOCK_LOCKS;
++	if (f->conn.want & FUSE_CAP_AUTO_INVAL_DATA)
++		outarg.flags |= FUSE_AUTO_INVAL_DATA;
+ 	outarg.max_readahead = f->conn.max_readahead;
+ 	outarg.max_write = f->conn.max_write;
+ 	if (f->conn.proto_minor >= 13) {
+@@ -2473,6 +2481,8 @@ static const struct fuse_opt fuse_ll_opts[] = {
+ 	{ "no_splice_move", offsetof(struct fuse_ll, no_splice_move), 1},
+ 	{ "splice_read", offsetof(struct fuse_ll, splice_read), 1},
+ 	{ "no_splice_read", offsetof(struct fuse_ll, no_splice_read), 1},
++	{ "auto_inval_data", offsetof(struct fuse_ll, auto_inval_data), 1},
++	{ "no_auto_inval_data", offsetof(struct fuse_ll, no_auto_inval_data), 1},
+ 	FUSE_OPT_KEY("max_read=", FUSE_OPT_KEY_DISCARD),
+ 	FUSE_OPT_KEY("-h", KEY_HELP),
+ 	FUSE_OPT_KEY("--help", KEY_HELP),
+@@ -2504,6 +2514,7 @@ static void fuse_ll_help(void)
+ "    -o [no_]splice_write   use splice to write to the fuse device\n"
+ "    -o [no_]splice_move    move data while splicing to the fuse device\n"
+ "    -o [no_]splice_read    use splice to read from the fuse device\n"
++"    -o [no_]auto_inval_data  use automatic kernel cache invalidation logic\n"
+ );
+ }
+ 
+-- 
+1.7.12.4
+

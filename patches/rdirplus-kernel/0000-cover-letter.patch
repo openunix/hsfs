@@ -1,0 +1,35 @@
+From 3fcd8daf3c490172db1000864c89f62f085f6f9c Mon Sep 17 00:00:00 2001
+From: Feng Shuo <steve.shuo.feng@gmail.com>
+Date: Tue, 15 Jan 2013 09:24:20 +0800
+Subject: [PATCH v3 0/2] FUSE: Adaptive NFS-like readdirplus support
+
+The original idea belows to Anand V. Avati:
+
+http://sourceforge.net/mailarchive/message.php?msg_id=29562240
+
+I did some benchmarking and add the adaptive mechanism as in NFS. For 
+the detail of the testing, please refer to:
+
+http://sourceforge.net/mailarchive/message.php?msg_id=30305348
+
+In my setup, this patch set can give about 50% performance up with "ls -l"
+and without much penalty with pure "ls" because of the second patch. 
+
+Rebased to 3.8-rc3.
+
+Feng Shuo (1):
+  FUSE: Adapt readdirplus to application usage patterns
+
+Miklos Szeredi (1):
+  fuse: implement NFS-like readdirplus support
+
+ fs/fuse/dev.c             |  19 +++++
+ fs/fuse/dir.c             | 206 ++++++++++++++++++++++++++++++++++++++++++++--
+ fs/fuse/fuse_i.h          |  16 ++++
+ fs/fuse/inode.c           |   8 +-
+ include/uapi/linux/fuse.h |  12 +++
+ 5 files changed, 254 insertions(+), 7 deletions(-)
+
+-- 
+1.7.12.4
+

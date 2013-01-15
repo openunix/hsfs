@@ -1,0 +1,337 @@
+From 188eae3a95e9238afd33998f3a5ba6ad05f41c38 Mon Sep 17 00:00:00 2001
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 22 Aug 2012 14:05:18 +0200
+Subject: [PATCH v3 1/2] fuse: implement NFS-like readdirplus support
+
+Anand Avati <avati@redhat.com> writes:
+
+> This version of the patch
+>
+> - incorporates review comments from the previous submission
+> - fixes nlookup leak on entries in the first readdirplus
+> - cleaner fuse_direntp structure
+
+Anand,
+
+Here's an updated version of the patch.  It fixes some issues (real and
+cosmetic) with your latest patch.  Can you please look it over and give
+it a test.
+
+Thanks,
+Miklos
+
+Signed-off-by: Feng Shuo <steve.shuo.feng@gmail.com>
+---
+ fs/fuse/dev.c             |  19 ++++++
+ fs/fuse/dir.c             | 160 ++++++++++++++++++++++++++++++++++++++++++++--
+ fs/fuse/fuse_i.h          |   6 ++
+ fs/fuse/inode.c           |   5 +-
+ include/uapi/linux/fuse.h |  12 ++++
+ 5 files changed, 197 insertions(+), 5 deletions(-)
+
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index c163353..8e8b216 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -491,6 +491,25 @@ void fuse_request_send_background_locked(struct fuse_conn *fc,
+ 	fuse_request_send_nowait_locked(fc, req);
+ }
+ 
++void fuse_force_forget(struct file *file, u64 nodeid)
++{
++	struct inode *inode = file->f_path.dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	struct fuse_req *req;
++	struct fuse_forget_in inarg;
++
++	memset(&inarg, 0, sizeof(inarg));
++	inarg.nlookup = 1;
++	req = fuse_get_req_nofail(fc, file);
++	req->in.h.opcode = FUSE_FORGET;
++	req->in.h.nodeid = nodeid;
++	req->in.numargs = 1;
++	req->in.args[0].size = sizeof(inarg);
++	req->in.args[0].value = &inarg;
++	req->isreply = 0;
++	fuse_request_send_nowait(fc, req);
++}
++
+ /*
+  * Lock the request.  Up to the next unlock_request() there mustn't be
+  * anything that could cause a page-fault.  If the request was already
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index b7c09f9..dcc1e52 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -1155,6 +1155,143 @@ static int parse_dirfile(char *buf, size_t nbytes, struct file *file,
+ 	return 0;
+ }
+ 
++static int fuse_direntplus_link(struct file *file,
++				struct fuse_direntplus *direntplus,
++				u64 attr_version)
++{
++	int err;
++	struct fuse_entry_out *o = &direntplus->entry_out;
++	struct fuse_dirent *dirent = &direntplus->dirent;
++	struct dentry *parent = file->f_path.dentry;
++	struct qstr name = QSTR_INIT(dirent->name, dirent->namelen);
++	struct dentry *dentry;
++	struct dentry *alias;
++	struct inode *dir = parent->d_inode;
++	struct fuse_conn *fc;
++	struct inode *inode;
++
++	if (!o->nodeid) {
++		/*
++		 * Unlike in the case of fuse_lookup, zero nodeid does not mean
++		 * ENOENT. Instead, it only means the userspace filesystem did
++		 * not want to return attributes/handle for this entry.
++		 *
++		 * So do nothing.
++		 */
++		return 0;
++	}
++
++	if (name.name[0] == '.') {
++		/*
++		 * We could potentially refresh the attributes of the directory
++		 * and its parent?
++		 */
++		if (name.len == 1)
++			return 0;
++		if (name.name[1] == '.' && name.len == 2)
++			return 0;
++	}
++	fc = get_fuse_conn(dir);
++
++	name.hash = full_name_hash(name.name, name.len);
++	dentry = d_lookup(parent, &name);
++	if (dentry && dentry->d_inode) {
++		inode = dentry->d_inode;
++		if (get_node_id(inode) == o->nodeid) {
++			struct fuse_inode *fi;
++			fi = get_fuse_inode(inode);
++			spin_lock(&fc->lock);
++			fi->nlookup++;
++			spin_unlock(&fc->lock);
++
++			/*
++			 * The other branch to 'found' comes via fuse_iget()
++			 * which bumps nlookup inside
++			 */
++			goto found;
++		}
++		err = d_invalidate(dentry);
++		if (err)
++			goto out;
++		dput(dentry);
++		dentry = NULL;
++	}
++
++	dentry = d_alloc(parent, &name);
++	err = -ENOMEM;
++	if (!dentry)
++		goto out;
++
++	inode = fuse_iget(dir->i_sb, o->nodeid, o->generation,
++			  &o->attr, entry_attr_timeout(o), attr_version);
++	if (!inode)
++		goto out;
++
++	alias = d_materialise_unique(dentry, inode);
++	err = PTR_ERR(alias);
++	if (IS_ERR(alias))
++		goto out;
++	if (alias) {
++		dput(dentry);
++		dentry = alias;
++	}
++
++found:
++	fuse_change_attributes(inode, &o->attr, entry_attr_timeout(o),
++			       attr_version);
++
++	fuse_change_entry_timeout(dentry, o);
++
++	err = 0;
++out:
++	if (dentry)
++		dput(dentry);
++	return err;
++}
++
++static int parse_dirplusfile(char *buf, size_t nbytes, struct file *file,
++			     void *dstbuf, filldir_t filldir, u64 attr_version)
++{
++	struct fuse_direntplus *direntplus;
++	struct fuse_dirent *dirent;
++	size_t reclen;
++	int over = 0;
++	int ret;
++
++	while (nbytes >= FUSE_NAME_OFFSET_DIRENTPLUS) {
++		direntplus = (struct fuse_direntplus *) buf;
++		dirent = &direntplus->dirent;
++		reclen = FUSE_DIRENTPLUS_SIZE(direntplus);
++
++		if (!dirent->namelen || dirent->namelen > FUSE_NAME_MAX)
++			return -EIO;
++		if (reclen > nbytes)
++			break;
++
++		if (!over) {
++			/* We fill entries into dstbuf only as much as
++			   it can hold. But we still continue iterating
++			   over remaining entries to link them. If not,
++			   we need to send a FORGET for each of those
++			   which we did not link.
++			*/
++			over = filldir(dstbuf, dirent->name, dirent->namelen,
++				       file->f_pos, dirent->ino,
++				       dirent->type);
++			file->f_pos = dirent->off;
++		}
++
++		buf += reclen;
++		nbytes -= reclen;
++
++		ret = fuse_direntplus_link(file, direntplus, attr_version);
++		if (ret)
++			fuse_force_forget(file, direntplus->entry_out.nodeid);
++	}
++
++	return 0;
++}
++
+ static int fuse_readdir(struct file *file, void *dstbuf, filldir_t filldir)
+ {
+ 	int err;
+@@ -1163,6 +1300,7 @@ static int fuse_readdir(struct file *file, void *dstbuf, filldir_t filldir)
+ 	struct inode *inode = file->f_path.dentry->d_inode;
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 	struct fuse_req *req;
++	u64 attr_version = 0;
+ 
+ 	if (is_bad_inode(inode))
+ 		return -EIO;
+@@ -1179,14 +1317,28 @@ static int fuse_readdir(struct file *file, void *dstbuf, filldir_t filldir)
+ 	req->out.argpages = 1;
+ 	req->num_pages = 1;
+ 	req->pages[0] = page;
+-	fuse_read_fill(req, file, file->f_pos, PAGE_SIZE, FUSE_READDIR);
++	if (fc->do_readdirplus) {
++		attr_version = fuse_get_attr_version(fc);
++		fuse_read_fill(req, file, file->f_pos, PAGE_SIZE,
++			       FUSE_READDIRPLUS);
++	} else {
++		fuse_read_fill(req, file, file->f_pos, PAGE_SIZE,
++			       FUSE_READDIR);
++	}
+ 	fuse_request_send(fc, req);
+ 	nbytes = req->out.args[0].size;
+ 	err = req->out.h.error;
+ 	fuse_put_request(fc, req);
+-	if (!err)
+-		err = parse_dirfile(page_address(page), nbytes, file, dstbuf,
+-				    filldir);
++	if (!err) {
++		if (fc->do_readdirplus) {
++			err = parse_dirplusfile(page_address(page), nbytes,
++						file, dstbuf, filldir,
++						attr_version);
++		} else {
++			err = parse_dirfile(page_address(page), nbytes, file,
++					    dstbuf, filldir);
++		}
++	}
+ 
+ 	__free_page(page);
+ 	fuse_invalidate_attr(inode); /* atime changed */
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index e105a53..5c50553 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -487,6 +487,9 @@ struct fuse_conn {
+ 	/** Use enhanced/automatic page cache invalidation. */
+ 	unsigned auto_inval_data:1;
+ 
++	/** Does the filesystem support readdir-plus? */
++	unsigned do_readdirplus:1;
++
+ 	/** The number of requests waiting for completion */
+ 	atomic_t num_waiting;
+ 
+@@ -578,6 +581,9 @@ void fuse_queue_forget(struct fuse_conn *fc, struct fuse_forget_link *forget,
+ 
+ struct fuse_forget_link *fuse_alloc_forget(void);
+ 
++/* Used by READDIRPLUS */
++void fuse_force_forget(struct file *file, u64 nodeid);
++
+ /**
+  * Initialize READ or READDIR request
+  */
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 73ca6b7..6f7d574 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -863,6 +863,8 @@ static void process_init_reply(struct fuse_conn *fc, struct fuse_req *req)
+ 				fc->dont_mask = 1;
+ 			if (arg->flags & FUSE_AUTO_INVAL_DATA)
+ 				fc->auto_inval_data = 1;
++			if (arg->flags & FUSE_DO_READDIRPLUS)
++				fc->do_readdirplus = 1;
+ 		} else {
+ 			ra_pages = fc->max_read / PAGE_CACHE_SIZE;
+ 			fc->no_lock = 1;
+@@ -889,7 +891,8 @@ static void fuse_send_init(struct fuse_conn *fc, struct fuse_req *req)
+ 	arg->flags |= FUSE_ASYNC_READ | FUSE_POSIX_LOCKS | FUSE_ATOMIC_O_TRUNC |
+ 		FUSE_EXPORT_SUPPORT | FUSE_BIG_WRITES | FUSE_DONT_MASK |
+ 		FUSE_SPLICE_WRITE | FUSE_SPLICE_MOVE | FUSE_SPLICE_READ |
+-		FUSE_FLOCK_LOCKS | FUSE_IOCTL_DIR | FUSE_AUTO_INVAL_DATA;
++		FUSE_FLOCK_LOCKS | FUSE_IOCTL_DIR | FUSE_AUTO_INVAL_DATA |
++		FUSE_DO_READDIRPLUS;
+ 	req->in.h.opcode = FUSE_INIT;
+ 	req->in.numargs = 1;
+ 	req->in.args[0].size = sizeof(*arg);
+diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
+index d8c713e..5dc1fea 100644
+--- a/include/uapi/linux/fuse.h
++++ b/include/uapi/linux/fuse.h
+@@ -193,6 +193,7 @@ struct fuse_file_lock {
+ #define FUSE_FLOCK_LOCKS	(1 << 10)
+ #define FUSE_HAS_IOCTL_DIR	(1 << 11)
+ #define FUSE_AUTO_INVAL_DATA	(1 << 12)
++#define FUSE_DO_READDIRPLUS	(1 << 13)
+ 
+ /**
+  * CUSE INIT request/reply flags
+@@ -299,6 +300,7 @@ enum fuse_opcode {
+ 	FUSE_NOTIFY_REPLY  = 41,
+ 	FUSE_BATCH_FORGET  = 42,
+ 	FUSE_FALLOCATE     = 43,
++	FUSE_READDIRPLUS   = 44,
+ 
+ 	/* CUSE specific operations */
+ 	CUSE_INIT          = 4096,
+@@ -630,6 +632,16 @@ struct fuse_dirent {
+ #define FUSE_DIRENT_SIZE(d) \
+ 	FUSE_DIRENT_ALIGN(FUSE_NAME_OFFSET + (d)->namelen)
+ 
++struct fuse_direntplus {
++	struct fuse_entry_out entry_out;
++	struct fuse_dirent dirent;
++};
++
++#define FUSE_NAME_OFFSET_DIRENTPLUS \
++	offsetof(struct fuse_direntplus, dirent.name)
++#define FUSE_DIRENTPLUS_SIZE(d) \
++	FUSE_DIRENT_ALIGN(FUSE_NAME_OFFSET_DIRENTPLUS + (d)->dirent.namelen)
++
+ struct fuse_notify_inval_inode_out {
+ 	__u64	ino;
+ 	__s64	off;
+-- 
+1.7.12.4
+
