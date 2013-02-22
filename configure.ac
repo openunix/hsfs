@@ -15,11 +15,11 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_SUBST([TIRPC_HEADERS])
 AC_ARG_WITH([tirpc-headers],
 	[AC_HELP_STRING([--with-tirpc-headers=<path>], [Alternative path to tirpc headers])],
-	[TIRPC_HEADERS="-I $withval"
-	case $BWLABELDIR in
-     	     /*) ;;
-     	     *) BWLABELDIR="`pwd`/$BWLABELDIR" ;;
-	esac])
+	[TIRPC_HEADERS="-I $withval"])
+
+AC_ARG_ENABLE([memcached],
+	AC_HELP_STRING([--enable-memcached],
+		[Cache metadata by memcached through libmemcached]))
 
 # Checks for programs.
 AC_PROG_CC
@@ -33,6 +33,14 @@ AC_PROG_LIBTOOL
 # Checks for libraries.
 AC_CHECK_LIB([fuse], [fuse_lowlevel_new], [], AC_MSG_ERROR([You need libfuse to run.]))
 AC_CHECK_LIB([tirpc], [clnt_tp_create], [], AC_MSG_ERROR([You need libtirpc to run.]))
+
+if test "x$enable_memcached" = xyes; then
+   AC_CHECK_LIB([memcached], [memcached],
+   	[],
+	AC_MSG_ERROR([You need libmemcached to access memcached]))
+fi
+
+AM_CONDITIONAL([ENABLE_MEMCACHED], [test "x$enable_memcached" = xyes])
 
 # Checks for header files.
 AC_HEADER_ASSERT
@@ -75,5 +83,6 @@ AC_CONFIG_FILES([Makefile
                  man/Makefile
 		 lib/Makefile
 		 nfs_common/Makefile
+		 memcached/Makefile
 		])
 AC_OUTPUT
