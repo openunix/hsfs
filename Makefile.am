@@ -6,4 +6,4 @@ else
  MEMCACHED_DIR =
 endif
 
-SUBDIRS = nfs3 nfs_common lib fuse man $(MEMCACHED_DIR)
+SUBDIRS = nfs3 nfs_common $(MEMCACHED_DIR) lib fuse man 

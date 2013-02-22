@@ -1,11 +1,12 @@
 include $(top_srcdir)/Makefile.common
 
 bin_PROGRAMS = hsfs
-hsfs_CPPFLAGS = $(AM_CFLAGS) -g -Wall -I/usr/include/tirpc/ \
+hsfs_CPPFLAGS = $(AM_CPPFLAGS) -g -Wall -I/usr/include/tirpc/ \
 			`pkg-config fuse --cflags` 
 hsfs_LDFLAGS = `pkg-config fuse --libs`
 hsfs_LDADD = $(top_builddir)/fuse/libhsx_fuse.a $(top_builddir)/nfs3/libhsi_nfs3.a \
-	$(top_builddir)/lib/libhsfs.a $(top_builddir)/nfs_common/libhsi_nfsc.a
+	$(top_builddir)/lib/libhsfs.a $(top_builddir)/nfs_common/libhsi_nfsc.a \
+	$(top_builddir)/memcached/libhsi_mem.a
 hsfs_SOURCES = xcommon.c hsfs_main.c
 
 noinst_LIBRARIES = libhsx_fuse.a

@@ -445,6 +445,11 @@ int main(int argc, char **argv)
 	err = hsfs_init();
 	if (err)
 		goto out;
+#ifdef CONFIG_MEMCACHED
+	err = hsi_mem_start(argc, argv, &super);
+	if (err)
+		goto out;
+#endif
 
 	ch = hsx_fuse_mount(mountspec, mountpoint, &args, udata, &super);
 	if (ch == NULL)
