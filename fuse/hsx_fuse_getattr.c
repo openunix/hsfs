@@ -2,7 +2,7 @@
 #include "hsi_nfs3.h"
 
 void hsx_fuse_getattr(fuse_req_t req, fuse_ino_t ino,
-		      struct fuse_file_info *fi)
+		      struct fuse_file_info *fi _U_)
 {
   	int err = 0;
 	double to = 0;

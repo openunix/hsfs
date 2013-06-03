@@ -8,7 +8,7 @@
 
 #define FI_FH_LEN    10
 
-void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi)
+void hsx_fuse_open (fuse_req_t req, fuse_ino_t ino _U_, struct fuse_file_info *fi)
 {
 	int err=0;
 	uint64_t fh =(uint64_t) malloc (FI_FH_LEN);

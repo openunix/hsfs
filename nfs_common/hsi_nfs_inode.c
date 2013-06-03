@@ -261,7 +261,7 @@ nfs_init_locked(struct hsfs_inode *inode, void *opaque)
 /* Don't use READDIRPLUS on directories that we believe are too large */
 #define NFS_LIMIT_READDIRPLUS (8*PAGE_SIZE)
 
-struct hsfs_inode *nfs_alloc_inode(struct hsfs_super *sb)
+struct hsfs_inode *nfs_alloc_inode(struct hsfs_super *sb _U_)
 {
 	struct nfs_inode *nfsi;
 
@@ -320,7 +320,7 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 	}
 
 	if (inode->i_state & I_NEW) {
-		struct nfs_inode *nfsi = NFS_I(inode);
+		struct nfs_inode *nfsi _U_ = NFS_I(inode);
 
 		/* We set i_ino for the few things that still rely on it, such
 		 * as printing messages; stat and filldir use the fileid
@@ -389,7 +389,7 @@ hsi_nfs_fhget(struct hsfs_super *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
 
 		nfs_fscache_init_cookie(inode);
 #endif
-		unlock_new_inode(inode);
+		hsfs_unlock_new_inode(inode);
 	} else
 		nfs_refresh_inode(inode, fattr);
 	DEBUG_OUT("I(%p:%lu)", inode, inode->private);
@@ -897,7 +897,7 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
  */
 int nfs_refresh_inode(struct hsfs_inode *inode, struct nfs_fattr *fattr)
 {
-	struct nfs_inode *nfsi = NFS_I(inode);
+	struct nfs_inode *nfsi _U_ = NFS_I(inode);
 	int status;
 
 	if ((fattr->valid & NFS_ATTR_FATTR) == 0)
@@ -989,8 +989,8 @@ static int nfs_update_inode(struct hsfs_inode *inode, struct nfs_fattr *fattr)
 {
 /* 	struct nfs_server *server; */
 	struct nfs_inode *nfsi = NFS_I(inode);
-	off_t cur_isize, new_isize;
-	unsigned int	invalid = 0;
+	off_t cur_isize _U_ , new_isize;
+	unsigned int invalid _U_ = 0;
 
 /* 	DEBUG_IN("NFS: %s(%s/%ld ct=%d info=0x%x)\n", */
 /* 		 __FUNCTION__, inode->i_sb->s_id, inode->i_ino, */

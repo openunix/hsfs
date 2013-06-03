@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <mntent.h>
 
+#include "config.h"
 #include "fstab.h"
 #include "xcommon.h"
 #include "nfs_mntent.h"
@@ -270,7 +271,7 @@ handler (int sig) {
 }
 
 static void
-setlkw_timeout (int sig) {
+setlkw_timeout (int sig _U_) {
      /* nothing, fcntl will fail anyway */
 }
 

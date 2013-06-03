@@ -4,7 +4,7 @@
 
 
 void hsx_fuse_setxattr(fuse_req_t req, fuse_ino_t ino, const char *name, const
-			char *value, size_t size, int flags )
+			char *value, size_t size, int flags _U_)
 {
 	struct hsfs_inode *hi = NULL;
 	struct hsfs_super *sb = NULL;

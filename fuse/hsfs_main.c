@@ -172,7 +172,7 @@ static const struct opt_map opt_map[] = {
   { "diratime", 0, 1, MS_NODIRATIME  , NULL      },  /* Update dir access times */
   { "nodiratime", 0, 0, MS_NODIRATIME, NULL      },/* Do not update dir access times */
 #endif
-  { NULL,	0, 0, 0		}
+  { NULL,	0, 0, 0, NULL	}
 };
 
 /* Try to build a canonical options string.  */
@@ -414,12 +414,15 @@ out:
 
 int main(int argc, char **argv)
 {
-	struct fuse_args args = {};
+	struct fuse_args args;
 	struct fuse_chan *ch = NULL;
 	struct fuse_session *se = NULL;
 	char *mountpoint = NULL, *mountspec = NULL, *udata = NULL;
-	struct hsfs_super super = {};
+	struct hsfs_super super;
 	int err = -1;
+
+	bzero(&args, sizeof(struct fuse_args));
+	bzero(&super, sizeof(struct hsfs_super));
 
 	progname = basename(argv[0]);
 

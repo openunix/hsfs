@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <rpc/rpc.h>
 #include <rpc/rpc_com.h>
+#include <rpc/auth_gss.h>
 
 #include "log.h"
 #include "hsfs.h"
@@ -135,7 +136,7 @@ static void hsi_mnt_closeclnt(CLIENT *clnt)
 static int hsi_nfs3_mount(clnt_addr_t *mnt_server,
 				mntarg_t *mntarg, mntres_t *mntres)
 {
-	struct pmap *msp = &mnt_server->pmap;
+	struct pmap *msp _U_ = &mnt_server->pmap;
 	mntres_t tres;
 	char *tmp = NULL;
 	fhandle3 *fh = NULL; 
@@ -184,7 +185,7 @@ out:
 
 static int hsi_nfs3_unmount(clnt_addr_t *mnt_server, umntarg_t *umntarg)
 {
-	struct pmap *msp = &mnt_server->pmap;
+	struct pmap *msp _U_ = &mnt_server->pmap;
 	CLIENT *clnt = NULL;
 	int ret = 0;
 

@@ -19,7 +19,7 @@
 
 #include <hsfs.h>
 
-void unlock_new_inode(struct hsfs_inode *inode)
+void hsfs_unlock_new_inode(struct hsfs_inode *inode)
 {
 	inode->i_state &= ~I_NEW;
 }

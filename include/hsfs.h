@@ -296,6 +296,7 @@ struct hsfs_inode *hsfs_iget5_locked(struct hsfs_super *sb, unsigned long hashva
  *Consequently, iput() can sleep.
  */
 void hsfs_iput(struct hsfs_inode *inode);
+void hsfs_unlock_new_inode(struct hsfs_inode *inode);
 void hsfs_generic_fillattr(struct hsfs_inode *, struct stat *);
 int hsfs_ll_setattr(struct hsfs_inode *inode, struct hsfs_iattr *sattr); 
 #endif

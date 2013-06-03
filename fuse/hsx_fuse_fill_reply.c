@@ -2,7 +2,7 @@
 #include "hsfs.h"
 #include "nfs3.h"
 
-void debug_log_stat(struct stat *st)
+void debug_log_stat(struct stat *st _U_)
 {
 	DEBUG("STAT INO(%lu), U:%u, G:%u, S:%llu, B:%llu, M:0%o",
 	      st->st_ino, st->st_uid, st->st_gid, st->st_size, st->st_blocks,

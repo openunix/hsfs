@@ -49,7 +49,7 @@ static void hsx_fuse_init_cap(struct hsfs_super *sb, struct fuse_conn_info *conn
 	len = strlen(unsupported);
 	if (len){
 		unsupported[len - 2] = '\0';
-		WARNING("Your fuse has %s builtin while your kernel not.");
+		WARNING("Your fuse has %s builtin while your kernel not.", unsupported);
 	}
 	
 	DEBUG_OUT("Want(0x%x)", conn->capable);
